@@ -1,0 +1,314 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Wellness Fuel Brand Colors according to logo */
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 217 30% 15%; /* Charcoal/Slate, matches logo text */
+
+    --card: 0 0% 100%;
+    --card-foreground: 217 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 30% 15%;
+
+    --primary: 212 62% 55%;   /* Wellness Fuel blue, matching logo border */
+    --primary-foreground: 0 0% 100%;     /* White for contrast */
+
+    --secondary: 217 19% 80%; /* Light variant for backgrounds, v pale blue */
+    --secondary-foreground: 217 30% 15%; /* For text on light blue bg */
+
+    --muted: 217 19% 90%;    /* Soft blue gray */
+    --muted-foreground: 217 15% 35%;
+
+    --accent: 210 60% 65%;    /* Accent blue for sunbeam lines */
+    --accent-foreground: 217 30% 15%;
+
+    --destructive: 0 81% 63%;            /* Standard red for errors/warnings */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 212 62% 55%;   /* Use main blue for borders (like logo ring) */
+    --input: 217 19% 80%;
+    --ring: 212 62% 55%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 217 40% 10%;            /* Deep, soft blue for dark mode bg */
+    --foreground: 0 0% 100%;              /* White for text */
+
+    --card: 217 30% 16%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 217 30% 16%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 212 62% 55%;              /* Consistent blue for both modes */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 19% 24%;            /* Dark pale blue */
+    --secondary-foreground: 210 25% 88%;
+
+    --muted: 217 15% 22%;                /* Very dark blue gray */
+    --muted-foreground: 210 10% 70%;
+
+    --accent: 210 60% 65%;               
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 81% 63%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 212 62% 55%;
+    --input: 217 19% 24%;
+    --ring: 212 62% 55%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-geist-sans), var(--font-geist-mono), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.16 0.008 255); /* slightly desaturated dark blue */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.16 0.008 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.16 0.008 255);
+  --primary: oklch(0.56 0.18 257.76);           /* #1877F2 Facebook Blue */
+  --primary-foreground: oklch(0.99 0 0);        /* White */
+  --secondary: oklch(0.82 0.11 248.4);          /* #42A5F5 Lighter Blue */
+  --secondary-foreground: oklch(0.17 0.02 255); /* Dark Blue Text */
+  --muted: oklch(0.93 0.01 248);                /* Soft Blue Gray */
+  --muted-foreground: oklch(0.56 0.01 255);     /* Medium Blue Gray */
+  --accent: oklch(0.96 0.07 248.6);             /* #A7C7FC Accent Blue */
+  --accent-foreground: oklch(0.16 0.008 255);
+  --destructive: oklch(0.58 0.23 29.23);
+  --border: oklch(0.91 0.01 255);               /* Pale blue border */
+  --input: oklch(0.91 0.01 255);
+  --ring: oklch(0.56 0.18 257.76);              /* Blue ring */
+  --chart-1: oklch(0.58 0.18 257.76);           /* Facebook Blue */
+  --chart-2: oklch(0.62 0.12 248.4);            /* Lighter accent */
+  --chart-3: oklch(0.4 0.07 250);               /* Muted blue */
+  --chart-4: oklch(0.87 0.08 248.6);            /* Blue accent */
+  --chart-5: oklch(0.96 0.07 248.6);            /* Light blue accent */
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-foreground: oklch(0.16 0.008 255);
+  --sidebar-primary: oklch(0.56 0.18 257.76);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0.07 248.6);
+  --sidebar-accent-foreground: oklch(0.16 0.008 255);
+  --sidebar-border: oklch(0.91 0.01 255);
+  --sidebar-ring: oklch(0.56 0.18 257.76);
+}
+
+.dark {
+  --background: oklch(0.16 0.02 255);           /* very dark blue */
+  --foreground: oklch(0.99 0 0);                /* white */
+  --card: oklch(0.21 0.03 257.76);
+  --card-foreground: oklch(0.99 0 0);
+  --popover: oklch(0.21 0.03 257.76);
+  --popover-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.76 0.21 257.76);           /* highlight blue */
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.72 0.12 248.4);          /* lighter blue */
+  --secondary-foreground: oklch(0.14 0.01 255);
+  --muted: oklch(0.27 0.02 248);                /* muted blue gray */
+  --muted-foreground: oklch(0.88 0.02 255);
+  --accent: oklch(0.96 0.07 248.6);
+  --accent-foreground: oklch(0.16 0.008 255);
+  --destructive: oklch(0.69 0.20 28);
+  --border: oklch(0.21 0.03 257.76 / 30%);
+  --input: oklch(0.21 0.03 257.76 / 40%);
+  --ring: oklch(0.76 0.21 257.76);
+  --chart-1: oklch(0.38 0.24 260);
+  --chart-2: oklch(0.72 0.12 248.4);
+  --chart-3: oklch(0.96 0.07 248.6);
+  --chart-4: oklch(0.42 0.10 273);
+  --chart-5: oklch(0.82 0.09 248.2);
+  --sidebar: oklch(0.21 0.03 257.76);
+  --sidebar-foreground: oklch(0.99 0 0);
+  --sidebar-primary: oklch(0.38 0.24 260);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0.07 248.6);
+  --sidebar-accent-foreground: oklch(0.16 0.008 255);
+  --sidebar-border: oklch(0.21 0.03 257.76 / 30%);
+  --sidebar-ring: oklch(0.76 0.21 257.76);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply text-foreground min-h-screen;
+    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #dbeafe 100%);
+  }
+  .dark body {
+    background: linear-gradient(135deg, #0f172a 0%, #172554 50%, #0f172a 100%);
+  }
+}
+
+/* Facebook-like Brand Colors */
+@layer base {
+  :root {
+    /* Primary Brand Colors - Facebook Blue */
+    --brand-primary: 221 44% 41%;              /* #1877F2 */
+    --brand-primary-foreground: 0 0% 100%;     /* White */
+    --brand-primary-hover: 221 70% 34%;        /* Darker Facebook Blue */
+    
+    /* Secondary Brand Colors - Light Blue  */
+    --brand-secondary: 207 78% 55%;            /* #42A5F5 */
+    --brand-secondary-foreground: 221 44% 20%; /* Dark Text */
+    --brand-secondary-hover: 207 93% 48%;      /* Darker Secondary */
+    
+    /* Accent Colors - Blue Accent */
+    --brand-accent: 204 100% 84%;              /* #A7C7FC */
+    --brand-accent-foreground: 221 57% 16%;    /* Dark Blue */
+    --brand-accent-hover: 204 80% 77%;         /* Darker Accent */
+    
+    /* Success/Info Colors - Vibrant Blue */
+    --brand-success: 174 70% 41%;              /* #1DB954 (Spotify greenish as accent) */
+    --brand-success-foreground: 0 0% 100%;
+    --brand-success-hover: 174 70% 34%;
+    
+    /* Warning Colors - Orange */
+    --brand-warning: 41 100% 54%;              /* #FFC107 */
+    --brand-warning-foreground: 221 57% 16%;
+    --brand-warning-hover: 41 100% 41%;
+    
+    /* Background Gradients */
+    --brand-bg-primary: 221 44% 15%;           /* Deep Blue */
+    --brand-bg-secondary: 207 78% 22%;         /* Deep Light Blue */
+    --brand-bg-tertiary: 221 44% 10%;          /* Near-black Blue */
+    
+    /* Glass Morphism */
+    --brand-glass-bg: 221 44% 100% / 0.08;     /* White with 8% opacity */
+    --brand-glass-border: 221 100% 100% / 0.25; /* White with 25% opacity */
+    --brand-glass-hover: 221 44% 100% / 0.15;  /* White with 15% opacity */
+    
+    /* Text Colors */
+    --brand-text-primary: 0 0% 100%;           /* White */
+    --brand-text-secondary: 221 44% 41%;       /* Facebook Blue */
+    --brand-text-muted: 221 19% 58%;           /* Medium Blue Grey */
+    
+    /* Shadow Colors */
+    --brand-shadow-primary: 221 44% 41% / 0.22;    /* Blue shadow */
+    --brand-shadow-secondary: 204 100% 84% / 0.22; /* Light Blue shadow */
+    --brand-shadow-accent: 207 78% 55% / 0.18;     /* Accent Blue shadow */
+  }
+
+  .dark {
+    /* Dark mode adjustments */
+    --brand-bg-primary: 221 44% 7%;            /* Very dark blue */
+    --brand-bg-secondary: 207 78% 13%;         /* Very dark light blue */
+    --brand-bg-tertiary: 221 44% 4%;           /* Very dark blue */
+    
+    --brand-glass-bg: 221 10% 9% / 0.14;       /* Dark blue with 14% opacity */
+    --brand-glass-border: 221 44% 100% / 0.12; /* White with 12% opacity */
+    --brand-glass-hover: 221 44% 100% / 0.18;  /* White with 18% opacity */
+  }
+}
+
+/* Utility Classes for Facebook-like Brand Colors */
+@layer utilities {
+  .bg-brand-primary { background-color: hsl(var(--brand-primary)); }
+  .bg-brand-secondary { background-color: hsl(var(--brand-secondary)); }
+  .bg-brand-accent { background-color: hsl(var(--brand-accent)); }
+  .bg-brand-success { background-color: hsl(var(--brand-success)); }
+  .bg-brand-warning { background-color: hsl(var(--brand-warning)); }
+  
+  .text-brand-primary { color: hsl(var(--brand-primary)); }
+  .text-brand-secondary { color: hsl(var(--brand-secondary)); }
+  .text-brand-accent { color: hsl(var(--brand-accent)); }
+  .text-brand-success { color: hsl(var(--brand-success)); }
+  .text-brand-warning { color: hsl(var(--brand-warning)); }
+  
+  .border-brand-primary { border-color: hsl(var(--brand-primary)); }
+  .border-brand-secondary { border-color: hsl(var(--brand-secondary)); }
+  .border-brand-accent { border-color: hsl(var(--brand-accent)); }
+  
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--brand-bg-primary)), 
+      hsl(var(--brand-bg-secondary)), 
+      hsl(var(--brand-bg-tertiary))
+    );
+  }
+  
+  .bg-brand-glass {
+    background-color: hsl(var(--brand-glass-bg));
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--brand-glass-border));
+  }
+  
+  .bg-brand-glass:hover {
+    background-color: hsl(var(--brand-glass-hover));
+  }
+  
+  .text-brand-primary-text { color: hsl(var(--brand-text-primary)); }
+  .text-brand-secondary-text { color: hsl(var(--brand-text-secondary)); }
+  .text-brand-muted-text { color: hsl(var(--brand-text-muted)); }
+  
+  .shadow-brand-primary { box-shadow: 0 10px 25px hsl(var(--brand-shadow-primary)); }
+  .shadow-brand-secondary { box-shadow: 0 10px 25px hsl(var(--brand-shadow-secondary)); }
+  .shadow-brand-accent { box-shadow: 0 10px 25px hsl(var(--brand-shadow-accent)); }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+}
