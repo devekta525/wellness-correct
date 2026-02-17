@@ -57,23 +57,10 @@ const app = express();
 
 app.use(cookieParser());
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://wellness-fuel.vercel.app"
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 // Increase payload size limit to handle large FormData and base64 images
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
