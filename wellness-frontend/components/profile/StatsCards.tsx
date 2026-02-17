@@ -27,15 +27,15 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats: initialStats }) => {
       try {
         setLoading(true)
         setError(null)
-        
+
         const token = localStorage.getItem('authToken') || localStorage.getItem('token')
-        
+
         if (!token) {
           setLoading(false)
           return
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1'
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1`
         const headers = {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -54,7 +54,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats: initialStats }) => {
 
         const countData = await countRes.json()
         const amountData = await amountRes.json()
-        
+
         if (countData.success) {
           setTotalOrders(countData.totalOrders)
         }
@@ -97,7 +97,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats: initialStats }) => {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-green-50 to-green-100">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
@@ -120,7 +120,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats: initialStats }) => {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-purple-50 to-purple-100">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
@@ -134,7 +134,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats: initialStats }) => {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-orange-50 to-orange-100">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">

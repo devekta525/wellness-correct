@@ -105,11 +105,11 @@ const OrdersTab = () => {
       );
       console.log(
         "🌐 API URL:",
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1"}/orders/user/my-orders`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/v1/orders/user/my-orders`,
       );
 
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1"}/orders/user/my-orders`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/v1/orders/user/my-orders`,
         {
           params: { page, limit: 10 },
           // Conditionally add the Authorization header if a token exists

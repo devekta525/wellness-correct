@@ -834,7 +834,7 @@ const AddProduct = () => {
         </motion.div>
       )}
       </AnimatePresence>
-    </div>
+    </motion.div>
    
   );
 };

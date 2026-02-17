@@ -86,6 +86,8 @@ const notes: Note[] = [
       "<h2>Project Overview</h2><p><strong>Date:</strong> January 20, 2024</p><p><strong>Objective:</strong> Complete website redesign and launch new features</p><h3>Key Tasks:</h3><ul><li>UI/UX design updates</li><li>Backend API development</li><li>Database optimization</li><li>Testing and deployment</li></ul><h3>Timeline:</h3><ol><li>Design phase - 2 weeks</li><li>Development - 4 weeks</li><li>Testing - 1 week</li><li>Launch - 1 week</li></ol>",
     category: "Work",
     tags: ["project", "planning", "development", "timeline"],
+    authorId: "1",
+    authorName: "John Smith",
     createdAt: "2024-01-20T10:00:00Z",
     updatedAt: "2024-01-20T10:00:00Z",
     isFavorite: true,
@@ -135,6 +137,7 @@ const NotesPage = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("updatedAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -184,7 +187,7 @@ const NotesPage = () => {
           authorId: note.author?._id || note.author || "",
           authorName: note.author
             ? `${note.author.firstName || ""} ${note.author.lastName || ""}`.trim() ||
-              "Unknown"
+            "Unknown"
             : "Unknown",
           createdAt: note.createdAt,
           updatedAt: note.updatedAt,

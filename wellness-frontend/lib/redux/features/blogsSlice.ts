@@ -208,87 +208,87 @@ const handleApiError = (error: unknown) => {
 
 export const fetchBlogsData =
   () =>
-  async (dispatch: AppDispatch, getState: () => { blogs: BlogsState }) => {
-    dispatch(setBlogsLoading());
-    try {
-      const { filters, pagination } = getState().blogs;
-      const queryParams = new URLSearchParams();
+    async (dispatch: AppDispatch, getState: () => { blogs: BlogsState }) => {
+      dispatch(setBlogsLoading());
+      try {
+        const { filters, pagination } = getState().blogs;
+        const queryParams = new URLSearchParams();
 
-      queryParams.append("page", pagination.page.toString());
-      queryParams.append("limit", pagination.limit.toString());
+        queryParams.append("page", pagination.page.toString());
+        queryParams.append("limit", pagination.limit.toString());
 
-      if (filters.category && filters.category !== "all") {
-        queryParams.append("category", filters.category);
+        if (filters.category && filters.category !== "all") {
+          queryParams.append("category", filters.category);
+        }
+        if (filters.search) {
+          queryParams.append("search", filters.search);
+        }
+
+        const response = await api.get(`/blogs?${queryParams}`);
+
+        if (response.data?.success) {
+          const mappedBlogs = response.data.data.blogs.map((blog: ApiBlog) =>
+            mapApiBlogToBlog(blog),
+          );
+
+          dispatch(
+            setBlogsData({
+              data: mappedBlogs,
+              total: response.data.data.pagination.totalBlogs,
+            }),
+          );
+        } else {
+          throw new Error(response.data?.message || "Failed to fetch blogs");
+        }
+        return true;
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setBlogsError(errorMessage));
+        return false;
       }
-      if (filters.search) {
-        queryParams.append("search", filters.search);
-      }
-
-      const response = await api.get(`/blogs?${queryParams}`);
-
-      if (response.data?.success) {
-        const mappedBlogs = response.data.data.blogs.map((blog: ApiBlog) =>
-          mapApiBlogToBlog(blog),
-        );
-
-        dispatch(
-          setBlogsData({
-            data: mappedBlogs,
-            total: response.data.data.pagination.totalBlogs,
-          }),
-        );
-      } else {
-        throw new Error(response.data?.message || "Failed to fetch blogs");
-      }
-      return true;
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setBlogsError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 export const fetchActiveBlogs =
   () =>
-  async (dispatch: AppDispatch, getState: () => { blogs: BlogsState }) => {
-    dispatch(setBlogsLoading());
-    try {
-      const { filters, pagination } = getState().blogs;
-      const queryParams = new URLSearchParams();
+    async (dispatch: AppDispatch, getState: () => { blogs: BlogsState }) => {
+      dispatch(setBlogsLoading());
+      try {
+        const { filters, pagination } = getState().blogs;
+        const queryParams = new URLSearchParams();
 
-      queryParams.append("page", pagination.page.toString());
-      queryParams.append("limit", pagination.limit.toString());
+        queryParams.append("page", pagination.page.toString());
+        queryParams.append("limit", pagination.limit.toString());
 
-      if (filters.category && filters.category !== "") {
-        queryParams.append("category", filters.category);
+        if (filters.category && filters.category !== "") {
+          queryParams.append("category", filters.category);
+        }
+        if (filters.search) {
+          queryParams.append("search", filters.search);
+        }
+
+        queryParams.append("status", "published");
+        const response = await api.get(`/blogs?${queryParams}`);
+
+        if (response.data?.success) {
+          const mappedBlogs = response.data.data.blogs.map((blog: ApiBlog) =>
+            mapApiBlogToBlog(blog),
+          );
+
+          dispatch(
+            setBlogsData({
+              data: mappedBlogs,
+              total: response.data.data.pagination.totalBlogs,
+            }),
+          );
+        } else {
+          throw new Error(response.data?.message || "Failed to fetch blogs");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setBlogsError(errorMessage));
+        return false;
       }
-      if (filters.search) {
-        queryParams.append("search", filters.search);
-      }
-
-      queryParams.append("status", "published");
-      const response = await api.get(`/blogs?${queryParams}`);
-
-      if (response.data?.success) {
-        const mappedBlogs = response.data.data.blogs.map((blog: ApiBlog) =>
-          mapApiBlogToBlog(blog),
-        );
-
-        dispatch(
-          setBlogsData({
-            data: mappedBlogs,
-            total: response.data.data.pagination.totalBlogs,
-          }),
-        );
-      } else {
-        throw new Error(response.data?.message || "Failed to fetch blogs");
-      }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setBlogsError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 export const fetchBlogById =
   (blogId: string) => async (dispatch: AppDispatch) => {
@@ -319,7 +319,7 @@ export const fetchBlogBySlug =
         const items = response.data.data.blogs || [];
         const mapped = items.map((blog: ApiBlog) => mapApiBlogToBlog(blog));
         const match = mapped.find(
-          (blog) => blog.slug === slug || (blog as any).urlSlug === slug,
+          (blog: Blog) => blog.slug === slug || (blog as any).urlSlug === slug,
         );
         if (match) {
           dispatch(setSelectedBlog(match));

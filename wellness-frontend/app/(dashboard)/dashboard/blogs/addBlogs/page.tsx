@@ -94,42 +94,8 @@ const AddBlogs = () => {
 
     setIsGenerating(true)
     try {
-
-
       // Call Redux action for blog generation
-      const response = await dispatch(generateBlogs(blogTopic));
-      if (response && response.payload) {
-        // Map the response data to match our interface
-        const blogData: AIBlogData = {
-          title: response.payload.title || 'AI Generated Blog',
-          slug: response.payload.slug || blogTopic.toLowerCase().replace(/\s+/g, '-'),
-          excerpt: response.payload.excerpt || 'AI generated excerpt',
-          content: response.payload.content || 'AI generated content',
-          featuredImage: response.payload.featuredImage || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop',
-          author: response.payload.author || 'Dr. AI Assistant',
-          category: response.payload.category || 'Health & Wellness',
-          tags: typeof response.payload.tags === 'string' 
-          ? response.payload.tags.split(',').map((tag: string) => tag.trim())
-          : (Array.isArray(response.payload.tags) ? response.payload.tags : []),
-          status: response.payload.status || 'draft',
-          readTime: typeof response.payload.readTime === 'number' 
-          ? `${response.payload.readTime} min read` 
-          : response.payload.readTime || '5 min read',
-          views: response.payload.views || 0,
-          likes: response.payload.likes || 0,
-          metaTitle: response.payload.metaTitle || response.payload.title,
-          metaDescription: response.payload.metaDescription || response.payload.excerpt,
-          metaKeywords: response.payload.metaKeywords || '',
-          canonicalUrl: response.payload.canonicalUrl || '',
-          ogTitle: response.payload.ogTitle || response.payload.title,
-          ogDescription: response.payload.ogDescription || response.payload.excerpt,
-          ogImage: response.payload.ogImage || response.payload.featuredImage,
-          images: response.payload.images || [],
-          confidence: response.payload.confidence || 85
-        }
-        setAiData(blogData)
-        setFormData(blogData)
-      }
+      await dispatch(generateBlogs(blogTopic))
     } catch (error) {
       console.error('Error generating blog:', error)
       // Fallback: Show demo data

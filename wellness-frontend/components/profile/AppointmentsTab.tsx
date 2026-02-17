@@ -74,7 +74,7 @@ const AppointmentsTab = () => {
           ? localStorage.getItem("authToken") || localStorage.getItem("token")
           : null;
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1"}/appointments/my-appointments`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/v1/appointments/my-appointments`,
         {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           withCredentials: true,

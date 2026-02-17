@@ -203,113 +203,113 @@ const ProductsPage = () => {
     const quantityInCart = cartItem ? cartItem.quantity : 0;
 
     return (
-    <motion.div
-      className={`bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 ${viewMode === "list" ? "flex-row" : ""
-        }`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div
-        className={`relative ${viewMode === "list" ? "w-48 h-48" : "aspect-square w-full"}`}
+      <motion.div
+        className={`bg-white dark:bg-slate-800/90 rounded-2xl shadow-xl shadow-blue-500/10 border border-blue-200/50 dark:border-blue-700/30 overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 ${viewMode === "list" ? "flex-row" : ""
+          }`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        <Image
-          src={product.imageUrl}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes={
-            viewMode === "list"
-              ? "192px"
-              : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          }
-        />
-        {product.badge && (
-          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg">
-            {product.badge}
-          </Badge>
-        )}
-        {!product.inStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="text-white font-semibold">Out of Stock</span>
-          </div>
-        )}
-      </div>
-
-      <div
-        className={`p-6 flex flex-col flex-grow ${viewMode === "list" ? "flex-1" : ""}`}
-      >
-        <p className="text-sm text-blue-600 dark:text-blue-400 mb-1 font-semibold">
-          {product.category}
-        </p>
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 flex-grow">
-          {product.name}
-        </h3>
-
-        {viewMode === "grid" && (
-          <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
-            {product.description}
-          </p>
-        )}
-
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-1">
-            {renderStars(product.rating)}
-          </div>
-          <span className="text-sm text-slate-600">({product.reviews})</span>
-        </div>
-
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            {formatPrice(product.price)}
-          </span>
-          {product.originalPrice && (
-            <span className="text-lg text-slate-500 dark:text-slate-400 line-through">
-              {formatPrice(product.originalPrice)}
-            </span>
+        <div
+          className={`relative ${viewMode === "list" ? "w-48 h-48" : "aspect-square w-full"}`}
+        >
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes={
+              viewMode === "list"
+                ? "192px"
+                : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            }
+          />
+          {product.badge && (
+            <Badge className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg">
+              {product.badge}
+            </Badge>
+          )}
+          {!product.inStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="text-white font-semibold">Out of Stock</span>
+            </div>
           )}
         </div>
 
-        <div className="mt-auto flex items-center gap-3">
-          <Button
-            onClick={() =>
-              addToCart({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image: product.imageUrl,
-              })
-            }
-            disabled={!product.inStock}
-            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/50 transition-all"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            {product.inStock ? (quantityInCart > 0 ? `Add Another (${quantityInCart})` : "Add to Cart") : "Out of Stock"}
-          </Button>
-          <Button
-            onClick={() =>
-              toggleWishlistItem({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image: product.imageUrl,
-              })
-            }
-            variant="outline"
-            size="icon"
-            className="rounded-xl border-2 hover:border-red-500 hover:text-red-500"
-            title="Add to Wishlist"
-          >
-            <Heart
-              className={`w-5 h-5 transition-all ${isInWishlist(product.id)
-                ? "text-red-500 fill-current"
-                : "text-slate-600"
-                }`}
-            />
-          </Button>
+        <div
+          className={`p-6 flex flex-col flex-grow ${viewMode === "list" ? "flex-1" : ""}`}
+        >
+          <p className="text-sm text-blue-600 dark:text-blue-400 mb-1 font-semibold">
+            {product.category}
+          </p>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 flex-grow">
+            {product.name}
+          </h3>
+
+          {viewMode === "grid" && (
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+              {product.description}
+            </p>
+          )}
+
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-1">
+              {renderStars(product.rating)}
+            </div>
+            <span className="text-sm text-slate-600">({product.reviews})</span>
+          </div>
+
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              {formatPrice(product.price)}
+            </span>
+            {product.originalPrice && (
+              <span className="text-lg text-slate-500 dark:text-slate-400 line-through">
+                {formatPrice(product.originalPrice)}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-auto flex items-center gap-3">
+            <Button
+              onClick={() =>
+                addToCart({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.imageUrl,
+                })
+              }
+              disabled={!product.inStock}
+              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:via-indigo-700 hover:to-cyan-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/50 transition-all"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              {product.inStock ? (quantityInCart > 0 ? `Add Another (${quantityInCart})` : "Add to Cart") : "Out of Stock"}
+            </Button>
+            <Button
+              onClick={() =>
+                toggleWishlistItem({
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  imageUrl: product.imageUrl,
+                })
+              }
+              variant="outline"
+              size="icon"
+              className="rounded-xl border-2 hover:border-red-500 hover:text-red-500"
+              title="Add to Wishlist"
+            >
+              <Heart
+                className={`w-5 h-5 transition-all ${isInWishlist(product.id)
+                  ? "text-red-500 fill-current"
+                  : "text-slate-600"
+                  }`}
+              />
+            </Button>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
     );
   };
 

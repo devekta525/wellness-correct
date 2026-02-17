@@ -6,6 +6,7 @@ export const metadata: Metadata = {
     description: "Shop our scientifically formulated supplements.",
 };
 
-export default function ShopCategoryPage({ params }: { params: { slug: string } }) {
+export default async function ShopCategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+    await params;
     return <CollabPage />;
 }

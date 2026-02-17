@@ -209,7 +209,7 @@ const DoctorSettingsPage = () => {
       [section]: {
         ...prev[section as keyof typeof prev],
         [parentField]: {
-          ...((prev[section as keyof typeof prev] as Record<string, unknown>)[
+          ...(((prev[section as keyof typeof prev] as unknown) as Record<string, unknown>)[
             parentField
           ] as Record<string, unknown>),
           [childField]: value,

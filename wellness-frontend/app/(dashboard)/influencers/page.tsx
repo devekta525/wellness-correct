@@ -335,13 +335,12 @@ const InfluencersDashboard = () => {
                         <Activity className="w-4 h-4 text-gray-600 mr-1" />
                       )}
                       <span
-                        className={`text-sm font-medium ${
-                          stat.changeType === "positive"
+                        className={`text-sm font-medium ${stat.changeType === "positive"
                             ? "text-green-600"
                             : stat.changeType === "negative"
                               ? "text-red-600"
                               : "text-gray-600"
-                        }`}
+                          }`}
                       >
                         {stat.change}
                       </span>
@@ -375,7 +374,7 @@ const InfluencersDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivities.map((activity) => {
+              {recentActivities.map((activity: any) => {
                 const Icon = activity.icon;
                 return (
                   <div
@@ -485,7 +484,7 @@ const InfluencersDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentReferrals.map((referral, index) => {
+              {recentReferrals.map((referral: any, index: number) => {
                 const PlatformIcon = getPlatformIcon(referral.platform);
                 return (
                   <div
@@ -534,7 +533,7 @@ const InfluencersDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {socialPerformance.map((platform, index) => {
+              {socialPerformance.map((platform: any, index: number) => {
                 const PlatformIcon = getPlatformIcon(platform.platform);
                 return (
                   <div

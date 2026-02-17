@@ -68,7 +68,7 @@ const PrescriptionsTab = () => {
           ? localStorage.getItem("authToken") || localStorage.getItem("token")
           : null;
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1"}/prescriptions/my`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/v1/prescriptions/my`,
         {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           withCredentials: true,

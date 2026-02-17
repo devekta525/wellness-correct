@@ -23,7 +23,7 @@ const WishlistPage = () => {
       id: item.id,
       name: item.name,
       price: item.price,
-      imageUrl: item.imageUrl,
+      image: item.imageUrl,
     });
   };
 
