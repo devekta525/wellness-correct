@@ -13,16 +13,30 @@ interface Banner {
   imageUrl: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-const NEXT_PUBLIC_API_URL = `${API_BASE}/v1`;
+import { getApiBaseUrl, getApiV1BaseUrl } from "@/lib/utils/api";
+
+// base endpoints (helper handles trailing slashes and existing `/v1` fragments)
+const API_BASE = getApiBaseUrl();
+const API_V1_BASE = getApiV1BaseUrl();
 
 const getImageUrl = (url?: string) => {
   if (!url) return HERO_IMAGE;
+  // if it's already a full URL we trust it, otherwise prefix with base
   let finalUrl = url;
   if (!url.startsWith("http")) {
     finalUrl = url.startsWith("/") ? `${API_BASE}${url}` : `${API_BASE}/${url}`;
   }
-  return encodeURI(finalUrl);
+  // encode each path segment so spaces/parentheses/etc. are safe
+  try {
+    const u = new URL(finalUrl);
+    u.pathname = u.pathname
+      .split("/")
+      .map((seg) => encodeURIComponent(decodeURIComponent(seg)))
+      .join("/");
+    return u.toString();
+  } catch {
+    return encodeURI(finalUrl);
+  }
 };
 
 const HeroSection = () => {
@@ -44,9 +58,12 @@ const HeroSection = () => {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
 
-  const scrollTo = useCallback((index: number) => {
-    if (emblaApi) emblaApi.scrollTo(index);
-  }, [emblaApi]);
+  const scrollTo = useCallback(
+    (index: number) => {
+      if (emblaApi) emblaApi.scrollTo(index);
+    },
+    [emblaApi],
+  );
 
   // Update selected index
   const onSelect = useCallback(() => {
@@ -67,7 +84,7 @@ const HeroSection = () => {
 
   const fetchBanners = async () => {
     try {
-      const res = await axios.get(`${NEXT_PUBLIC_API_URL}/banners`);
+      const res = await axios.get(`${API_V1_BASE}/banners`);
       if (res.data.success && res.data.data.length > 0) {
         setBanners(res.data.data);
       }
@@ -79,9 +96,10 @@ const HeroSection = () => {
   };
 
   const renderSlides = () => {
-    const slidesToRender = loading || banners.length === 0
-      ? [{ _id: 'default', imageUrl: HERO_IMAGE }]
-      : banners;
+    const slidesToRender =
+      loading || banners.length === 0
+        ? [{ _id: "default", imageUrl: HERO_IMAGE }]
+        : banners;
 
     return slidesToRender.map((banner, idx) => (
       <div
@@ -89,14 +107,18 @@ const HeroSection = () => {
         className="flex-[0_0_100%] min-w-0 w-full relative h-[400px] sm:h-[500px] lg:h-[600px] xl:h-[720px]"
       >
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent z-10" />
 
         {/* Side Gradient for better text visibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent z-10" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/50 via-transparent to-transparent z-10" />
 
         {/* Banner Image */}
         <Image
-          src={typeof banner.imageUrl === 'string' ? getImageUrl(banner.imageUrl) : HERO_IMAGE}
+          src={
+            typeof banner.imageUrl === "string"
+              ? getImageUrl(banner.imageUrl)
+              : HERO_IMAGE
+          }
           alt={`Banner ${idx + 1}`}
           fill
           className="object-cover object-center"
@@ -108,17 +130,23 @@ const HeroSection = () => {
         {/* Content Overlay - You can add your content here */}
         <div className="absolute bottom-0 left-0 right-0 z-20 p-8 sm:p-12 lg:p-16 xl:p-20">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 
-                         drop-shadow-2xl animate-fadeInUp">
+            <h1
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 
+                         drop-shadow-2xl animate-fadeInUp"
+            >
               Welcome to Our Store
             </h1>
-            <p className="text-lg sm:text-xl text-white/90 mb-6 max-w-2xl drop-shadow-lg 
-                        animate-fadeInUp animation-delay-200">
+            <p
+              className="text-lg sm:text-xl text-white/90 mb-6 max-w-2xl drop-shadow-lg 
+                        animate-fadeInUp animation-delay-200"
+            >
               Discover amazing products at unbeatable prices
             </p>
-            <button className="px-8 py-3 bg-white text-black font-semibold rounded-full 
+            <button
+              className="px-8 py-3 bg-white text-black font-semibold rounded-full 
                              hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 
-                             shadow-lg animate-fadeInUp animation-delay-400">
+                             shadow-lg animate-fadeInUp animation-delay-400"
+            >
               Shop Now
             </button>
           </div>
@@ -144,9 +172,7 @@ const HeroSection = () => {
 
       {/* Embla Viewport */}
       <div className="overflow-hidden w-full" ref={emblaRef}>
-        <div className="flex touch-pan-y">
-          {renderSlides()}
-        </div>
+        <div className="flex touch-pan-y">{renderSlides()}</div>
       </div>
 
       {/* Navigation Arrows - Only show if more than 1 slide */}
@@ -178,15 +204,19 @@ const HeroSection = () => {
 
       {/* Dots Indicator - Only show if more than 1 slide */}
       {totalSlides > 1 && (
-        <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 
-                      flex items-center gap-2">
+        <div
+          className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 
+                      flex items-center gap-2"
+        >
           {Array.from({ length: totalSlides }).map((_, index) => (
             <button
               key={index}
               className={`transition-all duration-300 rounded-full 
-                        ${selectedIndex === index
-                  ? 'w-8 h-2 bg-white'
-                  : 'w-2 h-2 bg-white/50 hover:bg-white/70'}`}
+                        ${
+                          selectedIndex === index
+                            ? "w-8 h-2 bg-white"
+                            : "w-2 h-2 bg-white/50 hover:bg-white/70"
+                        }`}
               onClick={() => scrollTo(index)}
               aria-label={`Go to slide ${index + 1}`}
             />

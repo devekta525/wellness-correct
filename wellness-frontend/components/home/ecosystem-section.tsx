@@ -114,7 +114,9 @@ const EcosystemSection = () => {
                       <div className="absolute inset-0 flex items-center justify-center p-6">
                         <div className="w-full h-full relative">
                           <Image
-                            src={product.images?.[0] || "/placeholder.png"}
+                            src={
+                              product.images?.[0] || "/placeholder-product.svg"
+                            }
                             alt={product.name}
                             fill
                             className="object-contain transition-transform duration-500 group-hover:scale-105"

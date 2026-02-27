@@ -9,16 +9,13 @@ const API_BASE_URL = getApiV1BaseUrl();
 // Create axios instance with interceptors
 const api = axiosInstance.create({
   baseURL: API_BASE_URL,
-  
+
 });
 
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      let token =
-        "" ||
-        "" ||
-        localStorage.getItem("accessToken");
+      let token = localStorage.getItem("accessToken");
       if (token) {
         token = token.replace(/^"|"$/g, "");
         config.headers.Authorization = `Bearer ${token}`;
@@ -53,13 +50,13 @@ export interface OrderAddress {
 
 export interface OrderItem {
   product:
-    | string
-    | {
-        _id?: string;
-        name?: string;
-        image?: string;
-        price?: number;
-      };
+  | string
+  | {
+    _id?: string;
+    name?: string;
+    image?: string;
+    price?: number;
+  };
   quantity: number;
   price: number;
   total: number;
@@ -75,12 +72,12 @@ export interface Order {
   paymentMethod: "Credit Card" | "Debit Card" | "UPI" | "Net Banking" | "COD";
   paymentStatus: "Paid" | "Pending" | "Refunded" | "Failed";
   status:
-    | "Pending"
-    | "Processing"
-    | "Shipped"
-    | "Delivered"
-    | "Cancelled"
-    | "Returned";
+  | "Pending"
+  | "Processing"
+  | "Shipped"
+  | "Delivered"
+  | "Cancelled"
+  | "Returned";
   trackingNumber?: string;
   shippingCost: number; // backend returns numeric amount
   subtotal: number;
@@ -111,13 +108,13 @@ interface OrderState {
   filters: {
     user?: string;
     status:
-      | ""
-      | "Pending"
-      | "Processing"
-      | "Shipped"
-      | "Delivered"
-      | "Cancelled"
-      | "Returned";
+    | ""
+    | "Pending"
+    | "Processing"
+    | "Shipped"
+    | "Delivered"
+    | "Cancelled"
+    | "Returned";
     paymentStatus: "" | "Paid" | "Pending" | "Refunded" | "Failed";
     dateRange?: {
       from: string;
@@ -216,71 +213,71 @@ const handleApiError = (error: unknown) => {
 // Fetch orders with filters
 export const fetchOrdersData =
   (params?: { page?: number; limit?: number }) =>
-  async (dispatch: AppDispatch, getState: () => { order: OrderState }) => {
-    dispatch(setOrderLoading());
-    try {
-      const { filters } = getState().order;
-      const queryParams = new URLSearchParams();
+    async (dispatch: AppDispatch, getState: () => { order: OrderState }) => {
+      dispatch(setOrderLoading());
+      try {
+        const { filters } = getState().order;
+        const queryParams = new URLSearchParams();
 
-      // Add filter parameters if they exist
-      if (filters.status) {
-        queryParams.append("status", filters.status);
-      }
-      if (filters.paymentStatus) {
-        queryParams.append("paymentStatus", filters.paymentStatus);
-      }
-      if (filters.user) {
-        queryParams.append("user", filters.user);
-      }
-      if (filters.search) {
-        queryParams.append("q", filters.search);
-      }
-      if (filters.dateRange) {
-        queryParams.append("from", filters.dateRange.from);
-        queryParams.append("to", filters.dateRange.to);
-      }
-      if (params?.page) {
-        queryParams.append("page", String(params.page));
-      }
-      if (params?.limit) {
-        queryParams.append("limit", String(params.limit));
-      }
-
-      const queryString = queryParams.toString();
-      const url = queryString ? `/orders?${queryString}` : `/orders`;
-
-      const response = await api.get(url);
-
-      if (response.data?.success) {
-        dispatch(setOrdersData(response.data.data || []));
-        if (response.data.pagination) {
-          dispatch(setOrderPagination(response.data.pagination));
-        } else {
-          const inferredPage = params?.page ?? 1;
-          const inferredLimit =
-            params?.limit ?? response.data.data?.length ?? 0;
-          const inferredTotal = response.data.data?.length ?? 0;
-          dispatch(
-            setOrderPagination({
-              page: inferredPage,
-              limit: inferredLimit,
-              total: inferredTotal,
-              pages: inferredLimit
-                ? Math.max(1, Math.ceil(inferredTotal / inferredLimit))
-                : 1,
-            }),
-          );
+        // Add filter parameters if they exist
+        if (filters.status) {
+          queryParams.append("status", filters.status);
         }
-        return true;
-      } else {
-        throw new Error(response.data?.message || "Failed to fetch orders");
+        if (filters.paymentStatus) {
+          queryParams.append("paymentStatus", filters.paymentStatus);
+        }
+        if (filters.user) {
+          queryParams.append("user", filters.user);
+        }
+        if (filters.search) {
+          queryParams.append("q", filters.search);
+        }
+        if (filters.dateRange) {
+          queryParams.append("from", filters.dateRange.from);
+          queryParams.append("to", filters.dateRange.to);
+        }
+        if (params?.page) {
+          queryParams.append("page", String(params.page));
+        }
+        if (params?.limit) {
+          queryParams.append("limit", String(params.limit));
+        }
+
+        const queryString = queryParams.toString();
+        const url = queryString ? `/orders?${queryString}` : `/orders`;
+
+        const response = await api.get(url);
+
+        if (response.data?.success) {
+          dispatch(setOrdersData(response.data.data || []));
+          if (response.data.pagination) {
+            dispatch(setOrderPagination(response.data.pagination));
+          } else {
+            const inferredPage = params?.page ?? 1;
+            const inferredLimit =
+              params?.limit ?? response.data.data?.length ?? 0;
+            const inferredTotal = response.data.data?.length ?? 0;
+            dispatch(
+              setOrderPagination({
+                page: inferredPage,
+                limit: inferredLimit,
+                total: inferredTotal,
+                pages: inferredLimit
+                  ? Math.max(1, Math.ceil(inferredTotal / inferredLimit))
+                  : 1,
+              }),
+            );
+          }
+          return true;
+        } else {
+          throw new Error(response.data?.message || "Failed to fetch orders");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setOrderError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setOrderError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 // Fetch order by ID
 export const fetchOrderById =
@@ -304,71 +301,71 @@ export const fetchOrderById =
 // Create new order
 export const createOrder =
   (orderData: Omit<Order, "_id" | "createdAt" | "updatedAt">) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setOrderLoading());
-    try {
-      const response = await api.post(`/orders`, orderData);
-      if (response.data?.success) {
-        dispatch(setSelectedOrder(response.data.data));
-        return response.data.data;
-      } else {
-        throw new Error(response.data?.message || "Failed to create order");
+    async (dispatch: AppDispatch) => {
+      dispatch(setOrderLoading());
+      try {
+        const response = await api.post(`/orders`, orderData);
+        if (response.data?.success) {
+          dispatch(setSelectedOrder(response.data.data));
+          return response.data.data;
+        } else {
+          throw new Error(response.data?.message || "Failed to create order");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setOrderError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setOrderError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 // Update order status
 export const updateOrderStatus =
   (orderId: string, status: Order["status"], trackingNumber?: string) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setOrderLoading());
-    try {
-      const response = await api.put(`/orders/${orderId}`, {
-        status,
-        trackingNumber,
-      });
-      if (response.data?.success) {
-        dispatch(setSelectedOrder(response.data.data));
-        return true;
-      } else {
-        throw new Error(
-          response.data?.message || "Failed to update order status",
-        );
+    async (dispatch: AppDispatch) => {
+      dispatch(setOrderLoading());
+      try {
+        const response = await api.put(`/orders/${orderId}`, {
+          status,
+          trackingNumber,
+        });
+        if (response.data?.success) {
+          dispatch(setSelectedOrder(response.data.data));
+          return true;
+        } else {
+          throw new Error(
+            response.data?.message || "Failed to update order status",
+          );
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setOrderError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setOrderError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 // Update payment status
 export const updatePaymentStatus =
   (orderId: string, paymentStatus: Order["paymentStatus"]) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setOrderLoading());
-    try {
-      const response = await api.put(`/orders/${orderId}`, {
-        paymentStatus,
-      });
-      if (response.data?.success) {
-        dispatch(setSelectedOrder(response.data.data));
-        return true;
-      } else {
-        throw new Error(
-          response.data?.message || "Failed to update payment status",
-        );
+    async (dispatch: AppDispatch) => {
+      dispatch(setOrderLoading());
+      try {
+        const response = await api.put(`/orders/${orderId}`, {
+          paymentStatus,
+        });
+        if (response.data?.success) {
+          dispatch(setSelectedOrder(response.data.data));
+          return true;
+        } else {
+          throw new Error(
+            response.data?.message || "Failed to update payment status",
+          );
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setOrderError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setOrderError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 // Cancel order
 export const cancelOrder =

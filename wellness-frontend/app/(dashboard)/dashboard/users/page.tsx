@@ -79,14 +79,14 @@ interface UserType {
   email: string;
   phone: string;
   role:
-    | "Admin"
-    | "Doctor"
-    | "Influencer"
-    | "Customer"
-    | "admin"
-    | "doctor"
-    | "influencer"
-    | "customer";
+  | "Admin"
+  | "Doctor"
+  | "Influencer"
+  | "Customer"
+  | "admin"
+  | "doctor"
+  | "influencer"
+  | "customer";
   status: "Active" | "Inactive" | "active" | "inactive";
   imageUrl?: string;
   verified: boolean;
@@ -107,7 +107,7 @@ interface UserType {
 const userRoles = ["All", "Admin", "Doctor", "Influencer", "Customer"];
 const userStatuses = ["All", "Active", "Inactive"];
 
-const UsersPage = () => {
+const UsersPageContent = () => {
   const searchParams = useSearchParams();
   const [users, setUsers] = useState<UserType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -1167,8 +1167,8 @@ const UsersPage = () => {
                         <span className="font-medium">
                           {selectedUser.dateOfBirth
                             ? new Date(
-                                selectedUser.dateOfBirth,
-                              ).toLocaleDateString()
+                              selectedUser.dateOfBirth,
+                            ).toLocaleDateString()
                             : "Not provided"}
                         </span>
                       </div>
@@ -1817,11 +1817,11 @@ const UsersPage = () => {
                 {selectedUser?.lastName}? This action cannot be undone.
                 {(selectedUser?.role === "Admin" ||
                   selectedUser?.role === "admin") && (
-                  <span className="text-red-500 font-semibold">
-                    {" "}
-                    Admin users cannot be deleted.
-                  </span>
-                )}
+                    <span className="text-red-500 font-semibold">
+                      {" "}
+                      Admin users cannot be deleted.
+                    </span>
+                  )}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -1858,4 +1858,10 @@ const UsersPage = () => {
   );
 };
 
-export default UsersPage;
+export default function UsersPage() {
+  return (
+    <React.Suspense fallback={<Loader variant="skeleton" message="Loading users..." />}>
+      <UsersPageContent />
+    </React.Suspense>
+  );
+}

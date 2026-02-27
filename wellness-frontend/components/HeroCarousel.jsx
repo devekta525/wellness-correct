@@ -1,17 +1,31 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getApiBaseUrl, getApiV1BaseUrl } from "@/lib/utils/api";
+
+const API_BASE = getApiBaseUrl();
+const API_V1_BASE = getApiV1BaseUrl();
 
 const getImageUrl = (url) => {
   if (!url) return "/Hero.png";
+  // Handle base64 data URIs
+  if (url.startsWith("data:")) return url;
   let finalUrl = url;
   if (!url.startsWith("http")) {
     finalUrl = url.startsWith("/") ? `${API_BASE}${url}` : `${API_BASE}/${url}`;
   }
-  return encodeURI(finalUrl);
+  try {
+    const u = new URL(finalUrl);
+    u.pathname = u.pathname
+      .split("/")
+      .map((seg) => encodeURIComponent(decodeURIComponent(seg)))
+      .join("/");
+    return u.toString();
+  } catch {
+    return encodeURI(finalUrl);
+  }
 };
 
 export default function HeroCarousel() {
@@ -23,21 +37,17 @@ export default function HeroCarousel() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const response = await fetch(`${API_BASE}/v1/banners`);
+        const response = await fetch(`${API_V1_BASE}/banners`);
         const data = await response.json();
         if (data.success && data.data.length > 0) {
           setSlides(data.data);
         } else {
           // Fallback if no specific banners
-          setSlides([
-            { _id: '1', imageUrl: '/Hero.png' }
-          ]);
+          setSlides([{ _id: "1", imageUrl: "/Hero.png" }]);
         }
       } catch (error) {
         console.error("Failed to fetch banners for carousel:", error);
-        setSlides([
-          { _id: '1', imageUrl: '/Hero.png' }
-        ]);
+        setSlides([{ _id: "1", imageUrl: "/Hero.png" }]);
       }
     };
 
@@ -51,11 +61,17 @@ export default function HeroCarousel() {
       setCurrent(idx);
       setTimeout(() => setAnimating(false), 700);
     },
-    [animating, slides.length]
+    [animating, slides.length],
   );
 
-  const next = useCallback(() => goTo((current + 1) % slides.length), [current, goTo, slides.length]);
-  const prev = useCallback(() => goTo((current - 1 + slides.length) % slides.length), [current, goTo, slides.length]);
+  const next = useCallback(
+    () => goTo((current + 1) % slides.length),
+    [current, goTo, slides.length],
+  );
+  const prev = useCallback(
+    () => goTo((current - 1 + slides.length) % slides.length),
+    [current, goTo, slides.length],
+  );
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -73,7 +89,7 @@ export default function HeroCarousel() {
     return (
       <section
         className="relative overflow-hidden w-full bg-slate-100 animate-pulse"
-        style={{ height: 'clamp(520px, 39.0625vw, 750px)' }}
+        style={{ height: "clamp(520px, 39.0625vw, 750px)" }}
       />
     );
   }
@@ -81,7 +97,7 @@ export default function HeroCarousel() {
   return (
     <section
       className="relative overflow-hidden w-full group"
-      style={{ height: 'clamp(520px, 39.0625vw, 750px)' }}
+      style={{ height: "clamp(520px, 39.0625vw, 750px)" }}
       onMouseEnter={pause}
       onMouseLeave={resume}
     >
@@ -90,8 +106,9 @@ export default function HeroCarousel() {
         return (
           <div
             key={slide._id || idx}
-            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
-              }`}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+              isActive ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
             aria-hidden={!isActive}
           >
             <div className="relative z-10 h-full w-full">
@@ -128,10 +145,11 @@ export default function HeroCarousel() {
                 key={i}
                 onClick={() => goTo(i)}
                 aria-label={`Go to slide ${i + 1}`}
-                className={`rounded-full transition-all duration-400 ${i === current
-                  ? 'w-8 h-2.5 bg-slate-600 shadow-md'
-                  : 'w-2.5 h-2.5 bg-white/60 hover:bg-white/90 backdrop-blur-sm'
-                  }`}
+                className={`rounded-full transition-all duration-400 ${
+                  i === current
+                    ? "w-8 h-2.5 bg-slate-600 shadow-md"
+                    : "w-2.5 h-2.5 bg-white/60 hover:bg-white/90 backdrop-blur-sm"
+                }`}
               />
             ))}
           </div>

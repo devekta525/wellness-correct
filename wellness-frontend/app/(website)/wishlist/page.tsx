@@ -10,7 +10,7 @@ import {
   ArrowLeft,
   ShoppingBag,
   Check,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
@@ -28,7 +28,8 @@ const WishlistPage = () => {
 
   const fetchWishlist = async () => {
     try {
-      const token = localStorage.getItem("authToken") || localStorage.getItem("authToken");
+      const token =
+        localStorage.getItem("authToken") || localStorage.getItem("authToken");
       if (!token) {
         setLoading(false);
         return; // Not logged in
@@ -48,7 +49,8 @@ const WishlistPage = () => {
         throw new Error("Invalid API response");
       }
 
-      if (!res.ok) throw new Error(`Failed to fetch wishlist: ${res.statusText}`);
+      if (!res.ok)
+        throw new Error(`Failed to fetch wishlist: ${res.statusText}`);
       const data = await res.json();
       if (data.success) {
         setWishlistItems(data.data.products || []);
@@ -73,14 +75,19 @@ const WishlistPage = () => {
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#64748b",
       confirmButtonText: "Yes, remove it!",
-      background: document.documentElement.classList.contains("dark") ? "#1e293b" : "#fff",
-      color: document.documentElement.classList.contains("dark") ? "#fff" : "#0f172a",
+      background: document.documentElement.classList.contains("dark")
+        ? "#1e293b"
+        : "#fff",
+      color: document.documentElement.classList.contains("dark")
+        ? "#fff"
+        : "#0f172a",
     });
 
     if (!result.isConfirmed) return;
 
     try {
-      const token = localStorage.getItem("authToken") || localStorage.getItem("authToken");
+      const token =
+        localStorage.getItem("authToken") || localStorage.getItem("authToken");
       if (!token) return;
 
       const res = await fetch(`${API_URL}/v1/wishlist/remove/${productId}`, {
@@ -100,7 +107,9 @@ const WishlistPage = () => {
       if (!res.ok) throw new Error("Failed to remove item");
       const data = await res.json();
       if (data.success) {
-        setWishlistItems((prev) => prev.filter((item) => item._id !== productId));
+        setWishlistItems((prev) =>
+          prev.filter((item) => item._id !== productId),
+        );
         Swal.fire({
           title: "Removed",
           text: "Item removed from wishlist",
@@ -122,7 +131,7 @@ const WishlistPage = () => {
       id: product._id,
       name: product.name,
       price: product.price?.amount || 0,
-      image: product.images?.[0] || "/placeholder.png",
+      image: product.images?.[0] || "/placeholder-product.svg",
     });
 
     Swal.fire({
@@ -181,7 +190,8 @@ const WishlistPage = () => {
               <Heart className="w-8 h-8 md:w-10 md:h-10 text-pink-500 fill-pink-500 animate-pulse" />
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-3 text-lg">
-              {wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'} saved for later
+              {wishlistItems.length}{" "}
+              {wishlistItems.length === 1 ? "item" : "items"} saved for later
             </p>
           </div>
         </motion.div>
@@ -204,10 +214,14 @@ const WishlistPage = () => {
               Your wishlist is empty
             </h2>
             <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8 text-lg">
-              Looks like you haven&apos;t added anything to your wishlist yet. Explore our products and save your favorites!
+              Looks like you haven&apos;t added anything to your wishlist yet.
+              Explore our products and save your favorites!
             </p>
             <Link href="/shop">
-              <Button size="lg" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-full px-8 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
+              <Button
+                size="lg"
+                className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-full px-8 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+              >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Start Shopping
               </Button>
@@ -224,7 +238,11 @@ const WishlistPage = () => {
                   layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.9,
+                    transition: { duration: 0.2 },
+                  }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   key={product._id}
                   className="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 hover:shadow-2xl hover:shadow-blue-900/10 dark:hover:shadow-blue-900/20 hover:border-blue-100 dark:hover:border-blue-800 transition-all duration-500 relative flex flex-col h-full"
@@ -232,7 +250,7 @@ const WishlistPage = () => {
                   {/* Image */}
                   <div className="relative aspect-[4/5] overflow-hidden bg-slate-50 dark:bg-slate-800/50 p-6">
                     <Image
-                      src={product.images?.[0] || "/placeholder.png"}
+                      src={product.images?.[0] || "/placeholder-product.svg"}
                       alt={product.name}
                       fill
                       className="object-contain group-hover:scale-110 transition-transform duration-700 ease-out"
@@ -250,12 +268,17 @@ const WishlistPage = () => {
 
                   {/* Content */}
                   <div className="p-6 flex flex-col flex-1">
-                    <Link href={`/product/${product.slug}`} className="block flex-1 mb-4">
+                    <Link
+                      href={`/product/${product.slug}`}
+                      className="block flex-1 mb-4"
+                    >
                       <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
                         {product.name}
                       </h3>
                       <p className="text-xl font-bold text-slate-900 dark:text-white">
-                        {formatPrice ? formatPrice(product.price?.amount || 0) : `₹${product.price?.amount?.toFixed(2)}`}
+                        {formatPrice
+                          ? formatPrice(product.price?.amount || 0)
+                          : `₹${product.price?.amount?.toFixed(2)}`}
                       </p>
                     </Link>
 
@@ -263,10 +286,11 @@ const WishlistPage = () => {
                       <Button
                         onClick={() => handleAddToCart(product)}
                         disabled={isInCart(product._id)}
-                        className={`w-full rounded-xl h-11 font-medium transition-all duration-300 ${isInCart(product._id)
+                        className={`w-full rounded-xl h-11 font-medium transition-all duration-300 ${
+                          isInCart(product._id)
                             ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800"
                             : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-blue-600 dark:hover:bg-slate-200 hover:shadow-lg hover:shadow-blue-600/20"
-                          }`}
+                        }`}
                       >
                         {addingId === product._id ? (
                           <motion.div

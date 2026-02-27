@@ -16,11 +16,11 @@ const router = Router();
 // Admin routes - must be before :id routes to avoid conflicts
 router.get('/admin/count', isLogin, isAdmin, countDoctors);
 
-// CRUD routes
-router.post('/', upload.single('imageUrl'), createDoctor);
+// CRUD routes - Create, Update, Delete require Admin
+router.post('/', isLogin, isAdmin, upload.single('imageUrl'), createDoctor);
 router.get('/', getAllDoctors);
 router.get('/:id', getDoctorById);
-router.put('/:id', upload.single('imageUrl'), updateDoctor);
-router.get('/isactive/:id', toggleDoctorStatus);
+router.put('/:id', isLogin, isAdmin, upload.single('imageUrl'), updateDoctor);
+router.get('/isactive/:id', isLogin, isAdmin, toggleDoctorStatus);
 
 export default router;

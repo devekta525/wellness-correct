@@ -1,17 +1,27 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import Order from '../models/orderModel.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const instance = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Lazy initialization - create Razorpay instance only when needed
+let instance = null;
+
+const getRazorpayInstance = () => {
+    if (!instance) {
+        if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+            throw new Error('Razorpay credentials are not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in environment variables.');
+        }
+        instance = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+    }
+    return instance;
+};
 
 export const createRazorpayOrder = async (req, res) => {
     try {
         const { amount, currency = "INR" } = req.body;
+        const instance = getRazorpayInstance();
 
         const options = {
             amount: amount * 100, // amount in smallest currency unit

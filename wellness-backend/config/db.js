@@ -1,25 +1,23 @@
 
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+import mongoose from 'mongoose';
 
-dotenv.config();
+const connectDB = async () => {
+  const uri = process.env.MONGO_URI;
+  if (!uri) {
+    console.error('❌ MongoDB connection string (MONGO_URI) is not defined.');
+    process.exit(1);
+  }
 
-const uri = process.env.MONGODB_URI || process.env.DB_URL;
-
-if (!uri) {
-  console.error("❌ MongoDB connection string (MONGODB_URI or DB_URL) is not defined.");
-}
-
-const dbConnection = async () => {
-    try {
-        await mongoose.connect(uri, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        });
-        console.log("✅ Connected to MongoDB");
-    } catch (error) {
-        console.error("❌ Database connection failed:", error.message);
-        throw error;
-    }
+  try {
+    // Let mongoose choose defaults for options; avoid deprecated flags
+    await mongoose.connect(uri);
+    console.log('✅ Connected to MongoDB');
+  } catch (err) {
+    console.error('❌ MongoDB connection failed:', err);
+    process.exit(1);
+  }
 };
-export default dbConnection;
+
+const disconnectDB = async () => mongoose.disconnect();
+
+export { connectDB, disconnectDB };

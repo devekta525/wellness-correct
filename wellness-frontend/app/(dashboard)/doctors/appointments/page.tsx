@@ -1,5 +1,7 @@
 "use client";
 
+import Swal from "sweetalert2";
+
 import React, { useState, useEffect } from "react";
 import {
   Calendar,
@@ -245,7 +247,7 @@ const AppointmentsPage = () => {
       !formData.fee ||
       !formData.reason
     ) {
-      alert("Please fill in all required fields");
+      Swal.fire({ icon: "warning", title: "Missing Fields", text: "Please fill in all required fields" });
       return;
     }
 

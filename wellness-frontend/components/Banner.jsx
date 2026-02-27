@@ -1,13 +1,13 @@
 /* Server Component */
 
-import Link from 'next/link';
-import { ArrowRight, Shield, Award, Star, Truck, Zap } from 'lucide-react';
+import Link from "next/link";
+import { ArrowRight, Shield, Award, Star, Truck, Zap } from "lucide-react";
 
 const stats = [
-  { icon: Shield, label: '100% Authentic' },
-  { icon: Award, label: 'Quality Certified' },
-  { icon: Star, label: '50K+ Happy Customers' },
-  { icon: Truck, label: 'Free Shipping ₹999+' },
+  { icon: Shield, label: "100% Authentic" },
+  { icon: Award, label: "Quality Certified" },
+  { icon: Star, label: "50K+ Happy Customers" },
+  { icon: Truck, label: "Free Shipping ₹999+" },
 ];
 
 export default function Banner() {
@@ -19,10 +19,10 @@ export default function Banner() {
     */
     <section
       className="relative overflow-hidden"
-      style={{ minHeight: '250px' }}
+      style={{ minHeight: "250px" }}
     >
       {/* ── Background ── */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900" />
+      <div className="absolute inset-0 bg-linear-to-r from-blue-900 via-blue-800 to-indigo-900" />
 
       {/* Cross / healthcare SVG pattern */}
       <svg
@@ -30,7 +30,14 @@ export default function Banner() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <pattern id="banner-hc" x="0" y="0" width="64" height="64" patternUnits="userSpaceOnUse">
+          <pattern
+            id="banner-hc"
+            x="0"
+            y="0"
+            width="64"
+            height="64"
+            patternUnits="userSpaceOnUse"
+          >
             <rect x="28" y="14" width="8" height="36" rx="2" fill="white" />
             <rect x="14" y="28" width="36" height="8" rx="2" fill="white" />
           </pattern>
@@ -45,14 +52,16 @@ export default function Banner() {
       {/* ── Content — 25% padding each side ── */}
       <div
         className="relative h-full flex items-center"
-        style={{ minHeight: '250px', paddingLeft: '25%', paddingRight: '25%' }}
+        style={{ minHeight: "250px", paddingLeft: "25%", paddingRight: "25%" }}
       >
         <div className="w-full text-center py-8">
-
           {/* Stat pills */}
           <div className="flex flex-wrap items-center justify-center gap-4 mb-5">
             {stats.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-1.5 text-blue-200 text-xs font-semibold">
+              <div
+                key={label}
+                className="flex items-center gap-1.5 text-blue-200 text-xs font-semibold"
+              >
                 <Icon className="w-3.5 h-3.5 text-cyan-400" />
                 {label}
                 <span className="hidden sm:inline text-blue-600 mx-1">·</span>
@@ -62,22 +71,23 @@ export default function Banner() {
 
           {/* Headline */}
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-white mb-2 leading-snug">
-            Unlock Nature's Most Potent{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300">
+            Unlock Nature's Most Potent{" "}
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-300 to-blue-300">
               Wellness Secrets
             </span>
           </h2>
 
           {/* Sub-copy */}
           <p className="text-blue-200/80 text-sm mb-6">
-            Free shipping on orders above ₹999 &nbsp;·&nbsp; Use code{' '}
-            <span className="font-extrabold text-cyan-300">WELLNESS20</span> for 20% off your first order
+            Free shipping on orders above ₹999 &nbsp;·&nbsp; Use code{" "}
+            <span className="font-extrabold text-cyan-300">WELLNESS20</span> for
+            20% off your first order
           </p>
 
           {/* CTA */}
           <Link
             href="/shop"
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-cyan-400 to-blue-400 text-white font-bold text-sm rounded-2xl shadow-lg shadow-cyan-500/20 hover:from-cyan-300 hover:to-blue-300 hover:shadow-cyan-400/40 hover:scale-105 transition-all duration-300"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-linear-to-r from-cyan-400 to-blue-400 text-white font-bold text-sm rounded-2xl shadow-lg shadow-cyan-500/20 hover:from-cyan-300 hover:to-blue-300 hover:shadow-cyan-400/40 hover:scale-105 transition-all duration-300"
           >
             <Zap className="w-4 h-4" />
             Shop Now

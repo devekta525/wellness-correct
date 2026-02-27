@@ -38,6 +38,19 @@ const nextConfig = {
         port: "5000",
         pathname: "/uploads/**",
       },
+      // allow any http(s) host if needed (products may reference external urls)
+      {
+        protocol: "http",
+        hostname: "**",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

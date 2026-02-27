@@ -43,11 +43,13 @@ const productSchema = new mongoose.Schema({
   },
 
   for: {
-    type: String
+    type: [String],
+    default: []
   },
 
   with: {
-    type: String
+    type: [String],
+    default: []
   },
 
   badge: {
@@ -100,22 +102,33 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+
   images: [{
     type: String
   }],
 
+  // Doctor prescription specific fields
+  genericName: {
+    type: String
+  },
 
-  //doctor prescription
-  genericName: { type: String },
-
-  dosageForm: { // E.g., 500 mg, 100 units/ml
+  dosageForm: {
     value: { type: String },
     unit: { type: String }
   },
-  manufacturer: { type: String },
-  isPrescriptionRequired: { type: Boolean, default: true },
-  sideEffects: [{ type: String }],
-  contraindications: [{ type: String }],
+
+  isPrescriptionRequired: {
+    type: Boolean,
+    default: true
+  },
+
+  sideEffects: [{
+    type: String
+  }],
+
+  contraindications: [{
+    type: String
+  }],
 
 }, {
   timestamps: true

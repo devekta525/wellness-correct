@@ -14,6 +14,7 @@ import {
   List,
   Loader2,
 } from "lucide-react";
+import { getImageUrl } from "@/lib/utils/getImageUrl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +31,9 @@ import {
   setFilters,
   selectProductsData,
   selectProductsLoading,
+  selectProductsError,
 } from "@/lib/redux/features/productSlice";
+import Swal from "sweetalert2";
 
 interface UIProduct {
   id: string;
@@ -72,6 +75,7 @@ const ProductsPage = () => {
   // Redux State
   const reduxProducts = useAppSelector(selectProductsData);
   const isLoading = useAppSelector(selectProductsLoading);
+  const error = useAppSelector(selectProductsError);
 
   // Contexts
   const { addToCart, cartItems } = useCart();
@@ -94,6 +98,18 @@ const ProductsPage = () => {
     dispatch(fetchProductsData());
   }, [dispatch]);
 
+  // Show SweetAlert on Error
+  useEffect(() => {
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error || "Failed to load products. Please try again.",
+        confirmButtonColor: "#3b82f6", // tailwind blue-500
+      });
+    }
+  }, [error]);
+
   // Transform Redux Data to UI Format
   const formattedProducts: UIProduct[] = useMemo(() => {
     if (!reduxProducts || reduxProducts.length === 0) return [];
@@ -114,8 +130,10 @@ const ProductsPage = () => {
         price: currentPrice,
         originalPrice: mrp > currentPrice ? mrp : undefined,
         imageUrl:
-          p.imageUrl ||
-          (p.images && p.images.length > 0 ? p.images[0] : "/placeholder.png"),
+          getImageUrl(p.imageUrl) ||
+          (p.images && p.images.length > 0
+            ? p.images[0]
+            : "/placeholder-product.svg"),
         badge: badge,
         rating: 4.8,
         reviews: 45,
@@ -141,7 +159,7 @@ const ProductsPage = () => {
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.tags.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase())
+          tag.toLowerCase().includes(searchTerm.toLowerCase()),
         );
 
       const matchesCategory =
@@ -184,10 +202,6 @@ const ProductsPage = () => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-
-
-
 
   // ... (rest of the return statement remains exactly the same as previous code)
   return (
@@ -322,10 +336,11 @@ const ProductsPage = () => {
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === category
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700"
-                        }`}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                        selectedCategory === category
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700"
+                      }`}
                     >
                       {category}
                     </button>
@@ -392,13 +407,18 @@ const ProductsPage = () => {
               <>
                 {/* Products */}
                 <div
-                  className={`grid gap-6 ${viewMode === "grid"
-                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-                    : "grid-cols-1"
-                    }`}
+                  className={`grid gap-6 ${
+                    viewMode === "grid"
+                      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+                      : "grid-cols-1"
+                  }`}
                 >
                   {currentProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} viewMode={viewMode} />
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      viewMode={viewMode}
+                    />
                   ))}
                 </div>
 
@@ -444,14 +464,15 @@ const ProductsPage = () => {
                           key={page}
                           variant={currentPage === page ? "default" : "outline"}
                           onClick={() => handlePageChange(page)}
-                          className={`rounded-xl ${currentPage === page
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg"
-                            : ""
-                            }`}
+                          className={`rounded-xl ${
+                            currentPage === page
+                              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg"
+                              : ""
+                          }`}
                         >
                           {page}
                         </Button>
-                      )
+                      ),
                     )}
 
                     <Button

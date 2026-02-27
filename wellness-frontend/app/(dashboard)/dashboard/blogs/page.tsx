@@ -1,5 +1,6 @@
 'use client'
 
+import Swal from 'sweetalert2'
 import React, { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import {
@@ -260,7 +261,7 @@ const BlogsPage = () => {
   // Image management functions
   const addImageFromFile = () => {
     if (newBlog.blogImages.length >= 5) {
-      alert('You can add a maximum of 5 images')
+      Swal.fire({ icon: 'warning', text: 'You can add a maximum of 5 images' })
       return
     }
 
@@ -295,7 +296,7 @@ const BlogsPage = () => {
 
   const addImageFromUrl = () => {
     if (newBlog.blogImages.length >= 5) {
-      alert('You can add a maximum of 5 images')
+      Swal.fire({ icon: 'warning', text: 'You can add a maximum of 5 images' })
       return
     }
 
@@ -333,7 +334,7 @@ const BlogsPage = () => {
   // Edit modal image functions
   const addImageToEdit = () => {
     if (!selectedBlog || (selectedBlog.blogImages?.length || 0) >= 5) {
-      alert('You can add a maximum of 5 images')
+      Swal.fire({ icon: 'warning', text: 'You can add a maximum of 5 images' })
       return
     }
 

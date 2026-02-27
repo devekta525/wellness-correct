@@ -68,9 +68,9 @@ const getAuthConfig = () => {
   const token =
     typeof window !== "undefined" ? "" : null;
   return {
-    
+
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": "application/json",
     },
   };
@@ -104,7 +104,7 @@ export const fetchTodaysAppointmentCount = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ||
-          "Failed to fetch today's appointments count",
+        "Failed to fetch today's appointments count",
       );
     }
   },

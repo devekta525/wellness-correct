@@ -16,11 +16,11 @@ const router = Router();
 // Admin routes - must be before :id routes to avoid conflicts
 router.get('/admin/count', isLogin, isAdmin, countInfluencers);
 
-// CRUD routes
-router.post('/', upload.single('imageUrl'), createInfluencer);
+// CRUD routes - Create, Update, Delete require Admin
+router.post('/', isLogin, isAdmin, upload.single('imageUrl'), createInfluencer);
 router.get('/', getAllInfluencers);
 router.get('/:id', getInfluencerById);
-router.put('/:id', upload.single('imageUrl'), updateInfluencer);
-router.get('/isactive/:id', toggleInfluencerStatus);
+router.put('/:id', isLogin, isAdmin, upload.single('imageUrl'), updateInfluencer);
+router.get('/isactive/:id', isLogin, isAdmin, toggleInfluencerStatus);
 
 export default router;

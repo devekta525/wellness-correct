@@ -6,19 +6,42 @@ import {
     updateDoctorSecuritySettings,
 } from "../controllers/doctorSettingsController.js";
 import { isLogin } from "../middleWares/isLogin.js";
+import { isDoctor } from "../middleWares/isDoctor.js";
+import { isAdmin } from "../middleWares/isAdmin.js";
 
 const router = Router();
 
-// Get all doctor settings
-router.get("/", isLogin, getDoctorSettings);
+// All doctor settings routes require doctor or admin role
+router.use(isLogin);
 
-// Update profile settings
-router.put("/profile", isLogin, updateDoctorProfileSettings);
+// Get all doctor settings (Doctor or Admin)
+router.get("/", (req, res, next) => {
+    if (req.user.role.toLowerCase() === 'doctor' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: "Doctor or Admin access required" });
+}, getDoctorSettings);
 
-// Update business settings
-router.put("/business", isLogin, updateDoctorBusinessSettings);
+// Update settings (Doctor or Admin only)
+router.put("/profile", (req, res, next) => {
+    if (req.user.role.toLowerCase() === 'doctor' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: "Doctor or Admin access required" });
+}, updateDoctorProfileSettings);
 
-// Update security settings
-router.put("/security", isLogin, updateDoctorSecuritySettings);
+router.put("/business", (req, res, next) => {
+    if (req.user.role.toLowerCase() === 'doctor' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: "Doctor or Admin access required" });
+}, updateDoctorBusinessSettings);
+
+router.put("/security", (req, res, next) => {
+    if (req.user.role.toLowerCase() === 'doctor' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: "Doctor or Admin access required" });
+}, updateDoctorSecuritySettings);
 
 export default router;

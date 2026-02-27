@@ -46,15 +46,15 @@ import Swal from "sweetalert2";
 interface AIProductData {
   name: string;
   category: string;
-  price: string;
+  sellingPrice: string;
   originalPrice: string;
-  stock: string;
+  stockQuantity: string;
   shortDescription: string;
   longDescription: string;
   benefits: string[];
   ingredients: string;
-  dosage: string;
-  weight: string;
+  dosageInstructions: string;
+  weightSize: string;
   expiryDate: string;
   manufacturer: string;
   confidence: number;
@@ -74,19 +74,19 @@ const AddProduct = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [aiData, setAiData] = useState<AIProductData | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [formData, setFormData] = useState<AIProductData>({
     name: "",
     category: "",
-    price: "",
+    sellingPrice: "",
     originalPrice: "",
-    stock: "",
+    stockQuantity: "",
     shortDescription: "",
     longDescription: "",
     benefits: [],
     ingredients: "",
-    dosage: "",
-    weight: "",
+    dosageInstructions: "",
+    weightSize: "",
     expiryDate: "",
     manufacturer: "",
     confidence: 0,
@@ -189,15 +189,15 @@ const AddProduct = () => {
           {
             "name": "Product name",
             "category": "One of: Supplements, Vitamins, Beverages, Wellness",
-            "price": "Suggested price in numbers only",
-            "originalPrice": "Original price if on sale, otherwise same as price",
-            "stock": "Suggested stock quantity",
+            "sellingPrice": "Suggested selling price in numbers only",
+            "originalPrice": "Original price if on sale, otherwise same as sellingPrice",
+            "stockQuantity": "Suggested stock quantity",
             "shortDescription": "Brief 1-2 sentence description",
             "longDescription": "Detailed product description",
             "benefits": ["Benefit 1", "Benefit 2", "Benefit 3", "Benefit 4", "Benefit 5"],
             "ingredients": "List of ingredients separated by commas",
-            "dosage": "Recommended dosage instructions",
-            "weight": "Product weight/size",
+            "dosageInstructions": "Recommended dosage instructions",
+            "weightSize": "Product weight/size",
             "expiryDate": "Suggested expiry date (YYYY-MM-DD format)",
             "manufacturer": "Manufacturer name if visible",
             "confidence": "Confidence score 0-100"
@@ -209,18 +209,35 @@ const AddProduct = () => {
         throw new Error("Failed to analyze images");
       }
 
-      const data = await response.json();
-      setAiData(data);
-      setFormData(data);
+      let parsed: any = await response.json();
+      // normalize AI output to our form schema
+      if (parsed.stock !== undefined && parsed.stockQuantity === undefined) {
+        parsed.stockQuantity = parsed.stock;
+      }
+      if (
+        parsed.dosage !== undefined &&
+        parsed.dosageInstructions === undefined
+      ) {
+        parsed.dosageInstructions = parsed.dosage;
+      }
+      if (parsed.weight !== undefined && parsed.weightSize === undefined) {
+        parsed.weightSize = parsed.weight;
+      }
+      if (parsed.price !== undefined && parsed.sellingPrice === undefined) {
+        parsed.sellingPrice = parsed.price;
+      }
+      // also handle potential fallback for originalPrice -> price.mrp later in save
+      setAiData(parsed);
+      setFormData(parsed);
     } catch (error) {
       console.error("Error processing images:", error);
       // Fallback: Show demo data
       const demoData: AIProductData = {
         name: "Premium Protein Powder",
         category: "Supplements",
-        price: "49.99",
+        sellingPrice: "49.99",
         originalPrice: "59.99",
-        stock: "150",
+        stockQuantity: "150",
         shortDescription: "High-quality protein powder for muscle building",
         longDescription:
           "Our premium protein powder is made from the finest whey protein isolate, providing 25g of protein per serving. Perfect for post-workout recovery and muscle building.",
@@ -233,8 +250,9 @@ const AddProduct = () => {
         ],
         ingredients:
           "Whey Protein Isolate, Natural Vanilla Flavor, Stevia, Xanthan Gum",
-        dosage: "1 scoop (30g) mixed with water or milk, 1-2 times daily",
-        weight: "2.2 lbs (1kg)",
+        dosageInstructions:
+          "1 scoop (30g) mixed with water or milk, 1-2 times daily",
+        weightSize: "2.2 lbs (1kg)",
         expiryDate: "2025-12-31",
         manufacturer: "Wellness Fuel Labs",
         confidence: 85,
@@ -273,10 +291,13 @@ const AddProduct = () => {
       const productFormData = new FormData();
       productFormData.append("name", formData.name);
       productFormData.append("category", formData.category);
-      productFormData.append("price[amount]", formData.price.toString());
+      productFormData.append("price[amount]", formData.sellingPrice.toString());
       productFormData.append("price[currency]", "INR"); // Default or dynamic
       productFormData.append("price[mrp]", formData.originalPrice.toString());
-      productFormData.append("stockQuantity", formData.stock.toString());
+      productFormData.append(
+        "stockQuantity",
+        formData.stockQuantity.toString(),
+      );
       productFormData.append("shortDescription", formData.shortDescription);
       productFormData.append("longDescription", formData.longDescription);
       productFormData.append("description", formData.longDescription); // Fallback
@@ -284,22 +305,24 @@ const AddProduct = () => {
       // Handle array conversion for benefits if it's a string in current local state (it appears to be array in interface, so clean it)
       const benefitsArray = Array.isArray(formData.benefits)
         ? formData.benefits
-        : (typeof formData.benefits === 'string' ? (formData.benefits as string).split('\n') : []);
+        : typeof formData.benefits === "string"
+          ? (formData.benefits as string).split("\n")
+          : [];
 
       benefitsArray.forEach((benefit) => {
         if (benefit.trim()) productFormData.append("benefits", benefit.trim());
       });
 
       productFormData.append("ingredients", formData.ingredients);
-      productFormData.append("dosageInstructions", formData.dosage);
+      productFormData.append("dosageInstructions", formData.dosageInstructions);
       productFormData.append("manufacturer", formData.manufacturer);
       productFormData.append(
         "weightSize[value]",
-        formData.weight.replace(/[^0-9.]/g, "") || "0",
+        formData.weightSize.replace(/[^0-9.]/g, "") || "0",
       );
       productFormData.append(
         "weightSize[unit]",
-        formData.weight.replace(/[0-9.]/g, "").trim() || "g",
+        formData.weightSize.replace(/[0-9.]/g, "").trim() || "g",
       );
       productFormData.append("expiryDate", formData.expiryDate);
 
@@ -310,8 +333,27 @@ const AddProduct = () => {
         .replace(/[^\w-]+/g, "");
       productFormData.append("slug", slug);
 
-      productFormData.append("for", formData.for || "");
-      productFormData.append("with", formData.with || "");
+      // Convert comma-separated "for" and "with" fields to arrays
+      if (formData.for && formData.for.trim()) {
+        const forArray = formData.for
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+        forArray.forEach((item) => {
+          productFormData.append("for", item);
+        });
+      }
+
+      if (formData.with && formData.with.trim()) {
+        const withArray = formData.with
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0);
+        withArray.forEach((item) => {
+          productFormData.append("with", item);
+        });
+      }
+
       productFormData.append("badge", formData.badge || "");
       productFormData.append("tagline", formData.tagline || "");
       if (formData.rating) productFormData.append("rating", formData.rating);
@@ -345,15 +387,15 @@ const AddProduct = () => {
     setFormData({
       name: "",
       category: "",
-      price: "",
+      sellingPrice: "",
       originalPrice: "",
-      stock: "",
+      stockQuantity: "",
       shortDescription: "",
       longDescription: "",
       benefits: [],
       ingredients: "",
-      dosage: "",
-      weight: "",
+      dosageInstructions: "",
+      weightSize: "",
       expiryDate: "",
       manufacturer: "",
       confidence: 0,
@@ -364,7 +406,7 @@ const AddProduct = () => {
       rating: "5",
       reviews: "0",
     });
-    setIsEditing(false);
+    setIsEditing(true);
   };
 
   return (
@@ -376,15 +418,21 @@ const AddProduct = () => {
     >
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full hover:bg-muted transition-colors">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.back()}
+          className="rounded-full hover:bg-muted transition-colors"
+        >
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            AI-Powered Product Addition
+            Add New Product
           </h1>
           <p className="text-muted-foreground">
-            Upload a product image and let AI extract all the details
+            Upload images for AI analysis or manually enter product details
+            below
           </p>
         </div>
       </div>
@@ -416,8 +464,7 @@ const AddProduct = () => {
                   Upload Product Images
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  Drag & drop up to 5 product images for better
-                  AI analysis
+                  Drag & drop up to 5 product images for better AI analysis
                 </p>
                 <Button onClick={handleCameraClick}>
                   <Upload className="w-4 h-4 mr-2" />
@@ -492,7 +539,7 @@ const AddProduct = () => {
                   <Button
                     onClick={processImagesWithAI}
                     disabled={isProcessing}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20 transition-all duration-300 h-12 text-base font-medium rounded-xl"
+                    className="w-full bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20 transition-all duration-300 h-12 text-base font-medium rounded-xl"
                     size="lg"
                   >
                     {isProcessing ? (
@@ -536,7 +583,10 @@ const AddProduct = () => {
                   <CardTitle className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-indigo-500" />
                     AI Analysis Results
-                    <Badge variant="secondary" className="ml-auto bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+                    <Badge
+                      variant="secondary"
+                      className="ml-auto bg-white/50 dark:bg-black/20 backdrop-blur-sm"
+                    >
                       {aiData.confidence}% Confidence
                     </Badge>
                   </CardTitle>
@@ -554,12 +604,12 @@ const AddProduct = () => {
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium">Price:</span>
-                      <span className="text-sm">₹{aiData.price}</span>
+                      <span className="text-sm">₹{aiData.sellingPrice}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Scale className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium">Weight:</span>
-                      <span className="text-sm">{aiData.weight}</span>
+                      <span className="text-sm">{aiData.weightSize}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-primary" />
@@ -569,10 +619,17 @@ const AddProduct = () => {
                   </div>
 
                   <div className="pt-4 border-t">
-                    <h4 className="font-semibold mb-3 flex items-center gap-2"><Sparkles className="w-3 h-3 text-indigo-500" /> Key Benefits</h4>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Sparkles className="w-3 h-3 text-indigo-500" /> Key
+                      Benefits
+                    </h4>
                     <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-2">
                       {aiData.benefits.map((benefit, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="text-xs"
+                        >
                           {benefit}
                         </Badge>
                       ))}
@@ -581,27 +638,19 @@ const AddProduct = () => {
 
                   <div className="flex gap-3 mt-auto pt-4">
                     <Button
-                      onClick={() => setIsEditing(true)}
-                      className="flex-1"
-                      variant="outline"
-                    >
-                      <Edit3 className="w-4 h-4 mr-2" />
-                      Customize Data
-                    </Button>
-                    <Button
                       onClick={saveProduct}
-                      disabled={isProcessing || isEditing}
+                      disabled={isProcessing}
                       className="flex-1"
                     >
                       {isProcessing ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Saving...
+                          Using AI Data...
                         </>
                       ) : (
                         <>
                           <Check className="w-4 h-4 mr-2" />
-                          Save Product
+                          Use AI Data
                         </>
                       )}
                     </Button>
@@ -626,10 +675,11 @@ const AddProduct = () => {
               <CardHeader className="border-b border-border/50 bg-muted/5 pb-4">
                 <CardTitle className="flex items-center gap-2">
                   <Edit3 className="w-5 h-5" />
-                  Customize Product Data
+                  Product Information
                 </CardTitle>
                 <CardDescription>
-                  Review and modify the AI-generated product information
+                  Fill in all the product details below. Upload images and use
+                  AI to auto-fill, or enter manually.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
@@ -641,18 +691,24 @@ const AddProduct = () => {
                     </h3>
 
                     <div>
-                      <Label htmlFor="name" className="mb-1.5 block">Product Name</Label>
+                      <Label htmlFor="name" className="mb-1.5 block">
+                        Product Name
+                      </Label>
                       <Input
                         id="name"
                         value={formData.name}
                         className="focus-visible:ring-primary"
-                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         placeholder="Enter product name"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="category" className="mb-1.5 block">Category</Label>
+                      <Label htmlFor="category" className="mb-1.5 block">
+                        Category
+                      </Label>
                       <Select
                         value={formData.category}
                         onValueChange={(value) =>
@@ -673,7 +729,12 @@ const AddProduct = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="shortDescription" className="mb-1.5 block">Short Description</Label>
+                      <Label
+                        htmlFor="shortDescription"
+                        className="mb-1.5 block"
+                      >
+                        Short Description
+                      </Label>
                       <Input
                         id="shortDescription"
                         value={formData.shortDescription}
@@ -685,7 +746,9 @@ const AddProduct = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="longDescription" className="mb-1.5 block">Long Description</Label>
+                      <Label htmlFor="longDescription" className="mb-1.5 block">
+                        Long Description
+                      </Label>
                       <Textarea
                         id="longDescription"
                         value={formData.longDescription}
@@ -707,20 +770,24 @@ const AddProduct = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="price" className="mb-1.5 block">Price (₹)</Label>
+                        <Label htmlFor="price" className="mb-1.5 block">
+                          Selling Price (₹)
+                        </Label>
                         <Input
                           id="price"
                           type="number"
                           step="0.01"
-                          value={formData.price}
+                          value={formData.sellingPrice}
                           onChange={(e) =>
-                            handleInputChange("price", e.target.value)
+                            handleInputChange("sellingPrice", e.target.value)
                           }
                           placeholder="0.00"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="originalPrice" className="mb-1.5 block">Original Price (₹)</Label>
+                        <Label htmlFor="originalPrice" className="mb-1.5 block">
+                          Original Price (₹)
+                        </Label>
                         <Input
                           id="originalPrice"
                           type="number"
@@ -735,30 +802,38 @@ const AddProduct = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="stock" className="mb-1.5 block">Stock Quantity</Label>
+                      <Label htmlFor="stockQuantity" className="mb-1.5 block">
+                        Stock Quantity
+                      </Label>
                       <Input
-                        id="stock"
+                        id="stockQuantity"
                         type="number"
-                        value={formData.stock}
-                        onChange={(e) => handleInputChange("stock", e.target.value)}
+                        value={formData.stockQuantity}
+                        onChange={(e) =>
+                          handleInputChange("stockQuantity", e.target.value)
+                        }
                         placeholder="0"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="weight" className="mb-1.5 block">Weight/Size</Label>
+                      <Label htmlFor="weightSize" className="mb-1.5 block">
+                        Weight/Size
+                      </Label>
                       <Input
-                        id="weight"
-                        value={formData.weight}
+                        id="weightSize"
+                        value={formData.weightSize}
                         onChange={(e) =>
-                          handleInputChange("weight", e.target.value)
+                          handleInputChange("weightSize", e.target.value)
                         }
                         placeholder="e.g., 2.2 lbs (1kg)"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="expiryDate" className="mb-1.5 block">Expiry Date</Label>
+                      <Label htmlFor="expiryDate" className="mb-1.5 block">
+                        Expiry Date
+                      </Label>
                       <Input
                         id="expiryDate"
                         type="date"
@@ -777,7 +852,9 @@ const AddProduct = () => {
                     </h3>
 
                     <div>
-                      <Label htmlFor="ingredients" className="mb-1.5 block">Ingredients</Label>
+                      <Label htmlFor="ingredients" className="mb-1.5 block">
+                        Ingredients
+                      </Label>
                       <Textarea
                         id="ingredients"
                         value={formData.ingredients}
@@ -790,12 +867,20 @@ const AddProduct = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="dosage" className="mb-1.5 block">Dosage Instructions</Label>
+                      <Label
+                        htmlFor="dosageInstructions"
+                        className="mb-1.5 block"
+                      >
+                        Dosage Instructions
+                      </Label>
                       <Textarea
-                        id="dosage"
-                        value={formData.dosage}
+                        id="dosageInstructions"
+                        value={formData.dosageInstructions}
                         onChange={(e) =>
-                          handleInputChange("dosage", e.target.value)
+                          handleInputChange(
+                            "dosageInstructions",
+                            e.target.value,
+                          )
                         }
                         placeholder="e.g., 1 capsule daily with food"
                         rows={2}
@@ -803,19 +888,26 @@ const AddProduct = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="forField" className="mb-1.5 block">For (Target Use)</Label>
+                      <Label htmlFor="forField" className="mb-1.5 block">
+                        For (Target Use - comma separated)
+                      </Label>
                       <Input
                         id="forField"
                         value={formData.for || ""}
                         onChange={(e) =>
                           handleInputChange("for", e.target.value)
                         }
-                        placeholder="e.g., Energy, Immunity & Gut Health"
+                        placeholder="e.g., Energy, Immunity, Gut Health"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Enter multiple values separated by commas
+                      </p>
                     </div>
 
                     <div>
-                      <Label htmlFor="withField" className="mb-1.5 block">With (Key Elements)</Label>
+                      <Label htmlFor="withField" className="mb-1.5 block">
+                        With (Key Elements - comma separated)
+                      </Label>
                       <Input
                         id="withField"
                         value={formData.with || ""}
@@ -824,10 +916,15 @@ const AddProduct = () => {
                         }
                         placeholder="e.g., Spirulina, Moringa, Ashwagandha"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Enter multiple values separated by commas
+                      </p>
                     </div>
 
                     <div>
-                      <Label htmlFor="manufacturer" className="mb-1.5 block">Manufacturer</Label>
+                      <Label htmlFor="manufacturer" className="mb-1.5 block">
+                        Manufacturer
+                      </Label>
                       <Input
                         id="manufacturer"
                         value={formData.manufacturer}
@@ -846,7 +943,9 @@ const AddProduct = () => {
                     </h3>
 
                     <div>
-                      <Label htmlFor="badgeField" className="mb-1.5 block">Badge</Label>
+                      <Label htmlFor="badgeField" className="mb-1.5 block">
+                        Badge
+                      </Label>
                       <Input
                         id="badgeField"
                         value={formData.badge || ""}
@@ -858,7 +957,9 @@ const AddProduct = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="taglineField" className="mb-1.5 block">Tagline</Label>
+                      <Label htmlFor="taglineField" className="mb-1.5 block">
+                        Tagline
+                      </Label>
                       <Input
                         id="taglineField"
                         value={formData.tagline || ""}
@@ -871,7 +972,9 @@ const AddProduct = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="ratingField" className="mb-1.5 block">Rating</Label>
+                        <Label htmlFor="ratingField" className="mb-1.5 block">
+                          Rating
+                        </Label>
                         <Input
                           id="ratingField"
                           type="number"
@@ -886,7 +989,9 @@ const AddProduct = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="reviewsField" className="mb-1.5 block">Reviews Count</Label>
+                        <Label htmlFor="reviewsField" className="mb-1.5 block">
+                          Reviews Count
+                        </Label>
                         <Input
                           id="reviewsField"
                           type="number"
@@ -907,7 +1012,9 @@ const AddProduct = () => {
                     </h3>
 
                     <div>
-                      <Label htmlFor="benefits" className="mb-1.5 block">Benefits (one per line)</Label>
+                      <Label htmlFor="benefits" className="mb-1.5 block">
+                        Benefits (one per line)
+                      </Label>
                       <Textarea
                         id="benefits"
                         value={formData.benefits.join("\n")}
@@ -922,11 +1029,12 @@ const AddProduct = () => {
 
                 <div className="flex gap-4 mt-8 pt-6 border-t">
                   <Button
-                    onClick={() => setIsEditing(false)}
+                    onClick={resetForm}
                     variant="outline"
                     className="flex-1"
                   >
-                    Cancel
+                    <X className="w-4 h-4 mr-2" />
+                    Clear Form
                   </Button>
                   <Button
                     onClick={saveProduct}
@@ -952,7 +1060,6 @@ const AddProduct = () => {
         )}
       </AnimatePresence>
     </motion.div>
-
   );
 };
 

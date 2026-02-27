@@ -1,14 +1,4 @@
-/**
- * Authorization Middleware - Check if user is Admin
- * Verifies that the authenticated user has admin privileges
- * 
- * Usage:
- *   router.get('/admin-only', isLogin, isAdmin, controllerFunction);
- * 
- * Error Responses:
- *   - 401: Not authenticated
- *   - 403: Not authorized (not an admin)
- */
+
 
 export const isAdmin = async (req, res, next) => {
     try {

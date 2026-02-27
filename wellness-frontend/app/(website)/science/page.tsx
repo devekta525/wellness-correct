@@ -1,11 +1,15 @@
 import { Metadata } from "next";
-import Science from "./science";
+import ProductScienceSection from "@/components/about/ProductScienceSection";
 
 export const metadata: Metadata = {
-  title: "Science | Wellness Fuel",
-  description: "Science | Wellness Fuel",
+  title: "Science-Based Wellness | Wellness Fuel",
+  description: "Learn about the science behind Wellness Fuel's premium product formulations.",
 };
 
 export default function SciencePage() {
-  return <Science />;
+  return (
+    <>
+      <ProductScienceSection />
+    </>
+  );
 }

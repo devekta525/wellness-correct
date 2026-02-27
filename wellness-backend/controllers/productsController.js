@@ -1,38 +1,57 @@
 
 // import { OpenAI } from "openai";
-import dotenv from "dotenv";
 import { parseJsonString } from "./blogController.js";
 import Product from '../models/productsModel.js';
 
-dotenv.config();
+// Helper function to generate a unique slug
+const generateUniqueSlug = async (baseSlug) => {
+  let slug = baseSlug;
+  let counter = 1;
+  let isUnique = false;
+
+  while (!isUnique) {
+    const existingProduct = await Product.findOne({ slug });
+    if (!existingProduct) {
+      isUnique = true;
+    } else {
+      counter++;
+      slug = `${baseSlug}-${counter}`;
+    }
+  }
+
+  return slug;
+};
 
 // CREATE - Create a new product
 export const createProduct = async (req, res) => {
   try {
     // Parse and sanitize all fields from FormData
-    const name = req.body.name;
-    let slug = req.body.slug;
+    const name = req.body.name?.trim();
+    let slug = req.body.slug?.trim();
     if (!slug && name) {
-      slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+      slug = name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
     }
-    const category = req.body.category;
-    const shortDescription = req.body.shortDescription;
-    const longDescription = req.body.longDescription;
-    const expiryDate = req.body.expiryDate;
-    const manufacturer = req.body.manufacturer;
+
+    // Ensure slug is unique
+    slug = await generateUniqueSlug(slug);
+    const category = req.body.category?.trim();
+    const shortDescription = req.body.shortDescription?.trim();
+    const longDescription = req.body.longDescription?.trim();
+    const expiryDate = req.body.expiryDate?.trim();
+    const manufacturer = req.body.manufacturer?.trim();
 
 
     // Robustly parse price fields (support both bracket and object notation)
     let price = {};
     if (req.body.price && typeof req.body.price === 'object') {
       price = {
-        amount: Number(req.body.price.amount || req.body['price[amount]'] || 0),
+        amount: Number(req.body.price.amount || req.body['price[amount]'] || req.body.sellingPrice || 0),
         currency: req.body.price.currency || req.body['price[currency]'] || 'Rs',
         mrp: Number(req.body.price.mrp || req.body['price[mrp]'] || req.body.originalPrice || 0),
       };
     } else {
       price = {
-        amount: Number(req.body['price[amount]'] || req.body.price || 0),
+        amount: Number(req.body['price[amount]'] || req.body.price || req.body.sellingPrice || 0),
         currency: req.body['price[currency]'] || req.body.currency || 'Rs',
         mrp: Number(req.body['price[mrp]'] || req.body.originalPrice || 0),
       };
@@ -79,7 +98,16 @@ export const createProduct = async (req, res) => {
     };
 
     const benefits = extractArray('benefits');
-    const ingredients = extractArray('ingredients');
+    let ingredients = extractArray('ingredients');
+
+    // If ingredients is empty array, try to get it as a single string and parse it
+    if (ingredients.length === 0 && req.body.ingredients) {
+      const ingredientStr = req.body.ingredients;
+      if (typeof ingredientStr === 'string' && ingredientStr.trim()) {
+        ingredients = ingredientStr.split(/,|\n/).map(item => item.trim()).filter(Boolean);
+      }
+    }
+
     let images = extractArray('images');
 
     // Check files array if multer was used for images
@@ -88,12 +116,12 @@ export const createProduct = async (req, res) => {
       images = [...images, ...fileImages];
     }
 
-    // Parse dosageInstructions
+    // Parse dosageInstructions (frontend sends this as 'dosageInstructions')
     const dosageInstructions = req.body.dosageInstructions || req.body.dosage || '';
 
-    // Extract 'for' and 'with' details array or string
-    const targetFor = req.body.for || '';
-    const targetWith = req.body.with || '';
+    // Extract 'for' and 'with' as arrays using the helper
+    const forArray = extractArray('for');
+    const withArray = extractArray('with');
 
     // Additional dynamic fields
     const badge = req.body.badge || '';
@@ -117,8 +145,8 @@ export const createProduct = async (req, res) => {
       expiryDate,
       manufacturer,
       images,
-      for: targetFor,
-      with: targetWith,
+      for: forArray,
+      with: withArray,
       badge,
       tagline,
       rating,
@@ -131,12 +159,12 @@ export const createProduct = async (req, res) => {
     if (!name) missingFields.push('name');
     if (!slug) missingFields.push('slug');
     if (!category) missingFields.push('category');
-    if (!price.amount) missingFields.push('price.amount');
-    if (!stockQuantity && stockQuantity !== 0) missingFields.push('stockQuantity');
+    if (price.amount === undefined || price.amount === null || isNaN(price.amount)) missingFields.push('price.amount');
+    if (stockQuantity === undefined || stockQuantity === null) missingFields.push('stockQuantity');
     if (!shortDescription) missingFields.push('shortDescription');
     if (!longDescription) missingFields.push('longDescription');
-    if (!weightSize.value && weightSize.value !== 0) missingFields.push('weightSize.value');
-    if (!weightSize.unit) missingFields.push('weightSize.unit');
+    if (weightSize.value === undefined || weightSize.value === null || isNaN(weightSize.value)) missingFields.push('weightSize.value');
+    if (!weightSize.unit || typeof weightSize.unit !== 'string' || !weightSize.unit.trim()) missingFields.push('weightSize.unit');
     if (!expiryDate) missingFields.push('expiryDate');
     if (!Array.isArray(ingredients) || ingredients.length === 0) missingFields.push('ingredients');
     if (!Array.isArray(benefits) || benefits.length === 0) missingFields.push('benefits');
@@ -161,10 +189,14 @@ export const createProduct = async (req, res) => {
           message: "Something went Wrong while Creating Product"
         });
       }
+      // add flat fields
+      const responseData = product.toObject ? product.toObject() : { ...product };
+      responseData.sellingPrice = responseData.price?.amount;
+      responseData.originalPrice = responseData.price?.mrp;
       res.status(201).json({
         success: true,
         message: 'Product created successfully',
-        data: product
+        data: responseData
       });
     } catch (err) {
       // console.error('[Backend] Mongoose/Product.create error:', err);
@@ -296,9 +328,14 @@ export const getProductById = async (req, res) => {
       });
     }
 
+    // add convenient flat fields for frontend
+    const responseData = product.toObject ? product.toObject() : { ...product };
+    responseData.sellingPrice = responseData.price?.amount;
+    responseData.originalPrice = responseData.price?.mrp;
+
     res.status(200).json({
       success: true,
-      data: product
+      data: responseData
     });
   } catch (error) {
     res.status(500).json({
@@ -323,9 +360,14 @@ export const getProductBySlug = async (req, res) => {
       });
     }
 
+    // add convenient flat fields for frontend
+    const responseData = product.toObject ? product.toObject() : { ...product };
+    responseData.sellingPrice = responseData.price?.amount;
+    responseData.originalPrice = responseData.price?.mrp;
+
     res.status(200).json({
       success: true,
-      data: product
+      data: responseData
     });
   } catch (error) {
     res.status(500).json({
@@ -341,6 +383,52 @@ export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
+
+    // allow simple sellingPrice/originalPrice fields to update nested price object
+    if (req.body.sellingPrice !== undefined) {
+      updateData.price = updateData.price || {};
+      updateData.price.amount = Number(req.body.sellingPrice);
+    }
+    if (req.body.originalPrice !== undefined) {
+      updateData.price = updateData.price || {};
+      updateData.price.mrp = Number(req.body.originalPrice);
+    }
+
+    // Helper to safely extract arrays sent via FormData
+    const extractArray = (key) => {
+      let arr = [];
+      if (req.body[key]) {
+        arr = Array.isArray(req.body[key]) ? req.body[key] : [req.body[key]];
+      } else if (req.body[`${key}[]`]) {
+        arr = Array.isArray(req.body[`${key}[]`]) ? req.body[`${key}[]`] : [req.body[`${key}[]`]];
+      } else {
+        let i = 0;
+        while (req.body[`${key}[${i}]`]) {
+          arr.push(req.body[`${key}[${i}]`]);
+          i++;
+        }
+      }
+
+      if (arr.length === 1 && typeof arr[0] === 'string' && (arr[0].includes('\n') || arr[0].includes(','))) {
+        arr = arr[0].split(/\n|,/).map(item => item.trim()).filter(Boolean);
+      }
+
+      return arr.map(item => typeof item === 'string' ? item.trim() : item).filter(Boolean);
+    };
+
+    // Parse array fields if they exist in request
+    if (req.body.for !== undefined) {
+      updateData.for = extractArray('for');
+    }
+    if (req.body.with !== undefined) {
+      updateData.with = extractArray('with');
+    }
+    if (req.body.benefits !== undefined) {
+      updateData.benefits = extractArray('benefits');
+    }
+    if (req.body.ingredients !== undefined) {
+      updateData.ingredients = extractArray('ingredients');
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,

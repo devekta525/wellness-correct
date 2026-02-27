@@ -514,7 +514,7 @@ const ProductsPage = () => {
                       (window.location.href =
                         "/dashboard/products/addProduct")
                       }
-                      className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      className="gap-2 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
                       <Sparkles className="w-4 h-4" />
                       AI Add Product
@@ -714,68 +714,68 @@ const ProductsPage = () => {
                     {products.map((product) => (
                       <Card
                         key={product._id}
-                        className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full"
+                        className="group overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col h-full relative"
                       >
-                        <div className="relative">
+                        <div className="relative w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden">
                           <Image
                             src={getProductImage(product)}
                             alt={product.name}
-                            width={300}
-                            height={192}
-                            className="w-full h-48 object-cover"
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
                             onError={() => handleImageError(product._id)}
                           />
-                          <div className="absolute top-2 right-2">
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                          <div className="absolute top-3 right-3 shadow-md z-10">
                             <Badge
-                              variant={
-                                product.status === "active"
-                                  ? "default"
-                                  : product.status === "inactive"
-                                    ? "secondary"
-                                    : "destructive"
-                              }
+                              className={`shadow-sm border-0 font-semibold px-3 py-1 text-xs tracking-wide uppercase ${product.status === "active"
+                                ? "bg-blue-600 text-white hover:bg-blue-700"
+                                : product.status === "inactive"
+                                  ? "bg-slate-500 text-white hover:bg-slate-600"
+                                  : "bg-red-500 text-white hover:bg-red-600"
+                                }`}
                             >
                               {product.status?.replace("_", " ") || "active"}
                             </Badge>
                           </div>
                         </div>
-                        <CardContent className="p-4 flex-1 flex flex-col">
+                        <CardContent className="p-5 flex-1 flex flex-col pt-6 relative bg-white dark:bg-slate-900 z-10 rounded-t-3xl -mt-5 transition-transform duration-300 border-t border-slate-100 dark:border-slate-800">
                           <div className="flex-1">
-                            <CardTitle className="text-lg mb-2">
+                            <CardTitle className="text-xl font-bold mb-1 text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition-colors">
                               {product.name}
                             </CardTitle>
-                            <CardDescription className="mb-2">
+                            <CardDescription className="mb-4 text-sm font-medium text-slate-500">
                               {product.category}
                             </CardDescription>
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg font-bold text-foreground">
-                                  ₹{product.price.amount}
-                                </span>
-                                {product.price.mrp &&
-                                  product.price.mrp > product.price.amount && (
-                                    <span className="text-sm text-muted-foreground line-through">
-                                      ₹{product.price.mrp}
-                                    </span>
-                                  )}
-                              </div>
+
+                            <div className="flex items-center gap-3 mb-4">
+                              <span className="text-2xl font-black text-slate-900 dark:text-white">
+                                ₹{product.price.amount}
+                              </span>
+                              {product.price.mrp &&
+                                product.price.mrp > product.price.amount && (
+                                  <span className="text-sm font-medium text-slate-400 line-through">
+                                    ₹{product.price.mrp}
+                                  </span>
+                                )}
                             </div>
-                            <p className="text-sm text-muted-foreground mb-2">
+
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 line-clamp-2 leading-relaxed">
                               {product.shortDescription}
                             </p>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Stock: {product.stockQuantity} •{" "}
-                              {product.weightSize.value}{" "}
-                              {product.weightSize.unit}
-                            </p>
+
+                            <div className="flex items-center text-sm font-medium text-slate-600 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl mb-6 border border-slate-100 dark:border-slate-700/50">
+                              <span>Stock: <span className={`font-bold ${Number(product.stockQuantity) < 10 ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'}`}>{product.stockQuantity}</span></span>
+                              <span className="mx-2 text-slate-300">•</span>
+                              <span>{product.weightSize.value} {product.weightSize.unit}</span>
+                            </div>
                           </div>
-                          <div className="flex gap-2 mt-auto">
+
+                          <div className="flex gap-3 mt-auto pt-2 grid-cols-2">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
                                   onClick={() => openEditModal(product)}
-                                  className="flex-1 gap-2"
-                                  size="sm"
+                                  className="w-full gap-2 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border-0 shadow-none transition-colors rounded-xl font-semibold h-11"
                                 >
                                   <Edit className="w-4 h-4" />
                                   Edit
@@ -790,8 +790,7 @@ const ProductsPage = () => {
                                 <Button
                                   onClick={() => handleDeleteProduct(product)}
                                   variant="outline"
-                                  className="flex-1 gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                  size="sm"
+                                  className="w-full gap-2 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white border-0 shadow-none transition-colors rounded-xl font-semibold h-11"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                   Delete
@@ -879,7 +878,9 @@ const ProductsPage = () => {
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
-                                      onClick={() => handleDeleteProduct(product)}
+                                      onClick={() =>
+                                        handleDeleteProduct(product)
+                                      }
                                       variant="ghost"
                                       size="icon"
                                       className="text-destructive hover:bg-destructive/10"
@@ -1066,7 +1067,7 @@ const ProductsPage = () => {
                     </h3>
                     <div>
                       <Label htmlFor="add-product-price" className="mb-2 block">
-                        Price (₹)
+                        Selling Price (₹)
                       </Label>
                       <Input
                         id="add-product-price"
@@ -1081,6 +1082,27 @@ const ProductsPage = () => {
                               ...newProduct.price,
                               amount: e.target.value,
                             },
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        htmlFor="add-product-original-price"
+                        className="mb-2 block"
+                      >
+                        Original Price (₹)
+                      </Label>
+                      <Input
+                        id="add-product-original-price"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={newProduct.price.mrp}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            price: { ...newProduct.price, mrp: e.target.value },
                           })
                         }
                       />
@@ -1190,6 +1212,34 @@ const ProductsPage = () => {
                           })
                         }
                         rows={4}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="add-product-for" className="mb-2 block">
+                        For (comma separated)
+                      </Label>
+                      <Input
+                        id="add-product-for"
+                        type="text"
+                        placeholder="e.g., Energy, Immunity"
+                        value={newProduct.for}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, for: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="add-product-with" className="mb-2 block">
+                        With (comma separated)
+                      </Label>
+                      <Input
+                        id="add-product-with"
+                        type="text"
+                        placeholder="e.g., Spirulina, Moringa"
+                        value={newProduct.with}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, with: e.target.value })
+                        }
                       />
                     </div>
                   </div>
@@ -1462,7 +1512,7 @@ const ProductsPage = () => {
                         htmlFor="edit-product-price"
                         className="mb-2 block"
                       >
-                        Price (₹)
+                        Selling Price (₹)
                       </Label>
                       <Input
                         id="edit-product-price"
@@ -1612,6 +1662,34 @@ const ProductsPage = () => {
                         rows={4}
                       />
                     </div>
+                    <div>
+                      <Label htmlFor="edit-product-for" className="mb-2 block">
+                        For (comma separated)
+                      </Label>
+                      <Input
+                        id="edit-product-for"
+                        type="text"
+                        placeholder="e.g., Energy, Immunity"
+                        value={newProduct.for}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, for: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-product-with" className="mb-2 block">
+                        With (comma separated)
+                      </Label>
+                      <Input
+                        id="edit-product-with"
+                        type="text"
+                        placeholder="e.g., Spirulina, Moringa"
+                        value={newProduct.with}
+                        onChange={(e) =>
+                          setNewProduct({ ...newProduct, with: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
 
                   {/* Additional Information */}
@@ -1667,10 +1745,7 @@ const ProductsPage = () => {
                     </h3>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <Label>
-                          Product Images{" "}
-                          {productImages.length}/5
-                        </Label>
+                        <Label>Product Images {productImages.length}/5</Label>
                         <div className="flex gap-2">
                           {productImages.length < 5 && (
                             <Button
@@ -1733,13 +1808,21 @@ const ProductsPage = () => {
                               <Input
                                 placeholder="Alt text"
                                 value={image.alt}
-                                onChange={(e) => updateImage(image.id, "alt", e.target.value)}
+                                onChange={(e) =>
+                                  updateImage(image.id, "alt", e.target.value)
+                                }
                                 className="text-sm"
                               />
                               <Input
                                 placeholder="Caption (optional)"
                                 value={image.caption || ""}
-                                onChange={(e) => updateImage(image.id, "caption", e.target.value)}
+                                onChange={(e) =>
+                                  updateImage(
+                                    image.id,
+                                    "caption",
+                                    e.target.value,
+                                  )
+                                }
                                 className="text-sm"
                               />
                             </div>

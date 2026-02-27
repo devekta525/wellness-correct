@@ -164,7 +164,8 @@ const FeaturedCollectionSection = () => {
                           id: product._id,
                           name: product.name,
                           price: product.price?.amount || 0,
-                          imageUrl: product.images?.[0] || "/placeholder.png",
+                          imageUrl:
+                            product.images?.[0] || "/placeholder-product.svg",
                         });
                       }}
                       className={`p-2 rounded-full shadow-sm transition-all duration-300 ${
@@ -184,7 +185,9 @@ const FeaturedCollectionSection = () => {
                     <div className="absolute inset-0 flex items-center justify-center p-8">
                       <div className="relative w-full h-full transition-transform duration-700 group-hover:scale-110">
                         <Image
-                          src={product.images?.[0] || "/placeholder.png"}
+                          src={
+                            product.images?.[0] || "/placeholder-product.svg"
+                          }
                           alt={product.name}
                           fill
                           className={`object-contain transition-opacity duration-500 ${product.images?.[1] ? "group-hover:opacity-0" : ""}`}
@@ -209,7 +212,8 @@ const FeaturedCollectionSection = () => {
                             id: product._id,
                             name: product.name,
                             price: product.price?.amount || 0,
-                            image: product.images?.[0] || "/placeholder.png",
+                            image:
+                              product.images?.[0] || "/placeholder-product.svg",
                           });
                           Swal.fire({
                             title: "Added to Cart!",

@@ -54,16 +54,13 @@ const initialState: NewsletterState = {
 
 const api = axiosInstance.create({
   baseURL: getApiV1BaseUrl(),
-  
+
 });
 
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      let token =
-        "" ||
-        "" ||
-        localStorage.getItem("accessToken");
+      let token = localStorage.getItem("accessToken");
 
       if (token) {
         token = token.replace(/^"|"$/g, "");
@@ -157,50 +154,50 @@ const handleApiError = (error: unknown) => {
 
 export const fetchNewslettersData =
   () =>
-  async (
-    dispatch: AppDispatch,
-    getState: () => { newsletters: NewsletterState },
-  ) => {
-    dispatch(setNewsletterLoading());
-    try {
-      const { filters, pagination } = getState().newsletters;
-      const queryParams = new URLSearchParams();
+    async (
+      dispatch: AppDispatch,
+      getState: () => { newsletters: NewsletterState },
+    ) => {
+      dispatch(setNewsletterLoading());
+      try {
+        const { filters, pagination } = getState().newsletters;
+        const queryParams = new URLSearchParams();
 
-      queryParams.append("page", pagination.page.toString());
-      queryParams.append("limit", pagination.limit.toString());
+        queryParams.append("page", pagination.page.toString());
+        queryParams.append("limit", pagination.limit.toString());
 
-      if (filters.status && filters.status !== "all") {
-        queryParams.append("status", filters.status);
+        if (filters.status && filters.status !== "all") {
+          queryParams.append("status", filters.status);
+        }
+        if (filters.email) {
+          queryParams.append("email", filters.email);
+        }
+
+        const response = await api.get(`/newsletters?${queryParams}`);
+
+        if (response.data?.success) {
+          const mappedNewsletters = response.data.data.map(
+            (item: ApiNewsletter) => mapApiNewsletterToNewsletter(item),
+          );
+
+          dispatch(
+            setNewsletterData({
+              data: mappedNewsletters,
+              total: response.data.pagination?.total || response.data.data.length,
+            }),
+          );
+        } else {
+          throw new Error(
+            response.data?.message || "Failed to fetch newsletters",
+          );
+        }
+        return true;
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setNewsletterError(errorMessage));
+        return false;
       }
-      if (filters.email) {
-        queryParams.append("email", filters.email);
-      }
-
-      const response = await api.get(`/newsletters?${queryParams}`);
-
-      if (response.data?.success) {
-        const mappedNewsletters = response.data.data.map(
-          (item: ApiNewsletter) => mapApiNewsletterToNewsletter(item),
-        );
-
-        dispatch(
-          setNewsletterData({
-            data: mappedNewsletters,
-            total: response.data.pagination?.total || response.data.data.length,
-          }),
-        );
-      } else {
-        throw new Error(
-          response.data?.message || "Failed to fetch newsletters",
-        );
-      }
-      return true;
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setNewsletterError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 export const fetchNewsletterById =
   (newsletterId: string) => async (dispatch: AppDispatch) => {

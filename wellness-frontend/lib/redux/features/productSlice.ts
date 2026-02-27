@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axiosInstance from '../../utils/axiosInstance';
-import axios from 'axios';
+import axiosInstance from "../../utils/axiosInstance";
+import axios from "axios";
 import { getApiBaseUrl } from "../../utils/api";
+import { getImageUrl } from "../../utils/getImageUrl";
 
 export interface Product {
   _id: string;
@@ -111,7 +112,6 @@ const initialState: ProductState = {
 
 const api = axiosInstance.create({
   baseURL: getApiBaseUrl(),
-
 });
 api.interceptors.request.use(
   (config) => {
@@ -181,37 +181,48 @@ export const {
   setPagination,
   clearSelectedProduct,
 } = productSlice.actions;
-const mapApiProductToProduct = (apiProduct: ApiProduct): Product => ({
-  _id: apiProduct._id,
-  name: apiProduct.name,
-  slug: apiProduct.slug || "",
-  category: apiProduct.category,
-  price: {
-    amount: apiProduct.price.amount,
-    currency: apiProduct.price.currency,
-    mrp: apiProduct.price.mrp || apiProduct.price.amount,
-  },
-  stockQuantity: apiProduct.stockQuantity,
-  shortDescription: apiProduct.shortDescription,
-  description: apiProduct.description || apiProduct.shortDescription,
-  longDescription: apiProduct.longDescription,
-  weightSize: apiProduct.weightSize,
-  expiryDate: apiProduct.expiryDate,
-  ingredients: apiProduct.ingredients || [],
-  benefits: apiProduct.benefits || [],
-  dosageInstructions: apiProduct.dosageInstructions,
-  manufacturer: apiProduct.manufacturer,
-  images: apiProduct.images || [],
-  imageUrl:
-    apiProduct.imageUrl || apiProduct.image || apiProduct.images?.[0] || "",
-  status: apiProduct.status || "active",
-  metaTitle: apiProduct.metaTitle || apiProduct.name,
-  metaDescription: apiProduct.metaDescription || apiProduct.shortDescription,
-  createdAt: apiProduct.createdAt,
-  updatedAt: apiProduct.updatedAt,
-  for: apiProduct.for,
-  with: apiProduct.with,
-});
+const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
+  // normalize should only return defined URLs; empty/undefined
+  // will be filtered downstream so that ProductCard doesn't have to
+  // deal with placeholders inserted at the Redux level.
+  const normalize = (u?: string) => (u ? getImageUrl(u) : undefined);
+
+  return {
+    _id: apiProduct._id,
+    name: apiProduct.name,
+    slug: apiProduct.slug || "",
+    category: apiProduct.category,
+    price: {
+      amount: apiProduct.price.amount,
+      currency: apiProduct.price.currency,
+      mrp: apiProduct.price.mrp || apiProduct.price.amount,
+    },
+    stockQuantity: apiProduct.stockQuantity,
+    shortDescription: apiProduct.shortDescription,
+    description: apiProduct.description || apiProduct.shortDescription,
+    longDescription: apiProduct.longDescription,
+    weightSize: apiProduct.weightSize,
+    expiryDate: apiProduct.expiryDate,
+    ingredients: apiProduct.ingredients || [],
+    benefits: apiProduct.benefits || [],
+    dosageInstructions: apiProduct.dosageInstructions,
+    manufacturer: apiProduct.manufacturer,
+    images: (apiProduct.images || [])
+      .map(normalize)
+      .filter((x): x is string => !!x),
+    imageUrl:
+      normalize(
+        apiProduct.imageUrl || apiProduct.image || apiProduct.images?.[0] || "",
+      ) || "",
+    status: apiProduct.status || "active",
+    metaTitle: apiProduct.metaTitle || apiProduct.name,
+    metaDescription: apiProduct.metaDescription || apiProduct.shortDescription,
+    createdAt: apiProduct.createdAt,
+    updatedAt: apiProduct.updatedAt,
+    for: apiProduct.for,
+    with: apiProduct.with,
+  };
+};
 const handleApiError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message || error.message;
@@ -223,51 +234,51 @@ const handleApiError = (error: unknown) => {
 };
 export const fetchProductsData =
   () =>
-    async (dispatch: AppDispatch, getState: () => { products: ProductState }) => {
-      dispatch(setProductLoading());
-      try {
-        const { filters, pagination } = getState().products;
-        const queryParams = new URLSearchParams();
+  async (dispatch: AppDispatch, getState: () => { products: ProductState }) => {
+    dispatch(setProductLoading());
+    try {
+      const { filters, pagination } = getState().products;
+      const queryParams = new URLSearchParams();
 
-        queryParams.append("page", pagination.page.toString());
-        queryParams.append("limit", pagination.limit.toString());
+      queryParams.append("page", pagination.page.toString());
+      queryParams.append("limit", pagination.limit.toString());
 
-        if (filters.category && filters.category !== "All") {
-          queryParams.append("category", filters.category);
-        }
-        if (filters.status && filters.status !== "All") {
-          queryParams.append("status", filters.status);
-        }
-        if (filters.search) {
-          queryParams.append("search", filters.search);
-        }
-        const response = await api.get(`/v1/products?${queryParams}`);
-
-        if (response.data?.success && Array.isArray(response.data.data)) {
-          const mappedProducts = response.data.data.map((product: ApiProduct) =>
-            mapApiProductToProduct(product),
-          );
-
-          dispatch(
-            setProductData({
-              data: mappedProducts,
-              total:
-                response.data.pagination?.total ||
-                response.data.pagination?.totalProducts ||
-                response.data.data.length,
-            }),
-          );
-        } else {
-          throw new Error(response.data?.message || "Failed to fetch products");
-        }
-        return true;
-      } catch (error: unknown) {
-        const errorMessage = handleApiError(error);
-        dispatch(setProductError(errorMessage));
-        return false;
+      if (filters.category && filters.category !== "All") {
+        queryParams.append("category", filters.category);
       }
+      if (filters.status && filters.status !== "All") {
+        queryParams.append("status", filters.status);
+      }
+      if (filters.search) {
+        queryParams.append("search", filters.search);
+      }
+      const response = await api.get(`/v1/products?${queryParams}`);
+
+      if (response.data?.success && Array.isArray(response.data.data)) {
+        const mappedProducts = response.data.data.map((product: ApiProduct) =>
+          mapApiProductToProduct(product),
+        );
+
+        dispatch(
+          setProductData({
+            data: mappedProducts,
+            total:
+              response.data.pagination?.total ||
+              response.data.pagination?.totalProducts ||
+              response.data.data.length,
+          }),
+        );
+      } else {
+        throw new Error(response.data?.message || "Failed to fetch products");
+      }
+      return true;
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      dispatch(setProductError(errorMessage));
       return false;
-    };
+    }
+    return false;
+  };
 
 export const fetchProductBySlug =
   (slug: string) => async (dispatch: AppDispatch) => {

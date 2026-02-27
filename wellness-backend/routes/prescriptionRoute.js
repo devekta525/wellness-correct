@@ -10,22 +10,34 @@ import {
     getMyPrescriptions
 } from '../controllers/prescriptionController.js';
 import { isLogin } from '../middleWares/isLogin.js';
+import { isDoctor } from '../middleWares/isDoctor.js';
+import { isAdmin } from '../middleWares/isAdmin.js';
 
 const router = Router();
 
 // All routes below require a valid JWT
-router.use(isLogin); // This acts as the 'protect' middleware for all routes in this file.
+router.use(isLogin);
+
+// Helper middleware for Doctor or Admin access
+const isDoctorOrAdmin = (req, res, next) => {
+    if (req.user.role.toLowerCase() === 'doctor' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: "Doctor or Admin access required" });
+};
 
 // ── Static / named routes (must come BEFORE /:id) ────────────────────────────
-router.post('/', createPrescription);
-router.get('/stats', getPrescriptionStats);
-router.get('/export', exportPrescriptions);
-router.get('/my', getMyPrescriptions); // Securely get prescriptions for the logged-in user. The 'isPatient' role guard is removed as requested.
-router.get('/', getPrescriptions);
+// Create, read all, stats, export - Doctor or Admin only
+router.post('/', isDoctorOrAdmin, createPrescription);
+router.get('/stats', isDoctorOrAdmin, getPrescriptionStats);
+router.get('/export', isDoctorOrAdmin, exportPrescriptions);
+// Get own prescriptions - authenticated user
+router.get('/my', getMyPrescriptions);
+router.get('/', isDoctorOrAdmin, getPrescriptions);
 
 // ── Dynamic :id routes ────────────────────────────────────────────────────────
-router.get('/:id', getPrescriptionById);
-router.put('/:id', updatePrescription);
-router.delete('/:id', deletePrescription);
+router.get('/:id', isDoctorOrAdmin, getPrescriptionById);
+router.put('/:id', isDoctorOrAdmin, updatePrescription);
+router.delete('/:id', isDoctorOrAdmin, deletePrescription);
 
 export default router;

@@ -1,8 +1,5 @@
 // import OpenAI from "openai";
-import dotenv from "dotenv";
 import Blog from "../models/blogModel.js";
-
-dotenv.config();
 
 // const client = new OpenAI({
 //   apiKey: process.env.OPENAI_API_KEY,
@@ -132,10 +129,10 @@ export async function createBlog(req, res) {
 
     const blog = new Blog(req.body);
     const savedBlog = await blog.save();
-    
+
     // Populate author info
     await savedBlog.populate('author', 'firstName lastName email');
-    
+
     res.status(201).json({
       success: true,
       message: 'Blog created successfully',
@@ -153,17 +150,17 @@ export async function createBlog(req, res) {
 
 export async function getAllBlogs(req, res) {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      status, 
-      category, 
-      author, 
-      search 
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      category,
+      author,
+      search
     } = req.query;
-    
+
     const query = {};
-    
+
     if (status) query.status = status;
     if (category) query.category = new RegExp(category, 'i');
     if (author) query.author = author;
@@ -188,13 +185,14 @@ export async function getAllBlogs(req, res) {
       data: {
         blogs,
         pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        pages: Math.ceil(total / Number(limit)),
-        hasNext: Number(page) * Number(limit) < total,
-        hasPrev: Number(page) > 1
-      }}
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+          hasNext: Number(page) * Number(limit) < total,
+          hasPrev: Number(page) > 1
+        }
+      }
     });
   } catch (error) {
     res.status(400).json({
@@ -210,14 +208,14 @@ export async function getBlogById(req, res) {
   try {
     const blog = await Blog.findById(req.params.id)
       .populate('author', 'firstName lastName email');
-    
+
     if (!blog) {
       return res.status(404).json({
         success: false,
         message: 'Blog not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: blog
@@ -236,18 +234,18 @@ export async function getBlogBySlug(req, res) {
   try {
     const blog = await Blog.findOne({ urlSlug: req.params.slug })
       .populate('author', 'firstName lastName email');
-    
+
     if (!blog) {
       return res.status(404).json({
         success: false,
         message: 'Blog not found'
       });
     }
-    
+
     // Increment views
     await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
     blog.views += 1;
-    
+
     res.json({
       success: true,
       data: blog
@@ -278,14 +276,14 @@ export async function updateBlog(req, res) {
       req.body,
       { new: true, runValidators: true }
     ).populate('author', 'firstName lastName email');
-    
+
     if (!updatedBlog) {
       return res.status(404).json({
         success: false,
         message: 'Blog not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Blog updated successfully',
@@ -304,14 +302,14 @@ export async function updateBlog(req, res) {
 export async function deleteBlog(req, res) {
   try {
     const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
-    
+
     if (!deletedBlog) {
       return res.status(404).json({
         success: false,
         message: 'Blog not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Blog deleted successfully',
@@ -330,27 +328,27 @@ export async function deleteBlog(req, res) {
 export async function updateBlogStatus(req, res) {
   try {
     const { status } = req.body;
-    
+
     if (!['draft', 'published', 'archived'].includes(status)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid status. Must be draft, published, or archived'
       });
     }
-    
+
     const blog = await Blog.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true }
     ).populate('author', 'firstName lastName email');
-    
+
     if (!blog) {
       return res.status(404).json({
         success: false,
         message: 'Blog not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: `Blog status updated to ${status}`,
@@ -372,14 +370,14 @@ export async function toggleBlogLike(req, res) {
       { $inc: { likes: 1 } },
       { new: true }
     );
-    
+
     if (!blog) {
       return res.status(404).json({
         success: false,
         message: 'Blog not found'
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Blog liked successfully',
@@ -397,17 +395,17 @@ export async function toggleBlogLike(req, res) {
 // Get published blogs (public endpoint)
 export async function getPublishedBlogs(req, res) {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      category, 
+    const {
+      page = 1,
+      limit = 10,
+      category,
       search,
       sortBy = 'createdAt',
       sortOrder = 'desc'
     } = req.query;
-    
+
     const query = { status: 'published' };
-    
+
     if (category) query.category = new RegExp(category, 'i');
     if (search) {
       query.$or = [

@@ -9,19 +9,19 @@ import { motion } from "framer-motion";
 import Product1 from "../../public/supplement-bottle-blue.png";
 import Product2 from "../../public/1.jpg";
 import Product4 from "../../public/4.jpg";
-import img from "../../public/Hero.png"
+import img from "../../public/Hero.png";
 
 const BenchmarkSection = () => {
   return (
-    <section className="relative py-20 lg:py-32 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
+    <section className="relative py-20 lg:py-32 bg-linear-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div 
+        <motion.div
           className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/40 dark:bg-blue-900/10 rounded-full blur-3xl"
           animate={{ scale: [1, 1.1, 1], x: [0, 50, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div 
+        <motion.div
           className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-100/40 dark:bg-indigo-900/10 rounded-full blur-3xl"
           animate={{ scale: [1, 1.2, 1], x: [0, -50, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
@@ -31,7 +31,7 @@ const BenchmarkSection = () => {
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
           {/* Left Content */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -40,14 +40,19 @@ const BenchmarkSection = () => {
           >
             <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-blue-900 dark:text-white leading-[1.1] tracking-tight">
               He’s not our ambassador. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">He’s our benchmark.</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-600">
+                He's our benchmark.
+              </span>
             </h2>
 
             <div className="space-y-4 relative">
-              <div className="hidden lg:block absolute -left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-transparent rounded-full" />
-              <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">for Wellness.</p>
+              <div className="hidden lg:block absolute -left-6 top-0 bottom-0 w-1 bg-linear-to-b from-blue-500 to-transparent rounded-full" />
+              <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                for Wellness.
+              </p>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Because longevity isn’t a trend, it’s a standard. We set the bar high so you can live your best life, every single day.
+                Because longevity isn’t a trend, it’s a standard. We set the bar
+                high so you can live your best life, every single day.
               </p>
             </div>
 
@@ -64,7 +69,7 @@ const BenchmarkSection = () => {
           {/* Right Content - Image & Floating Cards */}
           <div className="w-full lg:w-1/2 relative flex justify-center lg:justify-end mt-12 lg:mt-0">
             {/* Main Image Container */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -74,7 +79,7 @@ const BenchmarkSection = () => {
               {/* Placeholder for  holding products */}
               <div className="relative w-full h-full mix-blend-multiply dark:mix-blend-normal z-10">
                 <Image
-                  src= {img}
+                  src={img}
                   alt="Benchmark"
                   fill
                   className="object-contain object-bottom drop-shadow-2xl"
@@ -84,9 +89,13 @@ const BenchmarkSection = () => {
 
               {/* Floating Product Cards */}
               {/* Card 1: Top Left */}
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, -15, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
                 className="absolute top-10 left-0 md:-left-8 w-36 md:w-44 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 z-20 hidden sm:block"
               >
                 <div className="relative w-full aspect-square mb-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl p-2">
@@ -102,15 +111,23 @@ const BenchmarkSection = () => {
                 </p>
                 <div className="flex gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-2.5 h-2.5 text-yellow-400 fill-current" />
+                    <Star
+                      key={i}
+                      className="w-2.5 h-2.5 text-yellow-400 fill-current"
+                    />
                   ))}
                 </div>
               </motion.div>
 
               {/* Card 2: Top Right */}
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, 15, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1,
+                }}
                 className="absolute top-20 right-0 md:-right-4 w-40 md:w-48 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 z-20 hidden sm:block"
               >
                 <div className="relative w-full aspect-square mb-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl p-2">
@@ -125,16 +142,24 @@ const BenchmarkSection = () => {
                   Complete Superfoods
                 </p>
                 <div className="flex gap-0.5">
-                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-2.5 h-2.5 text-yellow-400 fill-current" />
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-2.5 h-2.5 text-yellow-400 fill-current"
+                    />
                   ))}
                 </div>
               </motion.div>
 
               {/* Card 3: Bottom Left */}
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 2,
+                }}
                 className="absolute bottom-32 -left-4 md:-left-12 w-36 md:w-44 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 z-20 hidden sm:block"
               >
                 <div className="relative w-full aspect-square mb-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl p-2">
@@ -149,16 +174,24 @@ const BenchmarkSection = () => {
                   Complete Gut Fibre
                 </p>
                 <div className="flex gap-0.5">
-                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-2.5 h-2.5 text-yellow-400 fill-current" />
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-2.5 h-2.5 text-yellow-400 fill-current"
+                    />
                   ))}
                 </div>
               </motion.div>
 
               {/* Card 4: Bottom Right */}
-              <motion.div 
+              <motion.div
                 animate={{ y: [0, 12, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                transition={{
+                  duration: 4.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.5,
+                }}
                 className="absolute bottom-20 right-0 md:-right-8 w-32 md:w-40 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 z-20 hidden sm:block"
               >
                 <div className="relative w-full aspect-square mb-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl p-2">
@@ -173,8 +206,11 @@ const BenchmarkSection = () => {
                   Forever Gut
                 </p>
                 <div className="flex gap-0.5">
-                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-2.5 h-2.5 text-yellow-400 fill-current" />
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-2.5 h-2.5 text-yellow-400 fill-current"
+                    />
                   ))}
                 </div>
               </motion.div>

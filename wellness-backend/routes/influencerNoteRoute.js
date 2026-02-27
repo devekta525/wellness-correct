@@ -1,5 +1,7 @@
 import express from "express";
 import { isLogin } from "../middleWares/isLogin.js";
+import { isInfluencer } from "../middleWares/isInfluencer.js";
+import { isAdmin } from "../middleWares/isAdmin.js";
 import {
   createInfluencerNote,
   getInfluencerNotes,
@@ -13,12 +15,19 @@ const router = express.Router();
 
 router.use(isLogin);
 
-router.post("/", createInfluencerNote);
-router.get("/", getInfluencerNotes);
-router.get("/:id", getInfluencerNoteById);
-router.put("/:id", updateInfluencerNote);
-router.delete("/:id", deleteInfluencerNote);
+// Influencer note routes require Influencer or Admin access
+const isInfluencerOrAdmin = (req, res, next) => {
+  if (req.user.role.toLowerCase() === 'influencer' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "Influencer or Admin access required" });
+};
 
-router.patch("/:id/favorite", toggleInfluencerNoteFavorite);
+router.post("/", isInfluencerOrAdmin, createInfluencerNote);
+router.get("/", isInfluencerOrAdmin, getInfluencerNotes);
+router.get("/:id", isInfluencerOrAdmin, getInfluencerNoteById);
+router.put("/:id", isInfluencerOrAdmin, updateInfluencerNote);
+router.delete("/:id", isInfluencerOrAdmin, deleteInfluencerNote);
+router.patch("/:id/favorite", isInfluencerOrAdmin, toggleInfluencerNoteFavorite);
 
 export default router;

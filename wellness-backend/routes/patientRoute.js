@@ -10,18 +10,29 @@ import {
     exportPatients
 } from '../controllers/patientController.js';
 import { isLogin } from '../middleWares/isLogin.js';
+import { isDoctor } from '../middleWares/isDoctor.js';
+import { isAdmin } from '../middleWares/isAdmin.js';
 
 const router = Router();
 
 router.use(isLogin);
 
-router.post('/', createPatient);
-router.get('/', getPatients);
-router.get('/stats', getPatientStats);
-router.get('/count', getTotalPatientsCount);
-router.get('/export', exportPatients);
-router.get('/:id', getPatientById);
-router.put('/:id', updatePatient);
-router.delete('/:id', deletePatient);
+// Inline middleware for Doctor or Admin access
+const isDoctorOrAdmin = (req, res, next) => {
+    if (req.user.role.toLowerCase() === 'doctor' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: "Doctor or Admin access required" });
+};
+
+// All patient routes require Doctor or Admin
+router.post('/', isDoctorOrAdmin, createPatient);
+router.get('/', isDoctorOrAdmin, getPatients);
+router.get('/stats', isDoctorOrAdmin, getPatientStats);
+router.get('/count', isDoctorOrAdmin, getTotalPatientsCount);
+router.get('/export', isDoctorOrAdmin, exportPatients);
+router.get('/:id', isDoctorOrAdmin, getPatientById);
+router.put('/:id', isDoctorOrAdmin, updatePatient);
+router.delete('/:id', isDoctorOrAdmin, deletePatient);
 
 export default router;

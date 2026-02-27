@@ -1,5 +1,7 @@
 import express from "express";
 import { isLogin } from "../middleWares/isLogin.js";
+import { isInfluencer } from "../middleWares/isInfluencer.js";
+import { isAdmin } from "../middleWares/isAdmin.js";
 import {
   getInfluencerSettings,
   updateProfileSettings,
@@ -12,11 +14,40 @@ const router = express.Router();
 
 router.use(isLogin);
 
-router.get("/", getInfluencerSettings);
+// All influencer settings routes require influencer or admin role
+router.get("/", (req, res, next) => {
+  if (req.user.role.toLowerCase() === 'influencer' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "Influencer or Admin access required" });
+}, getInfluencerSettings);
 
-router.put("/profile", updateProfileSettings);
-router.put("/business", updateBusinessSettings);
-router.put("/security", updateSecuritySettings);
-router.put("/avatar", updateAvatar);
+router.put("/profile", (req, res, next) => {
+  if (req.user.role.toLowerCase() === 'influencer' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "Influencer or Admin access required" });
+}, updateProfileSettings);
+
+router.put("/business", (req, res, next) => {
+  if (req.user.role.toLowerCase() === 'influencer' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "Influencer or Admin access required" });
+}, updateBusinessSettings);
+
+router.put("/security", (req, res, next) => {
+  if (req.user.role.toLowerCase() === 'influencer' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "Influencer or Admin access required" });
+}, updateSecuritySettings);
+
+router.put("/avatar", (req, res, next) => {
+  if (req.user.role.toLowerCase() === 'influencer' || req.user.role.toLowerCase() === 'admin' || req.user.role.toLowerCase() === 'super_admin') {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "Influencer or Admin access required" });
+}, updateAvatar);
 
 export default router;

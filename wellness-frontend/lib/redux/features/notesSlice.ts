@@ -28,12 +28,12 @@ interface ApiNote {
   category: string;
   tags: string[];
   author:
-    | {
-        _id: string;
-        firstName: string;
-        lastName: string;
-      }
-    | string;
+  | {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  }
+  | string;
   createdAt: string;
   updatedAt: string;
   isFavorite: boolean;
@@ -205,10 +205,10 @@ const getAuthConfig = () => {
   const token = "";
 
   return {
-     // Keep cookies enabled just in case
+    // Keep cookies enabled just in case
     headers: {
       // Only add header if token exists
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": "application/json",
     },
   };
@@ -343,30 +343,30 @@ export const createNote =
 // Update note
 export const updateNote =
   (noteId: string, updatedData: Partial<Note>) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setNoteLoading());
-    try {
-      const response = await axiosInstance.put(
-        `${API_BASE_URL}/notes/${noteId}`,
-        updatedData,
-        getAuthConfig(), // <--- UPDATED
-      );
+    async (dispatch: AppDispatch) => {
+      dispatch(setNoteLoading());
+      try {
+        const response = await axiosInstance.put(
+          `${API_BASE_URL}/notes/${noteId}`,
+          updatedData,
+          getAuthConfig(), // <--- UPDATED
+        );
 
-      if (response.data?.success) {
-        if (response.data.data) {
-          const mappedNote = mapApiNoteToNote(response.data.data);
-          dispatch(updateNoteInList(mappedNote));
+        if (response.data?.success) {
+          if (response.data.data) {
+            const mappedNote = mapApiNoteToNote(response.data.data);
+            dispatch(updateNoteInList(mappedNote));
+          }
+          return true;
+        } else {
+          throw new Error(response.data?.message || "Failed to update note");
         }
-        return true;
-      } else {
-        throw new Error(response.data?.message || "Failed to update note");
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setNoteError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setNoteError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 // Delete note
 export const deleteNote = (noteId: string) => async (dispatch: AppDispatch) => {

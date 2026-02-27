@@ -1,21 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Search, User, ShoppingCart, Menu, X, ChevronDown, LogOut } from 'lucide-react';
-import logo from '../public/logo.jpeg';
-import { useRouter } from 'next/navigation';
-import { clearAuthData } from '@/lib/utils/auth';
-import { useAppDispatch } from '@/lib/redux/hooks';
-import { logout as reduxLogout } from '@/lib/redux/features/authSlice';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Search,
+  User,
+  ShoppingCart,
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+} from "lucide-react";
+import logo from "../public/logo.jpeg";
+import { useRouter } from "next/navigation";
+import { clearAuthData } from "@/lib/utils/auth";
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { logout as reduxLogout } from "@/lib/redux/features/authSlice";
 
 const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'About Us', href: '/about' },
-  { label: 'Shop', href: '/shop' },
-  { label: 'Science', href: '/science' },
-  { label: 'Contact', href: '/contact' },
+  { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
+  { label: "Shop", href: "/shop" },
+  { label: "Science", href: "/science" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -32,10 +40,10 @@ export default function Navbar() {
   useEffect(() => {
     setIsClient(true);
     // Determine if authenticated
-    setIsLoggedIn(!!localStorage.getItem('authToken'));
+    setIsLoggedIn(!!localStorage.getItem("authToken"));
     const onScroll = () => setIsScrolled(window.scrollY > 24);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleLogout = () => {
@@ -44,28 +52,33 @@ export default function Navbar() {
     setIsLoggedIn(false);
     setIsUserMenuOpen(false);
     setIsMobileOpen(false);
-    router.push('/login');
+    // redirect any logged‑out user to the public home page
+    router.push("/");
   };
 
   return (
     <>
       <nav
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${isScrolled
-          ? 'bg-white/96 backdrop-blur-xl shadow-lg shadow-blue-50/60 border-b border-blue-50'
-          : 'bg-white/80 backdrop-blur-md'
-          }`}
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-white/96 backdrop-blur-xl shadow-lg shadow-blue-50/60 border-b border-blue-50"
+            : "bg-white/80 backdrop-blur-md"
+        }`}
       >
         {/* Top announcement bar */}
         <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-600 text-white text-[11px] font-medium text-center py-2 tracking-wide">
-          🌿 Free Shipping on Orders Above ₹999 &nbsp;|&nbsp; Use Code{' '}
-          <span className="font-bold text-cyan-200">WELLNESS20</span> for 20% Off
+          🌿 Free Shipping on Orders Above ₹999 &nbsp;|&nbsp; Use Code{" "}
+          <span className="font-bold text-cyan-200">WELLNESS20</span> for 20%
+          Off
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-[68px]">
-
             {/* ── Logo ── */}
-            <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 group flex-shrink-0"
+            >
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-blue-300 transition-shadow duration-300 overflow-hidden bg-white">
                   <Image
@@ -189,7 +202,11 @@ export default function Navbar() {
                 aria-label="Toggle menu"
                 className="md:hidden ml-1 p-2.5 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
               >
-                {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {isMobileOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
@@ -197,8 +214,9 @@ export default function Navbar() {
 
         {/* ── Search bar ── */}
         <div
-          className={`overflow-hidden transition-all duration-300 ${isSearchOpen ? 'max-h-20 border-b border-blue-50' : 'max-h-0'
-            } bg-white`}
+          className={`overflow-hidden transition-all duration-300 ${
+            isSearchOpen ? "max-h-20 border-b border-blue-50" : "max-h-0"
+          } bg-white`}
         >
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
             <div className="flex-1 flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-2.5">
@@ -221,8 +239,9 @@ export default function Navbar() {
 
         {/* ── Mobile menu ── */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ${isMobileOpen ? 'max-h-96' : 'max-h-0'
-            } bg-white/98 backdrop-blur-xl border-t border-blue-50`}
+          className={`md:hidden overflow-hidden transition-all duration-300 ${
+            isMobileOpen ? "max-h-96" : "max-h-0"
+          } bg-white/98 backdrop-blur-xl border-t border-blue-50`}
         >
           <div className="px-4 py-5 space-y-1">
             {navLinks.map((link) => (

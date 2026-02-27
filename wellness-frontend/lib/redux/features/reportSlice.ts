@@ -27,9 +27,9 @@ const getAuthConfig = () => {
   const token =
     typeof window !== "undefined" ? "" : null;
   return {
-    
+
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": "application/json",
     },
   };

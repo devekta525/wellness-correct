@@ -170,7 +170,7 @@ export const signup = async (req, res) => {
     }
 
     // Auto-login logic
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.role, user.adminRole || null);
 
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
@@ -267,7 +267,7 @@ export const login = async (req, res) => {
       });
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.role, user.adminRole || null);
 
     const parser = new UAParser(userAgent);
     const deviceInfo = parser.getResult();

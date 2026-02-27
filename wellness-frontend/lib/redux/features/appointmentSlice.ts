@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "../store";
-import axiosInstance from '../../utils/axiosInstance';
-import axios from 'axios';
+import axiosInstance from "../../utils/axiosInstance";
+import axios from "axios";
 import { getApiV1BaseUrl } from "../../utils/api";
 
 export interface User {
@@ -99,9 +99,8 @@ const getAuthConfig = () => {
   }
 
   return {
-
     headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       "Content-Type": "application/json",
     },
   };
@@ -228,8 +227,8 @@ export const fetchAppointments =
       dispatch(
         setError(
           error.response?.data?.message ||
-          error.message ||
-          "Failed to fetch appointments",
+            error.message ||
+            "Failed to fetch appointments",
         ),
       );
     }
@@ -314,7 +313,10 @@ export const deleteAppointment =
 
 export const fetchAppointmentStats = () => async (dispatch: AppDispatch) => {
   try {
-    const response = await axiosInstance.get(`/stats`, getAuthConfig());
+    const response = await axiosInstance.get(
+      `${API_BASE_URL}/stats`,
+      getAuthConfig(),
+    );
 
     if (response.data.success) {
       dispatch(setStats(response.data.data));
@@ -323,6 +325,13 @@ export const fetchAppointmentStats = () => async (dispatch: AppDispatch) => {
     console.error(
       "Failed to fetch appointment stats:",
       error.response?.data?.message || error.message,
+    );
+    dispatch(
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to fetch appointment stats",
+      ),
     );
   }
 };

@@ -173,7 +173,9 @@ const CollabFeatured = () => {
                       <div className="absolute inset-0 p-8 flex items-center justify-center">
                         <div className="relative w-full h-full transition-transform duration-700 ease-out group-hover:scale-110">
                           <Image
-                            src={product.images?.[0] || "/placeholder.png"}
+                            src={
+                              product.images?.[0] || "/placeholder-product.svg"
+                            }
                             alt={product.name}
                             fill
                             className={`object-contain transition-opacity duration-500 ${product.images?.[1] ? "group-hover:opacity-0" : ""}`}

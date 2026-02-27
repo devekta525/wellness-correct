@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import AboutScrollSection from "@/components/home/about-scroll-section";
+import AboutBrandSection from "@/components/about/AboutBrandSection";
 
 export const metadata: Metadata = {
   title: "About Us | Wellness Fuel",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <AboutScrollSection />
+      <AboutBrandSection />
     </>
   );
 }

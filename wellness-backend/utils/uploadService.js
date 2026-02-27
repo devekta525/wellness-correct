@@ -3,9 +3,6 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -127,8 +124,8 @@ const deleteLocalFile = (fileUrl) => {
     if (!fileUrl) return;
 
     // Extract filename from URL (handle both cases: full URL and just filename)
-    const filename = fileUrl.includes('/uploads/') 
-      ? fileUrl.split('/uploads/').pop() 
+    const filename = fileUrl.includes('/uploads/')
+      ? fileUrl.split('/uploads/').pop()
       : fileUrl;
 
     if (!filename) return;
