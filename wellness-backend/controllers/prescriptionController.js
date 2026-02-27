@@ -251,29 +251,55 @@ export const exportPrescriptions = async (req, res) => {
     }
 };
 
+/**
+ * @desc    Get all prescriptions for the currently logged-in user (patient)
+ * @route   GET /api/v1/prescriptions/my
+ * @access  Private (requires user to be logged in as a patient)
+ */
 export const getMyPrescriptions = async (req, res) => {
     try {
+        // The user's ID is attached to the request object by the isLogin middleware
         const userId = req.user._id;
 
-        const prescriptions = await Prescription.find({ patient: userId })
-            .populate('doctor', 'firstName lastName specialization')
-            .sort({ createdAt: -1 });
+        console.log(`📋 Fetching prescriptions for user: ${userId}`);
 
+        // Find all prescriptions where the 'patient' field matches the logged-in user's ID.
+        // This ensures a user can only ever see their own prescriptions.
+        const prescriptions = await Prescription.find({ patient: userId })
+            .populate({
+                path: 'doctor',
+                select: 'firstName lastName specialization', // Populate doctor details
+            })
+            .populate({
+                path: 'medications.product',
+                select: 'name imageUrl', // Populate product details within medications
+            })
+            .sort({ prescriptionDate: -1 }); // Sort by latest prescription date first
+
+        // Case: No prescriptions found for the user
         if (!prescriptions || prescriptions.length === 0) {
+            console.log(`✅ No prescriptions found for user: ${userId}`);
             return res.status(200).json({
                 success: true,
-                message: "No prescriptions found",
-                prescriptions: []
+                message: 'You have no prescriptions.',
+                data: [],
             });
         }
 
-        res.status(200).json({
+        console.log(`✅ Found ${prescriptions.length} prescriptions for user: ${userId}`);
+
+        // Case: Prescriptions found, return them
+        return res.status(200).json({
             success: true,
-            message: "Prescriptions fetched successfully",
-            prescriptions
+            message: 'Prescriptions retrieved successfully.',
+            data: prescriptions,
         });
     } catch (error) {
-        console.error("Error fetching my prescriptions:", error);
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+        console.error('❌ Error fetching user prescriptions:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching your prescriptions.',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        });
     }
 };

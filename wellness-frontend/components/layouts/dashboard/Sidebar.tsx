@@ -3,7 +3,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import img1 from '../../../public/logo.png'
+import LOGO_URL from '../../../public/logo.jpeg';
+
 
 import {
   LayoutDashboard,
@@ -25,7 +26,7 @@ import {
   ThumbsUp,
   Ticket,
   MessageSquare,
-  Mail,
+  Mail
 } from 'lucide-react'
 import Image from 'next/image'
 
@@ -50,7 +51,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, imageSrc
     { name: 'Categories', href: '/dashboard/categories', icon: FolderKanban },
     { name: 'Products', href: '/dashboard/products', icon: Package },
     { name: 'Coupons', href: '/dashboard/coupons', icon: Ticket },
-      { name: 'Popups', href: '/dashboard/popups', icon: MessageSquare },
+    { name: 'Popups', href: '/dashboard/popups', icon: MessageSquare },
+    { name: 'Banners', href: '/dashboard/banners', icon: MessageSquare }, // Changed Icon can be updated later, reusing MessageSquare or Image
     { name: 'Leads', href: '/dashboard/leads', icon: TrendingUp },
     { name: 'Newsletter', href: '/dashboard/newsletter', icon: Mail },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
@@ -92,23 +94,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, imageSrc
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           {!isCollapsed && (
             <div className="flex items-center justify-center flex-1">
-              <Image 
-               src={imageSrc || img1} 
-                alt="HealthCare" 
-                width={100} 
-                height={40} 
-                className="object-contain" 
+              <Image
+                src={imageSrc || LOGO_URL}
+                alt="HealthCare"
+                width={100}
+                height={40}
+                className="object-contain"
               />
             </div>
           )}
           {isCollapsed && (
             <div className="flex items-center justify-center flex-1">
-              <Image 
-                src={imageSrc || img1}
-                alt="HealthCare" 
+              <Image
+                src={imageSrc || LOGO_URL}
+                alt="HealthCare"
                 width={32}
-                height={32} 
-                className="object-contain" 
+                height={32}
+                className="object-contain"
               />
             </div>
           )}

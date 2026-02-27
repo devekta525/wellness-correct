@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
@@ -247,7 +248,7 @@ const handleApiError = (error: unknown) => {
 export const fetchDoctors = () => async (dispatch: AppDispatch) => {
   dispatch(setUserLoading());
   try {
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/users/?role=Doctor&limit=50`,
     );
 
@@ -296,7 +297,7 @@ export const fetchUsersData =
         queryParams.append("search", filters.search);
       }
 
-      const response = await axios.get(`${API_BASE_URL}/users/?${queryParams}`);
+      const response = await axiosInstance.get(`/users/?${queryParams}`);
 
       if (response.data?.success) {
         const mappedUsers = response.data.data.map((user: ApiUser) =>
@@ -338,7 +339,7 @@ export const fetchActiveUsers =
       }
 
       queryParams.append("status", "Active");
-      const response = await axios.get(`${API_BASE_URL}/users?${queryParams}`);
+      const response = await axiosInstance.get(`/users?${queryParams}`);
       if (response.data?.success) {
         const mappedUsers = response.data.data.map((user: ApiUser) =>
           mapApiUserToUser(user),
@@ -365,7 +366,7 @@ export const fetchUserById =
   (userId: string) => async (dispatch: AppDispatch) => {
     dispatch(setUserLoading());
     try {
-      const response = await axios.get(`${API_BASE_URL}/users/${userId}`);
+      const response = await axiosInstance.get(`/users/${userId}`);
       if (response.data?.success) {
         const user = response.data.data;
         const mappedUser = mapApiUserToUser(user);
@@ -384,7 +385,7 @@ export const fetchUserById =
 export const createUser =
   (newUser: Partial<User>) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users`, newUser);
+      const response = await axiosInstance.post(`/users`, newUser);
       if (response.data?.success) {
         dispatch(setUserLoading());
         return true;
@@ -403,7 +404,7 @@ export const createUser =
 export const updateUserStatus =
   (userId: string, status: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/users/${userId}`, {
+      const response = await axiosInstance.put(`/users/${userId}`, {
         status,
       });
       if (response.data?.success) {
@@ -424,7 +425,7 @@ export const updateUserStatus =
 export const updateUserRole =
   (userId: string, role: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/users/${userId}`, {
+      const response = await axiosInstance.put(`/users/${userId}`, {
         role,
       });
       if (response.data?.success) {
@@ -444,7 +445,7 @@ export const updateUser =
   (userId: string, updatedData: Partial<User>) =>
   async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/users/${userId}`,
         updatedData,
       );
@@ -467,7 +468,7 @@ export const updateUser =
 
 export const deleteUser = (userId: string) => async (dispatch: AppDispatch) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/users/${userId}`);
+    const response = await axiosInstance.delete(`/users/${userId}`);
     if (response.data?.success) {
       dispatch(removeUserFromList(userId));
       return true;

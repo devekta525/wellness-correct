@@ -1,23 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
 
 // Create axios instance with authentication interceptor
-const api = axios.create({
+const api = axiosInstance.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+
 });
 
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      let token =
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
-        localStorage.getItem("accessToken");
+      let token = localStorage.getItem("accessToken");
       if (token) {
         token = token.replace(/^"|"$/g, "");
         config.headers.Authorization = `Bearer ${token}`;
@@ -27,7 +25,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  },
+  }
 );
 
 // Define the Address type
@@ -134,22 +132,22 @@ export const fetchUserAddresses =
 // Add a new address
 export const addNewAddress =
   (userId: string, addressData: Address["addresses"][0]) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setAddressLoading());
-    try {
-      const response = await api.post(`/addresses/user/${userId}`, addressData);
-      if (response.data?.success) {
-        dispatch(setAddressData(response.data.data));
-        return true;
-      } else {
-        throw new Error(response.data?.message || "Failed to add address");
+    async (dispatch: AppDispatch) => {
+      dispatch(setAddressLoading());
+      try {
+        const response = await api.post(`/addresses/user/${userId}`, addressData);
+        if (response.data?.success) {
+          dispatch(setAddressData(response.data.data));
+          return true;
+        } else {
+          throw new Error(response.data?.message || "Failed to add address");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setAddressError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setAddressError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 // Update an address
 export const updateAddress =
@@ -158,25 +156,25 @@ export const updateAddress =
     addressId: string,
     updatedData: Partial<Address["addresses"][0]>,
   ) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setAddressLoading());
-    try {
-      const response = await api.put(
-        `/addresses/user/${userId}/${addressId}`,
-        updatedData,
-      );
-      if (response.data?.success) {
-        dispatch(setAddressData(response.data.data));
-        return true;
-      } else {
-        throw new Error(response.data?.message || "Failed to update address");
+    async (dispatch: AppDispatch) => {
+      dispatch(setAddressLoading());
+      try {
+        const response = await api.put(
+          `/addresses/user/${userId}/${addressId}`,
+          updatedData,
+        );
+        if (response.data?.success) {
+          dispatch(setAddressData(response.data.data));
+          return true;
+        } else {
+          throw new Error(response.data?.message || "Failed to update address");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setAddressError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setAddressError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 // Delete an address
 export const deleteAddress =

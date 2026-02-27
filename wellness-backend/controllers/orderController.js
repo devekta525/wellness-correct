@@ -1,12 +1,16 @@
 import mongoose from 'mongoose';
 import Order from '../models/orderModel.js';
+import Product from '../models/productsModel.js';
+import Coupon from '../models/couponModel.js';
 
 const isId = (id) => mongoose.isValidObjectId(id);
 
 
 export async function createOrder(req, res) {
   try {
-    console.log('📥 Received order data from user:', req.user._id);
+    console.log('📥 Received order creation request');
+    console.log('User ID from Token:', req.user?._id);
+    console.log('Request Body:', JSON.stringify(req.body, null, 2));
 
     const userId = req.user._id;
 
@@ -24,7 +28,11 @@ export async function createOrder(req, res) {
       });
     }
 
-    const productIds = req.body.items.map(item => item.product);
+    // 1. Fetch Products from DB to get real prices
+    const itemsRequest = req.body.items;
+    const productIds = itemsRequest.map(item => item.product);
+
+    // Check for duplicates
     if (new Set(productIds).size !== productIds.length) {
       return res.status(400).json({
         success: false,
@@ -32,18 +40,73 @@ export async function createOrder(req, res) {
       });
     }
 
-    // Validate each item has valid quantity and price
-    for (let item of req.body.items) {
-      if (!item.quantity || item.quantity < 1 || !Number.isInteger(item.quantity)) {
-        return res.status(400).json({
-          success: false,
-          message: `Invalid quantity for item ${item.product}`
-        });
+    const dbProducts = await Product.find({ _id: { $in: productIds } });
+
+    if (dbProducts.length !== productIds.length) {
+      return res.status(400).json({ success: false, message: 'One or more products not found' });
+    }
+
+    // 2. Construct Secure Items Array & Calculate Subtotal
+    let calculatedSubtotal = 0;
+    const secureItems = itemsRequest.map(item => {
+      const dbProduct = dbProducts.find(p => p._id.toString() === item.product);
+      const price = dbProduct.price.amount;
+      const quantity = Number(item.quantity);
+
+      if (!quantity || quantity < 1) throw new Error(`Invalid quantity for ${dbProduct.name}`);
+
+      const total = price * quantity;
+      calculatedSubtotal += total;
+
+      return {
+        product: item.product,
+        quantity: quantity,
+        price: price, // Secure price from DB
+        total: total
+      };
+    });
+
+    // 3. Calculate Financials
+    // Shipping: Free if subtotal >= 500, else 49
+    const shippingCost = calculatedSubtotal >= 500 ? 0 : 49;
+
+    // Coupon Logic
+    let discountValue = 0;
+    let isCouponApplied = false;
+    let couponCode = req.body.couponCode;
+    let discountType = null;
+
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), status: 'Active' });
+      // Basic validation (add more if needed like expiry/usage limit)
+      if (coupon && new Date() <= coupon.expiryDate && calculatedSubtotal >= coupon.minOrderValue) {
+        isCouponApplied = true;
+        discountType = coupon.type;
+        if (coupon.type === 'Percentage') {
+          discountValue = (calculatedSubtotal * coupon.value) / 100;
+          if (coupon.maxDiscount) discountValue = Math.min(discountValue, coupon.maxDiscount);
+        } else {
+          discountValue = coupon.value;
+        }
+        // Cap discount at subtotal
+        discountValue = Math.min(discountValue, calculatedSubtotal);
       }
-      if (item.price === undefined || item.price < 0 || !Number.isFinite(item.price)) {
+    }
+
+    // Tax (GST 18% on discounted subtotal)
+    const taxableAmount = Math.max(0, calculatedSubtotal - discountValue);
+    const tax = taxableAmount * 0.18;
+
+    // Final Total
+    const totalAmount = taxableAmount + shippingCost + tax;
+
+    // 4. Validate Payment Status for Online orders
+    if (req.body.paymentMethod === 'Online') {
+      // Ideally verify Razorpay signature here or ensure paymentStatus is 'Paid'
+      if (req.body.paymentStatus !== 'Paid') {
         return res.status(400).json({
           success: false,
-          message: `Invalid price for item ${item.product}`
+          message: 'Online payment must be completed before placing order'
         });
       }
     }
@@ -54,10 +117,33 @@ export async function createOrder(req, res) {
         message: 'Shipping address is required'
       });
     }
+
+    // Ensure discountType is undefined if null, to avoid Enum validation error
+    const safeDiscountType = discountType || undefined;
+    const safeCouponCode = isCouponApplied ? couponCode : undefined;
+
     const orderData = {
-      ...req.body,
-      user: userId
+      orderNumber: req.body.orderNumber,
+      user: userId,
+      shippingAddress: req.body.shippingAddress,
+      billingAddress: req.body.billingAddress || req.body.shippingAddress,
+      items: secureItems,
+      paymentMethod: req.body.paymentMethod,
+      paymentStatus: req.body.paymentStatus || 'Pending',
+      shippingCost,
+      tax,
+      subtotal: calculatedSubtotal,
+      totalAmount, // Pre-save hook will re-verify this
+      isCouponApplied,
+      couponCode: safeCouponCode,
+      discountValue,
+      discountType: safeDiscountType,
+      razorpayPaymentId: req.body.razorpayPaymentId,
+      razorpayOrderId: req.body.razorpayOrderId,
+      razorpaySignature: req.body.razorpaySignature
     };
+
+    console.log('📝 Constructing Order Data:', JSON.stringify(orderData, null, 2));
 
     // Create the order
     const order = await Order.create(orderData);
@@ -72,8 +158,8 @@ export async function createOrder(req, res) {
 
     res.status(201).json({
       success: true,
-      message: 'Order created successfully',
-      data: populated
+      message: 'Order placed successfully',
+      order: populated
     });
 
   } catch (err) {
@@ -90,6 +176,7 @@ export async function createOrder(req, res) {
     // Handle validation errors
     if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map(e => e.message);
+      console.error('❌ Mongoose Validation Errors:', err.errors);
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
@@ -209,7 +296,11 @@ export async function listOrders(req, res) {
     limit = Math.min(Number(limit) || 10, MAX_LIMIT);
     page = Math.max(Number(page) || 1, 1);
 
-    const isAdmin = req.user?.role === 'admin' || req.user?.role === 'super_admin';
+    // treat role in a case–insensitive manner; the schema stores
+    // roles as "Admin" but many checks historically compared against
+    // lowercase strings.
+    const role = (req.user?.role || "").toString().toLowerCase();
+    const isAdmin = role === 'admin' || role === 'super_admin';
 
     if (isAdmin) {
       console.log('📊 Admin fetching all orders');
@@ -274,9 +365,9 @@ export async function listOrders(req, res) {
 
 export const countOrders = async (req, res) => {
   try {
-    const userRole = req.user.role;
+    const userRole = (req.user.role || "").toString().toLowerCase();
 
-    // Check if user is admin
+    // Check if user is admin (case‑insensitive)
     const isAdmin = ['super_admin', 'admin'].includes(userRole);
     if (!isAdmin) {
       return res.status(403).json({
@@ -651,6 +742,80 @@ export async function getMyOrders(req, res) {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch orders'
+    });
+  }
+}
+
+export async function getUserNotifications(req, res) {
+  try {
+    const userId = req.user._id;
+
+    // Fetch recent orders regardless of status
+    const orders = await Order.find({
+      user: userId
+    }).sort({ createdAt: -1 }).limit(20);
+
+    const notifications = orders.map(order => {
+      const d = new Date(order.createdAt);
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const date = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+      let hours = d.getHours();
+      const minutes = d.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const time = `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+
+      const itemCount = order.items ? order.items.length : 0;
+      let title = `Order #${order.orderNumber} ${order.status}`;
+      let message = `Your order of ${itemCount} items is currently ${order.status}`;
+
+      switch (order.status) {
+        case 'Delivered':
+          title = `Order #${order.orderNumber} Delivered`;
+          message = `Your order of ${itemCount} items has been successfully delivered`;
+          break;
+        case 'Pending':
+          title = `Order #${order.orderNumber} Placed`;
+          message = `Your order of ${itemCount} items has been placed successfully and is pending`;
+          break;
+        case 'Processing':
+          title = `Order #${order.orderNumber} Processing`;
+          message = `Your order of ${itemCount} items is currently being processed`;
+          break;
+        case 'Shipped':
+          title = `Order #${order.orderNumber} Shipped`;
+          message = `Your order of ${itemCount} items has been shipped and is on its way`;
+          break;
+        case 'Cancelled':
+          title = `Order #${order.orderNumber} Cancelled`;
+          message = `Your order of ${itemCount} items has been cancelled`;
+          break;
+        case 'Returned':
+          title = `Order #${order.orderNumber} Returned`;
+          message = `Your order of ${itemCount} items has been returned`;
+          break;
+      }
+
+      return {
+        title: title,
+        message: message,
+        date: date,
+        time: time
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      notifications
+    });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch notifications",
+      error: error.message
     });
   }
 }

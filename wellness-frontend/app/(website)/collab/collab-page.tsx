@@ -6,14 +6,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ChevronDown, SlidersHorizontal, ShoppingCart, Filter, X, Star, Sparkles } from "lucide-react";
+import { ChevronDown, SlidersHorizontal, ShoppingCart, Filter, X, Star, Sparkles, Heart } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import CollabFeatured from "./collab-featured";
 import Image1 from "../../../public/1.jpg";
-import { useCart } from "@/lib/context/CartContext";
 import { formatPrice } from "@/lib/formatters";
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from "framer-motion";
+import ProductCard from "@/components/ProductCard";
+import { useCart } from "@/lib/context/CartContext";
 
 interface Product {
   _id: string;
@@ -27,6 +27,14 @@ interface Product {
   shortDescription?: string;
   category?: string;
   createdAt: string;
+  inStock?: boolean;
+  stockQuantity?: number;
+  for?: string;
+  with?: string;
+  badge?: string;
+  tagline?: string;
+  rating?: number;
+  reviews?: number;
 }
 
 // Hero Section Component
@@ -108,11 +116,46 @@ const ProductGrid = () => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [sortBy, setSortBy] = useState("featured");
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const ABSOLUTE_MIN_PRICE = 0;
+  const ABSOLUTE_MAX_PRICE = 10000;
+  const [priceRange, setPriceRange] = useState({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE });
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { addToCart, cartItems } = useCart();
   const router = useRouter(); // Keep for potential future use (e.g., go to cart)
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  const addToWishlist = async (productId: string) => {
+    try {
+      const token = localStorage.getItem("authToken") || localStorage.getItem("authToken");
+
+      if (!token) {
+        Swal.fire("Login Required", "Please login first", "warning");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/v1/wishlist/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire("Added to Wishlist ❤️", data.message, "success");
+      } else {
+        Swal.fire("Info", data.message, "info");
+      }
+    } catch (error) {
+      Swal.fire("Error", "Could not add to wishlist", "error");
+    }
+  };
 
   const searchParams = useSearchParams();
   const categoryFilter = searchParams.get("category");
@@ -185,6 +228,18 @@ const ProductGrid = () => {
     if (categoryFilter) {
       filtered = filtered.filter((p) => p.category === categoryFilter);
     }
+
+    // In stock filter
+    if (inStockOnly) {
+      filtered = filtered.filter(p => p.inStock !== false && p.stockQuantity !== 0);
+    }
+
+    // Price filter
+    filtered = filtered.filter((p) => {
+      const amount = p.price?.amount || 0;
+      return amount >= priceRange.min && amount <= priceRange.max;
+    });
+
     // Return a new sorted array to avoid mutation
     switch (sortBy) {
       case "title-ascending":
@@ -212,7 +267,7 @@ const ProductGrid = () => {
       default:
         return filtered;
     }
-  }, [products, categoryFilter, sortBy]);
+  }, [products, categoryFilter, sortBy, inStockOnly, priceRange.min, priceRange.max]);
   const currentSortLabel = sortOptions.find((o) => o.value === sortBy)?.label;
 
   if (loading) {
@@ -261,71 +316,12 @@ const ProductGrid = () => {
     <div id="product-grid" className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16">
       {/* Category Title */}
       <div className="mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#113A46] dark:text-white tracking-tight mb-4">
           {displayTitle}
         </h2>
-        <div className="h-1.5 w-24 bg-blue-600 rounded-full"></div>
+        <div className="h-2 w-24 bg-blue-600 rounded-full"></div>
       </div>
-      {/* Top Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:flex items-center gap-2 text-slate-500">
-            <SlidersHorizontal className="w-5 h-5" />
-            <span className="font-medium">Filters</span>
-          </div>
-          <Button
-            variant="outline"
-            className="lg:hidden gap-2 border-slate-200"
-            onClick={() => setShowMobileFilters(true)}
-          >
-            <Filter className="w-4 h-4" /> Filters
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Sort by:</span>
-            <span className="text-sm text-slate-600 dark:text-slate-400">{currentSortLabel}</span>
-            <button
-              onClick={() => setIsSortOpen(!isSortOpen)}
-              className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            >
-              <ChevronDown
-                className={`w-4 h-4 text-slate-600 transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`}
-              />
-            </button>
-          </div>
-          {/* Dropdown Menu */}
-          {isSortOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setIsSortOpen(false)}
-              />
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 z-50 overflow-hidden"
-              >
-                {sortOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setSortBy(option.value);
-                      setIsSortOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800
-                                            ${sortBy === option.value ? "font-bold text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </motion.div>
-            </>
-          )}
-        </div>
-      </div>
+      {/* Top Bar for Mobile + Sort has been consolidated into the Product Grid header */}
 
       {/* Mobile Filter Drawer */}
       <AnimatePresence>
@@ -375,7 +371,65 @@ const ProductGrid = () => {
                 <div className="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-6">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-slate-700 dark:text-slate-300">In stock only</span>
-                    <Switch />
+                    <Switch checked={inStockOnly} onCheckedChange={setInStockOnly} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Price Range</h4>
+
+                    {/* Mobile Price Range Slider */}
+                    <div className="space-y-6 pt-2">
+                      <div className="relative h-[4px] bg-slate-200 dark:bg-slate-700 rounded-full mx-2">
+                        <div
+                          className="absolute h-full bg-[#35565c] rounded-full"
+                          style={{
+                            left: `${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}%`,
+                            right: `${100 - (priceRange.max / ABSOLUTE_MAX_PRICE) * 100}%`
+                          }}
+                        />
+
+                        {/* Hidden True Inputs to actuate sliding */}
+                        <input
+                          type="range"
+                          min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                          value={priceRange.min}
+                          onChange={(e) => setPriceRange(prev => ({ ...prev, min: Math.min(Number(e.target.value), prev.max - 10) }))}
+                          className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
+                        />
+                        <input
+                          type="range"
+                          min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                          value={priceRange.max}
+                          onChange={(e) => setPriceRange(prev => ({ ...prev, max: Math.max(Number(e.target.value), prev.min + 10) }))}
+                          className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
+                        />
+
+                        {/* Visual Thumbs */}
+                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
+                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.max / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                          <input
+                            type="number"
+                            value={priceRange.min}
+                            onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) || 0 }))}
+                            className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white"
+                          />
+                        </div>
+                        <span className="text-slate-400 text-sm">to</span>
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                          <input
+                            type="number"
+                            value={priceRange.max}
+                            onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) || 0 }))}
+                            className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -384,114 +438,229 @@ const ProductGrid = () => {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Sidebar Filters */}
-        <div className="hidden lg:block w-64 flex-shrink-0 space-y-8">
-          {/* In Stock Toggle */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-            <span className="font-medium text-slate-700 dark:text-slate-300">In stock only</span>
-            <Switch />
+        <div className="hidden lg:block w-[240px] flex-shrink-0">
+          <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400 mb-6 font-semibold text-lg">
+            <SlidersHorizontal className="w-5 h-5" />
+            <span>Filters</span>
           </div>
-          {/* Price Filter Accordion Mock */}
-          <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-            <button className="flex items-center justify-between w-full py-2 font-medium text-slate-700 dark:text-slate-300">
+
+          <div className="border-t border-slate-200 dark:border-slate-800 py-6">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-800 dark:text-slate-200">In stock only</span>
+              <Switch checked={inStockOnly} onCheckedChange={setInStockOnly} className="data-[state=checked]:bg-[#127a6f]" />
+            </div>
+          </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-800 py-6">
+            <div className="flex items-center justify-between w-full mb-6 font-bold text-slate-800 dark:text-slate-200">
               <span>Price</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
+              <div className="w-6 h-6 rounded-full bg-[#35565c] text-white flex items-center justify-center">
+                <ChevronDown className="w-4 h-4 rotate-180" />
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div className="relative h-[4px] bg-slate-200 dark:bg-slate-700 rounded-full mx-2">
+                <div
+                  className="absolute h-full bg-[#35565c] rounded-full"
+                  style={{
+                    left: `${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}%`,
+                    right: `${100 - (priceRange.max / ABSOLUTE_MAX_PRICE) * 100}%`
+                  }}
+                />
+
+                {/* Hidden True Inputs to actuate sliding */}
+                <input
+                  type="range"
+                  min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                  value={priceRange.min}
+                  onChange={(e) => setPriceRange(prev => ({ ...prev, min: Math.min(Number(e.target.value), prev.max - 10) }))}
+                  className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
+                />
+                <input
+                  type="range"
+                  min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                  value={priceRange.max}
+                  onChange={(e) => setPriceRange(prev => ({ ...prev, max: Math.max(Number(e.target.value), prev.min + 10) }))}
+                  className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
+                />
+
+                {/* Visual Thumbs */}
+                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
+                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.max / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                  <input
+                    type="number"
+                    value={priceRange.min}
+                    onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) || 0 }))}
+                    className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-1 focus:ring-[#35565c]"
+                  />
+                </div>
+                <span className="text-slate-500 text-sm">to</span>
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                  <input
+                    type="number"
+                    value={priceRange.max}
+                    onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) || 0 }))}
+                    className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-1 focus:ring-[#35565c]"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
+
+          <div className="border-t border-slate-200 dark:border-slate-800"></div>
         </div>
 
-        {/* Product Grid */}
+        {/* Product Grid Area */}
         <div className="flex-1">
-          <motion.div
-            layout
-            initial="hidden"
-            animate="show"
-            variants={{
-              hidden: { opacity: 0 },
-              show: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.1
-                }
-              }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8"
-          >
-            <AnimatePresence mode="popLayout">
-              {sortedProducts.map((product) => {
-                const discount = product.price?.mrp ? Math.round(((product.price.mrp - product.price.amount) / product.price.mrp) * 100) : 0;
+          {/* Top Bar (Active Filters & Sort) */}
+          <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 mt-2 lg:mt-0 xl:gap-4">
+            <div className="flex items-center flex-wrap gap-2 w-full xl:w-auto">
+              <Button
+                variant="outline"
+                className="lg:hidden gap-2 border-slate-200 mr-2"
+                onClick={() => setShowMobileFilters(true)}
+              >
+                <Filter className="w-4 h-4" /> Filters
+              </Button>
+              {inStockOnly && (
+                <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f0f4f4] dark:bg-slate-800 text-sm font-semibold text-[#113A46] dark:text-slate-300 transition-colors border border-transparent hover:border-slate-300">
+                  In stock
+                  <button onClick={() => setInStockOnly(false)} className="hover:text-black dark:hover:text-white ml-0.5">
+                    <X className="w-4 h-4" />
+                  </button>
+                </span>
+              )}
+              {(priceRange.min > ABSOLUTE_MIN_PRICE || priceRange.max < ABSOLUTE_MAX_PRICE) && (
+                <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f0f4f4] dark:bg-slate-800 text-sm font-semibold text-[#113A46] dark:text-slate-300 transition-colors border border-transparent hover:border-slate-300">
+                  Rs. {priceRange.min.toLocaleString('en-IN')} - Rs. {priceRange.max.toLocaleString('en-IN')}
+                  <button onClick={() => setPriceRange({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE })} className="hover:text-black dark:hover:text-white ml-0.5">
+                    <X className="w-4 h-4" />
+                  </button>
+                </span>
+              )}
+              {(inStockOnly || priceRange.min > ABSOLUTE_MIN_PRICE || priceRange.max < ABSOLUTE_MAX_PRICE) && (
+                <button
+                  onClick={() => { setInStockOnly(false); setPriceRange({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE }); }}
+                  className="text-sm font-semibold text-[#113A46] dark:text-slate-300 hover:underline underline-offset-4 ml-3"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
 
-                return (
+            <div className="relative shrink-0 z-20 self-end xl:self-auto">
+              <div className="flex items-center gap-1.5 text-[#113A46] dark:text-slate-200">
+                <span className="text-sm font-bold">Sort by:</span>
+                <button
+                  onClick={() => setIsSortOpen(!isSortOpen)}
+                  className="flex items-center gap-1 text-sm bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 px-2 py-1.5 rounded transition-colors"
+                >
+                  {currentSortLabel}
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`} />
+                </button>
+              </div>
+              {/* Dropdown Menu */}
+              {isSortOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)} />
                   <motion.div
-                    layout
-                    variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    key={product._id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 z-50 overflow-hidden"
                   >
-                    <Link href={`/product/${product.slug}`} className="group block h-full">
-                      <div className="relative h-full flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-500 overflow-hidden hover:-translate-y-1">
-                        <div className="relative aspect-[4/5] bg-slate-50 dark:bg-slate-800/50 overflow-hidden p-8">
-                          {discount > 0 && (
-                            <div className="absolute top-3 left-3 z-20">
-                              <span className="backdrop-blur-md bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm border border-slate-100 dark:border-slate-800">
-                                {discount}% OFF
-                              </span>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 p-6 flex items-center justify-center">
-                            <div className="relative w-full h-full transition-transform duration-700 ease-out group-hover:scale-110">
-                              <Image src={product.images?.[0] || "/placeholder.png"} alt={product.name} fill className={`object-contain transition-opacity duration-500 ${product.images?.[1] ? 'group-hover:opacity-0' : ''}`} sizes="(max-width: 768px) 50vw, 33vw" />
-                              {product.images?.[1] && (
-                                <Image src={product.images[1]} alt={product.name} fill className="object-contain absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" sizes="(max-width: 768px) 50vw, 33vw" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-20">
-                            <Button
-                              className="w-full bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 shadow-lg rounded-full h-12 font-medium flex items-center justify-center gap-2 transition-all"
-                              onClick={(e) => {
-                                e.preventDefault(); e.stopPropagation();
-                                addToCart({ id: product._id, name: product.name, price: product.price?.amount || 0, image: product.images?.[0] || "/placeholder.png" });
-                                Swal.fire({ title: "Added!", text: `${product.name} added to cart.`, icon: "success", timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
-                              }}
-                            >
-                              <ShoppingCart className="w-4 h-4" /> Quick Add
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="p-6 flex flex-col flex-1">
-                          <div className="flex items-center gap-1 mb-2">
-                            {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-current" />)}
-                            <span className="text-xs text-slate-400 ml-1">(4.8)</span>
-                          </div>
-                          <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
-                            {product.name}
-                          </h3>
-                          {product.shortDescription && (
-                            <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 flex-grow">
-                              {product.shortDescription}
-                            </p>
-                          )}
-                          <div className="mt-auto flex items-baseline gap-2">
-                            <span className="text-xl font-bold text-slate-900 dark:text-white">
-                              {formatPrice(product.price?.amount || 0)}
-                            </span>
-                            {product.price?.mrp && (
-                              <span className="text-sm text-slate-400 line-through">
-                                {formatPrice(product.price.mrp)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => { setSortBy(option.value); setIsSortOpen(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800
+                                  ${sortBy === option.value ? "font-bold text-[#127a6f]" : "text-slate-600 dark:text-slate-400"}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
                   </motion.div>
-                )
-              })}
-            </AnimatePresence>
-          </motion.div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {sortedProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 lg:py-32 w-full">
+              <div className="relative mb-6">
+                <div className="w-12 h-12 rounded-full border-2 border-[#113A46] dark:border-slate-500 flex items-center justify-center bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
+                  <div className="w-16 h-[2.5px] bg-[#113A46] dark:bg-slate-500 rotate-45" />
+                </div>
+                <div className="absolute -top-1 -right-2 w-6 h-6 bg-[#127a6f] rounded-full flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
+                  0
+                </div>
+              </div>
+              <h3 className="text-xl md:text-2xl font-extrabold text-[#113A46] dark:text-white mb-8 tracking-tight">No products match those filters.</h3>
+              <Button
+                onClick={() => { setInStockOnly(false); setPriceRange({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE }); handleCategoryChange(null); }}
+                className="bg-[#127a6f] hover:bg-[#0e635a] text-white rounded-full px-8 py-6 text-base font-bold shadow-md transition-all hover:scale-105"
+              >
+                Clear all
+              </Button>
+            </div>
+          ) : (
+            <motion.div
+              layout
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.1
+                  }
+                }
+              }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8"
+            >
+              <AnimatePresence mode="popLayout">
+                {sortedProducts.map((product) => {
+                  const formattedProduct = {
+                    id: product._id,
+                    slug: product.slug,
+                    name: product.name,
+                    images: product.images,
+                    price: product.price?.amount || 0,
+                    originalPrice: product.price?.mrp,
+                    category: product.category,
+                    description: product.shortDescription,
+                    inStock: product.inStock !== false && product.stockQuantity !== 0,
+                    for: product.for,
+                    with: product.with,
+                    badge: product.badge,
+                    tagline: product.tagline,
+                    rating: product.rating,
+                    reviews: product.reviews,
+                  };
+
+                  return (
+                    <motion.div
+                      layout
+                      variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3 }}
+                      key={product._id}
+                    >
+                      <ProductCard product={formattedProduct} viewMode="grid" />
+                    </motion.div>
+                  )
+                })}
+              </AnimatePresence>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
@@ -506,9 +675,6 @@ const CollabPage = () => {
       <React.Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center">Loading...</div>}>
         <ProductGrid />
       </React.Suspense>
-      <div className="pb-20">
-        <CollabFeatured />
-      </div>
     </div>
   );
 };

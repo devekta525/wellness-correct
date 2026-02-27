@@ -42,7 +42,7 @@ const InfluencersDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const apiUrl = getApiV1Url("/influencer-dashboard");
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authToken");
         const res = await fetch(apiUrl, {
           headers: {
             "Content-Type": "application/json",

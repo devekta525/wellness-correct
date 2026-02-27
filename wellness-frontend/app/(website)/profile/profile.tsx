@@ -30,9 +30,13 @@ const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isMounted, setIsMounted] = useState(false);
   const [editingProfile, setEditingProfile] = useState<User | null>(null);
+  const [token, setToken] = useState<string>("");
 
   useEffect(() => {
     const loadUserFromStorage = async () => {
+      // 1. Try to get token from localStorage directly first (most reliable after refresh)
+      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') || localStorage.getItem('token') : '';
+      
       const sessionData = getSessionData();
       if (sessionData && !currentUser) {
         try {
@@ -47,6 +51,10 @@ const UserProfile = () => {
           console.error("Error loading user from localStorage:", error);
         }
       }
+
+      // Set token state for child components
+      if (storedToken) setToken(storedToken);
+      else if (sessionData?.token) setToken(sessionData.token);
     };
 
     loadUserFromStorage();
@@ -60,47 +68,10 @@ const UserProfile = () => {
     return <div className="min-h-screen" />;
   }
 
-  const handleSaveProfile = async () => {
-    if (!currentUser?._id || !editingProfile) return;
-
-    try {
-      // Extract first and last name from editingProfile
-      const firstName = editingProfile.firstName || currentUser.firstName;
-      const lastName = editingProfile.lastName || currentUser.lastName;
-
-      const updateData = {
-        firstName: firstName,
-        lastName: lastName,
-        phone: editingProfile.phone,
-        bio: editingProfile.occupation, // Using occupation field for bio
-        imageUrl: editingProfile.imageUrl,
-        dateOfBirth: editingProfile.dateOfBirth,
-      };
-
-      const success = await dispatch(
-        updateProfile(currentUser._id, updateData),
-      );
-
-      if (success) {
-        setIsEditing(false);
-      } else {
-        console.error("Failed to update profile");
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
-  };
-
   const handleCancelEdit = () => {
     setIsEditing(false);
+    setEditingProfile(null);
     // Profile will automatically reset to current user data
-  };
-
-  const handleAvatarChange = (file: File) => {
-    // Handle avatar upload logic
-    // Here you would typically upload the file to your server
-    // and update the profile.avatar with the new URL
-    // For now, we'll just log it
   };
 
   const handleTwoFactorAuth = () => {};
@@ -126,12 +97,20 @@ const UserProfile = () => {
         <ProfileHeader
           profile={editingProfile || (currentUser as User)}
           isEditing={isEditing}
-          onEdit={() => setIsEditing(true)}
-          onSave={handleSaveProfile}
+          onEdit={() => {
+            setEditingProfile(currentUser); // Initialize editing state with current data
+            setIsEditing(true);
+          }}
           onCancel={handleCancelEdit}
-          onAvatarChange={handleAvatarChange}
           showEditButton={activeTab === "overview"}
           currentUser={currentUser as User}
+          editingProfile={editingProfile}
+          token={token}
+          onSuccess={(updatedUser: User) => {
+            dispatch(setUser(updatedUser));
+            setIsEditing(false);
+            setEditingProfile(null);
+          }}
         />
 
         {/* Stats Cards */}

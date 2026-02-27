@@ -21,8 +21,10 @@ export const isAdmin = async (req, res, next) => {
         }
 
         // Check if user has admin role
+        // perform a case-insensitive comparison so roles stored with
+        // capitalization (e.g. "Admin") are still recognised as admins.
+        const userRole = (req.user.role || "").toString().toLowerCase();
         const adminRoles = ["super_admin", "admin"];
-        const userRole = req.user.role;
 
         if (!adminRoles.includes(userRole)) {
             return res.status(403).json({

@@ -59,6 +59,13 @@ export const signup = async (req, res) => {
 
     // Validate age (must be at least 13 years old)
     const dob = new Date(dateOfBirth);
+    if (isNaN(dob.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid date of birth",
+      });
+    }
+
     const today = new Date();
     const age = today.getFullYear() - dob.getFullYear();
     const monthDiff = today.getMonth() - dob.getMonth();
@@ -111,8 +118,6 @@ export const signup = async (req, res) => {
       role = "Doctor";
     } else if (userType === 'influencer') {
       role = "Influencer";
-    } else if (userType === 'admin') {
-      role = "Admin";
     }
 
     const normalizedAddress = typeof address === "string" ? address.trim() : "";
@@ -122,7 +127,6 @@ export const signup = async (req, res) => {
       ? Number(zipCode)
       : undefined;
 
-    // Create user in unified User collection
     const userData = {
       firstName,
       lastName,
@@ -144,6 +148,26 @@ export const signup = async (req, res) => {
       state: user.state,
       zipCode: user.zipCode,
     });
+
+    // Automatically create an Address model doc if address is provided
+    if (normalizedAddress || normalizedCity || normalizedState) {
+      const Address = (await import("../models/addressModel.js")).default;
+      await Address.create({
+        user: user._id,
+        addresses: [
+          {
+            name: `${firstName} ${lastName}`.trim(),
+            address: normalizedAddress,
+            city: normalizedCity,
+            state: normalizedState,
+            pinCode: normalizedZipCode ? String(normalizedZipCode) : "000000",
+            phone: phone,
+            addressType: "Home",
+            isDefault: true,
+          }
+        ]
+      });
+    }
 
     // Auto-login logic
     const token = generateToken(user._id);
@@ -182,11 +206,19 @@ export const signup = async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          phone: user.phone,
           role: user.role,
           address: user.address,
           city: user.city,
           state: user.state,
           zipCode: user.zipCode,
+          dateOfBirth: user.dateOfBirth,
+          status: user.status,
+          bio: user.bio,
+          verified: user.verified,
+          imageUrl: user.imageUrl,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
         }
       });
   } catch (error) {
@@ -267,7 +299,19 @@ export const login = async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          role: user.role
+          phone: user.phone,
+          role: user.role,
+          address: user.address,
+          city: user.city,
+          state: user.state,
+          zipCode: user.zipCode,
+          dateOfBirth: user.dateOfBirth,
+          status: user.status,
+          bio: user.bio,
+          verified: user.verified,
+          imageUrl: user.imageUrl,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
         }
       });
   } catch (error) {

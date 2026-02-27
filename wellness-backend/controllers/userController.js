@@ -1,4 +1,4 @@
-import { deleteOldImage, uploadToS3 } from "../config/s3Config.js";
+import { deleteOldImage, uploadFile } from "../config/s3Config.js";
 import User from "../models/userModel.js";
 
 // Create a new user
@@ -10,19 +10,80 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "First name, last name, email, and password are required" });
     }
     if (req.file) {
-      data.imageUrl = await uploadToS3(req.file);
+      data.imageUrl = await uploadFile(req.file);
     }
-    
+
     // Check if email already exists
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: "Email already exists" });
     }
 
-    const user =await User.create(data);
+    const user = await User.create(data);
 
     res.status(201).json({ success: true, message: "User created successfully", user });
   } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+// Update logged-in user's profile
+export const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { firstName, lastName, email, phone, bio, address, dateOfBirth } = req.body;
+
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Update fields only if provided
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (email !== undefined) user.email = email;
+    if (!phone && !user.phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number required"
+      });
+    } else if (phone !== undefined) {
+      user.phone = phone;
+    }
+
+    if (bio !== undefined) user.bio = bio;
+    if (address !== undefined) user.address = address;
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
+
+    // Handle optional image upload
+    if (req.file) {
+      if (user.imageUrl) {
+        await deleteOldImage(user.imageUrl);
+      }
+
+      user.imageUrl = await uploadFile(req.file);
+    }
+
+
+    // Save the user
+    await user.save();
+
+    // Return updated user data, excluding password
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    // Handle specific errors like duplicate email
+    if (error.code === 11000 && (error.keyPattern?.email || error.keyValue?.email)) {
+      return res.status(400).json({ success: false, message: "Email already in use by another account." });
+    }
+    console.error('Error updating profile:', error);
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };
@@ -86,7 +147,7 @@ export const getTotalUsersCount = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
-} 
+}
 
 
 // Get single user by ID
@@ -111,7 +172,7 @@ export const updateUser = async (req, res) => {
     if (req.file) {
       const user = await User.findById(req.params.id);
       if (user?.imageUrl) await deleteOldImage(user.imageUrl);
-      updates.imageUrl = await uploadToS3(req.file);
+      updates.imageUrl = await uploadFile(req.file);
     }
 
     const user = await User.findByIdAndUpdate(req.params.id, updates, {

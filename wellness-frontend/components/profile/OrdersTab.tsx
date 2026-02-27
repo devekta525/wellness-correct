@@ -95,7 +95,7 @@ const OrdersTab = () => {
       // Safely get token only on the client side
       const token =
         typeof window !== "undefined"
-          ? localStorage.getItem("authToken") || localStorage.getItem("token")
+          ? localStorage.getItem("authToken") || localStorage.getItem("authToken")
           : null;
 
       console.log("🔍 OrdersTab - Fetching orders...");

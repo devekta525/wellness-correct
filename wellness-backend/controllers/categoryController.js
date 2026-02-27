@@ -1,5 +1,5 @@
 import Category from "../models/categoryModel.js";
-import { uploadFile, deleteOldImage, upload, isS3Configured } from "../config/s3Config.js"
+import { uploadFile, deleteOldImage, upload } from "../config/s3Config.js"
 
 
 // Create Category

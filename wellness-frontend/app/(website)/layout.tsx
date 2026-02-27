@@ -1,6 +1,5 @@
-import Header from "@/components/layouts/website/Header"
-import Footer from "@/components/layouts/website/Footer"
-import { Providers } from "@/app/providers"; // Adjust path if necessary
+import Navbar from "@/components/Navbar"
+import Footer from "@/components/Footer"
 // import { Toaster } from "@/components/ui/sonner"; // Import the Toaster
 
 export default function WebsiteLayout({
@@ -9,11 +8,11 @@ export default function WebsiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Providers>
-      <Header />
+    <>
+      <Navbar />
       <main>{children}</main>
       <Footer />
       {/* <Toaster position="top-right" richColors closeButton /> */}
-    </Providers>
+    </>
   );
 }

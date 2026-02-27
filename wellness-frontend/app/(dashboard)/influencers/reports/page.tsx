@@ -100,7 +100,7 @@ const InfluencerReportsPage = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
       const response = await fetch(
         getApiV1Url(`/influencer-reports/dashboard?period=${selectedPeriod}`),
         {
@@ -347,7 +347,7 @@ const InfluencerReportsPage = () => {
         }
       }
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
       const response = await fetch(
         getApiV1Url("/influencer-reports/generate"),
         {
@@ -392,7 +392,7 @@ const InfluencerReportsPage = () => {
     try {
       setIsExporting(true);
       setError(null);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
 
       // Simulate export delay (in production, this would call an actual export API)
       await new Promise((resolve) => setTimeout(resolve, 1500));

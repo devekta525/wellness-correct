@@ -2,13 +2,13 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
-import { 
-  Plus, 
-  Search, 
-  Grid3X3, 
-  List, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  Grid3X3,
+  List,
+  Edit,
+  Trash2,
   FileText,
   Loader2,
   ChevronLeft,
@@ -33,38 +33,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks'
-import { fetchBlogsData, selectBlogsData, selectBlogsError, selectBlogsLoading, setBlogsData } from '@/lib/redux/features/blogsSlice'
+import { fetchBlogsData, selectBlogsData, selectBlogsError, selectBlogsLoading, setBlogsData, Blog } from '@/lib/redux/features/blogsSlice'
 import Loader from '@/components/common/dashboard/Loader'
 import Error from '@/components/common/dashboard/Error'
 import NoData from '@/components/common/dashboard/NoData'
 
 // Types
-interface BlogWithEditableTags {
-  _id: string
-  title: string
-  slug: string
-  excerpt: string
-  content: string
-  featuredImage: string
-  author: string
-  category: string
-  tags: string | string[]
-  status: string
-  publishedAt: string | null
-  createdAt: string
-  updatedAt: string
-  readTime: string
-  views: number
-  likes: number
-  metaTitle: string
-  metaDescription: string
-  metaKeywords: string
-  canonicalUrl: string
-  ogTitle: string
-  ogDescription: string
-  ogImage: string
-  blogImages?: Array<{id: string, url: string, alt: string, caption?: string}>
+interface BlogEditorImages {
+  id: string;
+  url: string;
+  alt: string;
+  caption?: string;
 }
+
+// Extend the slice Blog interface with the local editable properties
+type BlogWithEditableTags = Blog & {
+  blogImages?: BlogEditorImages[];
+};
 
 const blogStatuses = ["All", "published", "draft", "archived"]
 const blogCategories = ["All", "Nutrition", "Fitness", "Wellness", "Supplements", "Lifestyle"]
@@ -105,7 +90,7 @@ const BlogsPage = () => {
     ogTitle: '',
     ogDescription: '',
     ogImage: '',
-    blogImages: [] as Array<{id: string, url: string, alt: string, caption?: string}>
+    blogImages: [] as Array<{ id: string, url: string, alt: string, caption?: string }>
   })
 
   // Image URL input state
@@ -113,21 +98,30 @@ const BlogsPage = () => {
 
   useEffect(() => {
     dispatch(fetchBlogsData())
-  }, [dispatch])
+  }, [dispatch]) // Ensure dispatch is in dependency array
 
   // Filter blogs
   const filteredBlogs = useMemo(() => {
     if (!blogs || !Array.isArray(blogs)) return []
-    
+
     return blogs.filter(blog => {
-      const blogTags = Array.isArray(blog.tags) ? blog.tags : [blog.tags]
-      const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           blog.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           blogTags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      // Safely handle potentially undefined string properties
+      const title = blog.title || ''
+      const excerpt = blog.excerpt || ''
+      const author = blog.author || ''
+
+      const blogTags = Array.isArray(blog.tags) ? blog.tags : (typeof blog.tags === 'string' ? [blog.tags] : [])
+      const searchLower = searchTerm.toLowerCase()
+
+      const matchesSearch =
+        title.toLowerCase().includes(searchLower) ||
+        excerpt.toLowerCase().includes(searchLower) ||
+        author.toLowerCase().includes(searchLower) ||
+        blogTags.some((tag: string) => tag && tag.toLowerCase().includes(searchLower))
+
       const matchesStatus = selectedStatus === 'All' || blog.status === selectedStatus
       const matchesCategory = selectedCategory === 'All' || blog.category === selectedCategory
-      
+
       return matchesSearch && matchesStatus && matchesCategory
     })
   }, [blogs, searchTerm, selectedStatus, selectedCategory])
@@ -148,7 +142,7 @@ const BlogsPage = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       const blog = {
         _id: `blog_${Date.now()}`,
         title: newBlog.title,
@@ -174,7 +168,7 @@ const BlogsPage = () => {
         createdAt: new Date().toISOString().split('T')[0],
         updatedAt: new Date().toISOString().split('T')[0]
       }
-      
+
       dispatch(setBlogsData({ data: [...(blogs || []), blog as unknown as BlogWithEditableTags], total: (blogs?.length || 0) + 1 }))
       setShowAddModal(false)
       setNewBlog({
@@ -204,26 +198,28 @@ const BlogsPage = () => {
   }
 
   const handleEditBlog = async () => {
+    if (!selectedBlog) return
     setIsLocalLoading(true)
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const updatedBlogs = (blogs || []).map(blog => 
-        blog._id === selectedBlog!._id 
-          ? { 
-              ...blog, 
-              ...selectedBlog, 
-              tags: typeof selectedBlog!.tags === 'string' 
-                ? (selectedBlog!.tags as string).split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag)
-                : selectedBlog!.tags as string[],
-              publishedAt: selectedBlog!.status === 'published' && !blog.publishedAt 
-                ? new Date().toISOString().split('T')[0] 
-                : blog.publishedAt,
-              updatedAt: new Date().toISOString().split('T')[0] 
-            }
-          : blog
-      )
+
+      const updatedBlogs = (blogs || []).map(blog => {
+        if (blog._id === selectedBlog._id) {
+          return {
+            ...blog,
+            ...selectedBlog,
+            tags: typeof selectedBlog.tags === 'string'
+              ? selectedBlog.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean)
+              : selectedBlog.tags as string[],
+            publishedAt: selectedBlog.status === 'published' && !blog.publishedAt
+              ? new Date().toISOString().split('T')[0]
+              : blog.publishedAt,
+            updatedAt: new Date().toISOString().split('T')[0]
+          }
+        }
+        return blog;
+      })
       dispatch(setBlogsData({ data: updatedBlogs, total: updatedBlogs.length }))
       setShowEditModal(false)
       setSelectedBlog(null)
@@ -233,13 +229,14 @@ const BlogsPage = () => {
   }
 
   const handleDeleteBlog = async () => {
+    if (!selectedBlog) return
     setIsLocalLoading(true)
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const filteredBlogs = (blogs || []).filter(blog => blog._id !== selectedBlog!._id)
-      dispatch(setBlogsData({ data: filteredBlogs, total: filteredBlogs.length }))
+
+      const newFilteredBlogs = (blogs || []).filter(blog => blog._id !== selectedBlog._id)
+      dispatch(setBlogsData({ data: newFilteredBlogs, total: newFilteredBlogs.length }))
       setShowDeleteModal(false)
       setSelectedBlog(null)
     } finally {
@@ -266,7 +263,7 @@ const BlogsPage = () => {
       alert('You can add a maximum of 5 images')
       return
     }
-    
+
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'
@@ -275,7 +272,7 @@ const BlogsPage = () => {
       const files = Array.from((e.target as HTMLInputElement).files || [])
       const availableSlots = 5 - newBlog.blogImages.length
       const newFiles = files.slice(0, availableSlots)
-      
+
       newFiles.forEach((file) => {
         const reader = new FileReader()
         reader.onload = () => {
@@ -301,7 +298,7 @@ const BlogsPage = () => {
       alert('You can add a maximum of 5 images')
       return
     }
-    
+
     if (urlInput.trim()) {
       const newImage = {
         id: `img_${Date.now()}`,
@@ -327,7 +324,7 @@ const BlogsPage = () => {
   const updateImage = (imageId: string, field: string, value: string) => {
     setNewBlog(prev => ({
       ...prev,
-      blogImages: prev.blogImages.map(img => 
+      blogImages: prev.blogImages.map(img =>
         img.id === imageId ? { ...img, [field]: value } : img
       )
     }))
@@ -339,7 +336,7 @@ const BlogsPage = () => {
       alert('You can add a maximum of 5 images')
       return
     }
-    
+
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'
@@ -348,7 +345,7 @@ const BlogsPage = () => {
       const files = Array.from((e.target as HTMLInputElement).files || [])
       const availableSlots = 5 - (selectedBlog.blogImages?.length || 0)
       const newFiles = files.slice(0, availableSlots)
-      
+
       newFiles.forEach((file) => {
         const reader = new FileReader()
         reader.onload = () => {
@@ -372,23 +369,23 @@ const BlogsPage = () => {
   const removeImageFromEdit = (imageId: string) => {
     setSelectedBlog(prev => prev ? {
       ...prev,
-      blogImages: (prev.blogImages || []).filter(img => img.id !== imageId)
+      blogImages: (prev.blogImages || []).filter((img: BlogEditorImages) => img.id !== imageId)
     } : prev)
   }
 
   const updateImageInEdit = (imageId: string, field: string, value: string) => {
     setSelectedBlog(prev => prev ? {
       ...prev,
-      blogImages: (prev.blogImages || []).map(img => 
+      blogImages: (prev.blogImages || []).map((img: BlogEditorImages) =>
         img.id === imageId ? { ...img, [field]: value } : img
       )
     } : prev)
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "default" | "secondary" | "destructive" | "outline" | null | undefined => {
     switch (status) {
-      case 'published': return 'success'
-      case 'draft': return 'warning'
+      case 'published': return 'default'
+      case 'draft': return 'secondary'
       case 'archived': return 'destructive'
       default: return 'secondary'
     }
@@ -421,8 +418,8 @@ const BlogsPage = () => {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      onClick={() => window.location.href = '/dashboard/blogs/addBlogs'} 
+                    <Button
+                      onClick={() => window.location.href = '/dashboard/blogs/addBlogs'}
                       className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
                       <Sparkles className="w-4 h-4" />
@@ -569,168 +566,69 @@ const BlogsPage = () => {
             {isLoading ? (
               <Loader variant="skeleton" message="Loading blogs..." />
             ) : filteredBlogs.length === 0 ? (
-          <NoData 
-            message="No blog posts found"
-            description="Get started by creating your first blog post"
-            icon={<FileText className="w-full h-full text-muted-foreground/60" />}
-            action={{
-              label: "Add Blog Post",
-              onClick: () => setShowAddModal(true)
-            }}
-            size="lg"
-          />
-        ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {paginatedBlogs.map(blog => (
-              <Card key={blog._id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative h-48">
-                  <Image
-                    src={blog.featuredImage}
-                    alt={blog.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute top-3 right-3">
-                    <Badge variant={getStatusColor(blog.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
-                      {blog.status.charAt(0).toUpperCase() + blog.status.slice(1)}
-                    </Badge>
-                  </div>
-                </div>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg line-clamp-2">{blog.title}</CardTitle>
-                  <CardDescription className="line-clamp-2">{blog.excerpt}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <User className="w-4 h-4" />
-                      <span>{blog.author}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline">{blog.category}</Badge>
-                    <span className="text-sm text-muted-foreground">{blog.readTime}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-4">
-                      <span className="text-muted-foreground">{blog.views} views</span>
-                      <span className="text-muted-foreground">{blog.likes} likes</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 pt-2">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          onClick={() => openEditModal(blog as BlogWithEditableTags)}
-                          className="flex-1 gap-2"
-                          size="sm"
-                        >
-                          <Edit className="w-4 h-4" />
-                          Edit
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Edit blog post</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          onClick={() => openDeleteModal(blog as BlogWithEditableTags)}
-                          className="flex-1 gap-2 text-destructive border border-destructive hover:bg-destructive/10 hover:text-destructive-foreground"
-                          size="sm"
-                          variant="ghost"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Delete blog post</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card>
-            <Table>
-              {filteredBlogs.length > 0 && (
-                <>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Blog Post</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Views</TableHead>
-                      <TableHead>Published</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+              <NoData
+                message="No blog posts found"
+                description="Get started by creating your first blog post"
+                icon={<FileText className="w-full h-full text-muted-foreground/60" />}
+                action={{
+                  label: "Add Blog Post",
+                  onClick: () => setShowAddModal(true)
+                }}
+                size="lg"
+              />
+            ) : viewMode === 'grid' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {paginatedBlogs.map(blog => (
-                  <TableRow key={blog._id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative w-16 h-12 rounded-lg overflow-hidden">
-                          <Image
-                            src={blog.featuredImage}
-                            alt={blog.title}
-                            fill
-                            className="object-cover"
-                          />
+                  <Card key={blog._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="relative h-48 bg-muted/20">
+                      <Image
+                        src={blog.featuredImage || '/placeholder-product.svg'}
+                        alt={blog.title || 'Blog post'}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                      <div className="absolute top-3 right-3">
+                        <Badge variant={getStatusColor(blog.status)}>
+                          {(blog.status || 'draft').charAt(0).toUpperCase() + (blog.status || 'draft').slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg line-clamp-2">{blog.title}</CardTitle>
+                      <CardDescription className="line-clamp-2">{blog.excerpt}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          <span>{blog.author}</span>
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground line-clamp-1">{blog.title}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-1">{blog.excerpt}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            {(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).slice(0, 2).map((tag: string) => (
-                              <Badge key={tag} variant="secondary" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                            {(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).length > 2 && (
-                              <span className="text-xs text-muted-foreground">+{(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).length - 2}</span>
-                            )}
-                          </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm">{blog.author}</span>
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline">{blog.category}</Badge>
+                        <span className="text-sm text-muted-foreground">{blog.readTime}</span>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{blog.category}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusColor(blog.status) as 'default' | 'secondary' | 'destructive' | 'outline'}>
-                        {blog.status.charAt(0).toUpperCase() + blog.status.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium">{blog.views.toLocaleString()}</TableCell>
-                    <TableCell>
-                      {blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '-'}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-4">
+                          <span className="text-muted-foreground">{blog.views} views</span>
+                          <span className="text-muted-foreground">{blog.likes} likes</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
                               onClick={() => openEditModal(blog as BlogWithEditableTags)}
-                              variant="ghost"
-                              size="icon"
+                              className="flex-1 gap-2"
+                              size="sm"
                             >
                               <Edit className="w-4 h-4" />
+                              Edit
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -741,11 +639,12 @@ const BlogsPage = () => {
                           <TooltipTrigger asChild>
                             <Button
                               onClick={() => openDeleteModal(blog as BlogWithEditableTags)}
+                              className="flex-1 gap-2 text-destructive border border-destructive hover:bg-destructive/10 hover:text-destructive-foreground"
+                              size="sm"
                               variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:bg-destructive/10"
                             >
                               <Trash2 className="w-4 h-4" />
+                              Delete
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -753,17 +652,117 @@ const BlogsPage = () => {
                           </TooltipContent>
                         </Tooltip>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ))}
-                  </TableBody>
-                </>
-              )}
-            </Table>
-          </Card>
-        )}
+              </div>
+            ) : (
+              <Card>
+                <Table>
+                  {filteredBlogs.length > 0 && (
+                    <>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Blog Post</TableHead>
+                          <TableHead>Author</TableHead>
+                          <TableHead>Category</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Views</TableHead>
+                          <TableHead>Published</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {paginatedBlogs.map(blog => (
+                          <TableRow key={blog._id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <div className="relative w-16 h-12 rounded-lg overflow-hidden bg-muted/20">
+                                  <Image
+                                    src={blog.featuredImage || '/placeholder-product.svg'}
+                                    alt={blog.title || 'Blog post'}
+                                    fill
+                                    sizes="64px"
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-foreground line-clamp-1">{blog.title || 'Untitled'}</p>
+                                  <p className="text-sm text-muted-foreground line-clamp-1">{blog.excerpt || 'No description available'}</p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    {(Array.isArray(blog.tags) ? blog.tags : (typeof blog.tags === 'string' ? [blog.tags] : [])).slice(0, 2).map((tag: string) => (
+                                      <Badge key={tag} variant="secondary" className="text-xs">
+                                        {tag}
+                                      </Badge>
+                                    ))}
+                                    {(Array.isArray(blog.tags) ? blog.tags : (typeof blog.tags === 'string' ? [blog.tags] : [])).length > 2 && (
+                                      <span className="text-xs text-muted-foreground">+{(Array.isArray(blog.tags) ? blog.tags : [blog.tags]).length - 2}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <User className="w-4 h-4 text-muted-foreground" />
+                                <span className="text-sm">{blog.author}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{blog.category}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusColor(blog.status)}>
+                                {(blog.status || 'draft').charAt(0).toUpperCase() + (blog.status || 'draft').slice(1)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="font-medium">{(blog.views || 0).toLocaleString()}</TableCell>
+                            <TableCell>
+                              {blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : '-'}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      onClick={() => openEditModal(blog as BlogWithEditableTags)}
+                                      variant="ghost"
+                                      size="icon"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit blog post</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      onClick={() => openDeleteModal(blog as BlogWithEditableTags)}
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-destructive hover:bg-destructive/10"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete blog post</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </>
+                  )}
+                </Table>
+              </Card>
+            )}
 
-        {/* Pagination */}
+            {/* Pagination */}
             {/* Pagination */}
             {!isLoading && filteredBlogs.length > 0 && totalPages > 1 && (
               <Card>
@@ -832,7 +831,7 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="Enter blog title"
                     value={newBlog.title}
-                    onChange={(e) => setNewBlog({...newBlog, title: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
                   />
                 </div>
                 <div>
@@ -842,7 +841,7 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="blog-post-slug"
                     value={newBlog.slug}
-                    onChange={(e) => setNewBlog({...newBlog, slug: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, slug: e.target.value })}
                   />
                 </div>
                 <div>
@@ -851,7 +850,7 @@ const BlogsPage = () => {
                     id="add-blog-excerpt"
                     placeholder="Brief description of the blog post"
                     value={newBlog.excerpt}
-                    onChange={(e) => setNewBlog({...newBlog, excerpt: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, excerpt: e.target.value })}
                     rows={3}
                   />
                 </div>
@@ -861,7 +860,7 @@ const BlogsPage = () => {
                     id="add-blog-content"
                     placeholder="Write your blog post content here..."
                     value={newBlog.content}
-                    onChange={(e) => setNewBlog({...newBlog, content: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, content: e.target.value })}
                     rows={8}
                   />
                 </div>
@@ -872,7 +871,7 @@ const BlogsPage = () => {
                     type="url"
                     placeholder="https://example.com/image.jpg"
                     value={newBlog.featuredImage}
-                    onChange={(e) => setNewBlog({...newBlog, featuredImage: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, featuredImage: e.target.value })}
                   />
                 </div>
               </div>
@@ -887,12 +886,12 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="Author name"
                     value={newBlog.author}
-                    onChange={(e) => setNewBlog({...newBlog, author: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, author: e.target.value })}
                   />
                 </div>
                 <div>
                   <Label htmlFor="add-blog-category" className="mb-2 block">Category</Label>
-                  <Select value={newBlog.category} onValueChange={(value) => setNewBlog({...newBlog, category: value})}>
+                  <Select value={newBlog.category} onValueChange={(value) => setNewBlog({ ...newBlog, category: value })}>
                     <SelectTrigger id="add-blog-category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -910,12 +909,12 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="tag1, tag2, tag3"
                     value={newBlog.tags}
-                    onChange={(e) => setNewBlog({...newBlog, tags: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, tags: e.target.value })}
                   />
                 </div>
                 <div>
                   <Label htmlFor="add-blog-status" className="mb-2 block">Status</Label>
-                  <Select value={newBlog.status} onValueChange={(value) => setNewBlog({...newBlog, status: value})}>
+                  <Select value={newBlog.status} onValueChange={(value) => setNewBlog({ ...newBlog, status: value })}>
                     <SelectTrigger id="add-blog-status">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -933,10 +932,10 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="e.g., 5 min read"
                     value={newBlog.readTime}
-                    onChange={(e) => setNewBlog({...newBlog, readTime: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, readTime: e.target.value })}
                   />
                 </div>
-                
+
                 {/* Blog Images */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -950,7 +949,7 @@ const BlogsPage = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   {/* URL Input */}
                   {newBlog.blogImages.length < 5 && (
                     <div className="flex gap-2 mb-3">
@@ -964,7 +963,7 @@ const BlogsPage = () => {
                       </Button>
                     </div>
                   )}
-                  
+
                   {/* Image List */}
                   {newBlog.blogImages.length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -980,7 +979,7 @@ const BlogsPage = () => {
                               <X className="w-4 h-4" />
                             </Button>
                           </div>
-                          
+
                           {/* Image Preview */}
                           <div className="relative w-full h-20 overflow-hidden rounded-lg border">
                             <Image
@@ -990,7 +989,7 @@ const BlogsPage = () => {
                               className="object-cover"
                             />
                           </div>
-                          
+
                           <Input
                             placeholder="Alt text"
                             value={image.alt}
@@ -1020,7 +1019,7 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="SEO optimized title (50-60 characters)"
                     value={newBlog.metaTitle}
-                    onChange={(e) => setNewBlog({...newBlog, metaTitle: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, metaTitle: e.target.value })}
                   />
                 </div>
                 <div>
@@ -1029,7 +1028,7 @@ const BlogsPage = () => {
                     id="add-blog-meta-description"
                     placeholder="SEO description (150-160 characters)"
                     value={newBlog.metaDescription}
-                    onChange={(e) => setNewBlog({...newBlog, metaDescription: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, metaDescription: e.target.value })}
                     rows={3}
                   />
                 </div>
@@ -1040,7 +1039,7 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="keyword1, keyword2, keyword3"
                     value={newBlog.metaKeywords}
-                    onChange={(e) => setNewBlog({...newBlog, metaKeywords: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, metaKeywords: e.target.value })}
                   />
                 </div>
                 <div>
@@ -1050,7 +1049,7 @@ const BlogsPage = () => {
                     type="url"
                     placeholder="https://wellnessfuel.com/blog/post-slug"
                     value={newBlog.canonicalUrl}
-                    onChange={(e) => setNewBlog({...newBlog, canonicalUrl: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, canonicalUrl: e.target.value })}
                   />
                 </div>
               </div>
@@ -1065,7 +1064,7 @@ const BlogsPage = () => {
                     type="text"
                     placeholder="Social media title"
                     value={newBlog.ogTitle}
-                    onChange={(e) => setNewBlog({...newBlog, ogTitle: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, ogTitle: e.target.value })}
                   />
                 </div>
                 <div>
@@ -1074,7 +1073,7 @@ const BlogsPage = () => {
                     id="add-blog-og-description"
                     placeholder="Social media description"
                     value={newBlog.ogDescription}
-                    onChange={(e) => setNewBlog({...newBlog, ogDescription: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, ogDescription: e.target.value })}
                     rows={3}
                   />
                 </div>
@@ -1085,7 +1084,7 @@ const BlogsPage = () => {
                     type="url"
                     placeholder="https://example.com/og-image.jpg"
                     value={newBlog.ogImage}
-                    onChange={(e) => setNewBlog({...newBlog, ogImage: e.target.value})}
+                    onChange={(e) => setNewBlog({ ...newBlog, ogImage: e.target.value })}
                   />
                 </div>
               </div>
@@ -1129,7 +1128,7 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="Enter blog title"
                       value={selectedBlog.title}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, title: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, title: e.target.value })}
                     />
                   </div>
                   <div>
@@ -1139,7 +1138,7 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="blog-post-slug"
                       value={selectedBlog.slug}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, slug: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, slug: e.target.value })}
                     />
                   </div>
                   <div>
@@ -1148,7 +1147,7 @@ const BlogsPage = () => {
                       id="edit-blog-excerpt"
                       placeholder="Brief description of the blog post"
                       value={selectedBlog.excerpt}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, excerpt: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, excerpt: e.target.value })}
                       rows={3}
                     />
                   </div>
@@ -1158,7 +1157,7 @@ const BlogsPage = () => {
                       id="edit-blog-content"
                       placeholder="Write your blog post content here..."
                       value={selectedBlog.content}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, content: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, content: e.target.value })}
                       rows={8}
                     />
                   </div>
@@ -1169,7 +1168,7 @@ const BlogsPage = () => {
                       type="url"
                       placeholder="https://example.com/image.jpg"
                       value={selectedBlog.featuredImage}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, featuredImage: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, featuredImage: e.target.value })}
                     />
                   </div>
                 </div>
@@ -1184,12 +1183,12 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="Author name"
                       value={selectedBlog.author}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, author: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, author: e.target.value })}
                     />
                   </div>
                   <div>
                     <Label htmlFor="edit-blog-category" className="mb-2 block">Category</Label>
-                    <Select value={selectedBlog.category} onValueChange={(value) => setSelectedBlog({...selectedBlog, category: value})}>
+                    <Select value={selectedBlog.category} onValueChange={(value) => setSelectedBlog({ ...selectedBlog, category: value })}>
                       <SelectTrigger id="edit-blog-category">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -1207,12 +1206,12 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="tag1, tag2, tag3"
                       value={Array.isArray(selectedBlog.tags) ? selectedBlog.tags.join(', ') : (selectedBlog.tags as string)}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, tags: e.target.value as string})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, tags: e.target.value as string })}
                     />
                   </div>
                   <div>
                     <Label htmlFor="edit-blog-status" className="mb-2 block">Status</Label>
-                    <Select value={selectedBlog.status} onValueChange={(value) => setSelectedBlog({...selectedBlog, status: value})}>
+                    <Select value={selectedBlog.status} onValueChange={(value) => setSelectedBlog({ ...selectedBlog, status: value })}>
                       <SelectTrigger id="edit-blog-status">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
@@ -1230,7 +1229,7 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="e.g., 5 min read"
                       value={selectedBlog.readTime}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, readTime: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, readTime: e.target.value })}
                     />
                   </div>
 
@@ -1247,7 +1246,7 @@ const BlogsPage = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Image List */}
                     {(selectedBlog.blogImages?.length || 0) > 0 && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1263,7 +1262,7 @@ const BlogsPage = () => {
                                 <X className="w-4 h-4" />
                               </Button>
                             </div>
-                            
+
                             {/* Image Preview */}
                             <div className="relative w-full h-20 overflow-hidden rounded-lg border">
                               <Image
@@ -1273,7 +1272,7 @@ const BlogsPage = () => {
                                 className="object-cover"
                               />
                             </div>
-                            
+
                             <Input
                               placeholder="Alt text"
                               value={image.alt}
@@ -1303,7 +1302,7 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="SEO optimized title (50-60 characters)"
                       value={selectedBlog.metaTitle}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, metaTitle: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, metaTitle: e.target.value })}
                     />
                   </div>
                   <div>
@@ -1312,7 +1311,7 @@ const BlogsPage = () => {
                       id="edit-blog-meta-description"
                       placeholder="SEO description (150-160 characters)"
                       value={selectedBlog.metaDescription}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, metaDescription: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, metaDescription: e.target.value })}
                       rows={3}
                     />
                   </div>
@@ -1323,7 +1322,7 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="keyword1, keyword2, keyword3"
                       value={selectedBlog.metaKeywords}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, metaKeywords: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, metaKeywords: e.target.value })}
                     />
                   </div>
                   <div>
@@ -1333,7 +1332,7 @@ const BlogsPage = () => {
                       type="url"
                       placeholder="https://wellnessfuel.com/blog/post-slug"
                       value={selectedBlog.canonicalUrl}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, canonicalUrl: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, canonicalUrl: e.target.value })}
                     />
                   </div>
                 </div>
@@ -1348,7 +1347,7 @@ const BlogsPage = () => {
                       type="text"
                       placeholder="Social media title"
                       value={selectedBlog.ogTitle}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, ogTitle: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, ogTitle: e.target.value })}
                     />
                   </div>
                   <div>
@@ -1357,7 +1356,7 @@ const BlogsPage = () => {
                       id="edit-blog-og-description"
                       placeholder="Social media description"
                       value={selectedBlog.ogDescription}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, ogDescription: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, ogDescription: e.target.value })}
                       rows={3}
                     />
                   </div>
@@ -1368,7 +1367,7 @@ const BlogsPage = () => {
                       type="url"
                       placeholder="https://example.com/og-image.jpg"
                       value={selectedBlog.ogImage}
-                      onChange={(e) => setSelectedBlog({...selectedBlog, ogImage: e.target.value})}
+                      onChange={(e) => setSelectedBlog({ ...selectedBlog, ogImage: e.target.value })}
                     />
                   </div>
                 </div>
@@ -1405,9 +1404,9 @@ const BlogsPage = () => {
               <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={isLocalLoading}>
                 Cancel
               </Button>
-              <Button 
-                variant="destructive" 
-                onClick={handleDeleteBlog} 
+              <Button
+                variant="destructive"
+                onClick={handleDeleteBlog}
                 disabled={isLocalLoading}
               >
                 {isLocalLoading ? (

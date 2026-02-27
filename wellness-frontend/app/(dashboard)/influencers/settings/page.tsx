@@ -114,7 +114,7 @@ const InfluencerSettingsPage = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
       const response = await fetch(getApiV1Url("/influencer-settings"), {
         method: "GET",
         credentials: "include",
@@ -211,7 +211,7 @@ const InfluencerSettingsPage = () => {
 
       setIsSaving(true);
       setError(null);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
       const endpoint =
         section === "profile"
           ? "/v1/influencer-settings/profile"

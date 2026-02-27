@@ -189,11 +189,12 @@ const CheckoutPage = () => {
         setIsLoading(false);
         return;
       }
+      console.log("User ID for order:", user._id);
 
       // Get authentication token
       let token =
         localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
         localStorage.getItem("accessToken");
 
       if (token) {
@@ -205,6 +206,7 @@ const CheckoutPage = () => {
         setIsLoading(false);
         return;
       }
+      console.log("Token found:", token ? "Yes" : "No");
 
       // Generate a unique order number (e.g., timestamp + random)
       const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -216,22 +218,18 @@ const CheckoutPage = () => {
         billingAddress: shippingAddress, // assuming same for now
         items: cartItems.map((item) => ({
           product: item.id, // or item.productId
-          quantity: item.quantity,
-          price: item.price,
-          total: item.price * item.quantity,
+          quantity: item.quantity
         })),
         paymentMethod: paymentMethod === "cod" ? "COD" : "Online",
         paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
-        shippingCost,
-        subtotal: cartTotal,
-        totalAmount: finalTotal,
-        isCouponApplied: couponApplied,
         couponCode,
-        discountValue: discount,
         // Add more fields if needed
       };
 
-      const response = await axios.post(getApiV1Url("/orders"), orderPayload, {
+      console.log("Sending Order Payload:", JSON.stringify(orderPayload, null, 2));
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+      const response = await axios.post(`${API_URL}/v1/orders`, orderPayload, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -252,7 +250,8 @@ const CheckoutPage = () => {
       });
     } catch (error: any) {
       // Show backend error message if available
-      console.error("Order API Error:", error);
+      console.error("❌ Order API Error:", error);
+      console.error("❌ Error Response Data:", error.response?.data);
       const message =
         error?.response?.data?.message ||
         "Failed to place order. Please try again.";
@@ -280,11 +279,12 @@ const CheckoutPage = () => {
         setIsLoading(false);
         return;
       }
+      console.log("User ID for Razorpay order:", user._id);
 
       // Get authentication token
       let token =
         localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
         localStorage.getItem("accessToken");
 
       if (token) {
@@ -307,24 +307,20 @@ const CheckoutPage = () => {
         billingAddress: shippingAddress,
         items: cartItems.map((item) => ({
           product: item.id,
-          quantity: item.quantity,
-          price: item.price,
-          total: item.price * item.quantity,
+          quantity: item.quantity
         })),
         paymentMethod: "Online",
         paymentStatus: "Paid",
-        shippingCost,
-        subtotal: cartTotal,
-        totalAmount: finalTotal,
-        isCouponApplied: couponApplied,
         couponCode,
-        discountValue: discount,
         razorpayPaymentId: paymentData.razorpay_payment_id,
         razorpayOrderId: paymentData.razorpay_order_id,
         razorpaySignature: paymentData.razorpay_signature,
       };
 
-      const response = await axios.post(getApiV1Url("/orders"), orderPayload, {
+      console.log("Sending Razorpay Order Payload:", JSON.stringify(orderPayload, null, 2));
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+      const response = await axios.post(`${API_URL}/v1/orders`, orderPayload, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -344,7 +340,8 @@ const CheckoutPage = () => {
         router.push("/track-order");
       });
     } catch (error: any) {
-      console.error("Order API Error:", error);
+      console.error("❌ Order API Error:", error);
+      console.error("❌ Error Response Data:", error.response?.data);
       const message =
         error?.response?.data?.message ||
         "Failed to place order. Please try again.";

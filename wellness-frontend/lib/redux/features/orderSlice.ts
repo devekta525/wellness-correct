@@ -1,22 +1,23 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
 
 // Create axios instance with interceptors
-const api = axios.create({
+const api = axiosInstance.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  
 });
 
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
       let token =
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
+        "" ||
+        "" ||
         localStorage.getItem("accessToken");
       if (token) {
         token = token.replace(/^"|"$/g, "");
@@ -81,7 +82,7 @@ export interface Order {
     | "Cancelled"
     | "Returned";
   trackingNumber?: string;
-  shippingCost: string;
+  shippingCost: number; // backend returns numeric amount
   subtotal: number;
   totalAmount: number;
   notes?: string;

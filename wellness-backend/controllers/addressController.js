@@ -18,8 +18,9 @@ function validateAddressPayload(addr) {
 // Create or replace full document for a user
 export async function upsertAddressDoc(req, res) {
   try {
-    const { user, addresses = [] } = req.body;
-    if (!isId(user)) return res.status(400).json({ success: false, message: 'Invalid user id' });
+    // SECURITY: Get user ID from authenticated token, not from request body.
+    const userId = req.user._id;
+    const { addresses = [] } = req.body;
 
     // validations
     for (const a of addresses) {
@@ -32,8 +33,8 @@ export async function upsertAddressDoc(req, res) {
     }
 
     const doc = await Address.findOneAndUpdate(
-      { user },
-      { user, addresses },
+      { user: userId },
+      { user: userId, addresses },
       { upsert: true, new: true, runValidators: true }
     ).populate('user', 'firstName lastName email');
 
@@ -44,12 +45,12 @@ export async function upsertAddressDoc(req, res) {
 }
 
 // Get by user
-export async function getAddresses(req, res) {
+export async function getAddress(req, res) {
   try {
-    const { userId } = req.params;
-    if (!isId(userId)) return res.status(400).json({ success: false, message: 'Invalid user id' });
+    // SECURITY: Get user ID from authenticated token, not from URL params.
+    const userId = req.user._id;
 
-    const doc = await Address.findOne({ user: userId }).populate('user', 'firstName lastName email');
+    const doc = await Address.findOne({ user: userId }).populate('user', 'firstName lastName email').lean();
     res.json({ success: true, data: doc || { user: userId, addresses: [] } });
   } catch (e) {
     res.status(400).json({ success: false, message: e.message });
@@ -59,8 +60,8 @@ export async function getAddresses(req, res) {
 // Add one address
 export async function addAddress(req, res) {
   try {
-    const { userId } = req.params;
-    if (!isId(userId)) return res.status(400).json({ success: false, message: 'Invalid user id' });
+    // SECURITY: Get user ID from authenticated token, not from URL params.
+    const userId = req.user._id;
 
     const addr = req.body;
     const err = validateAddressPayload(addr);
@@ -87,9 +88,11 @@ export async function addAddress(req, res) {
 // Update one address
 export async function updateAddress(req, res) {
   try {
-    const { userId, addressId } = req.params;
-    if (!isId(userId) || !isId(addressId)) {
-      return res.status(400).json({ success: false, message: 'Invalid ids' });
+    // SECURITY: Get user ID from authenticated token.
+    const userId = req.user._id;
+    const { addressId } = req.params;
+    if (!isId(addressId)) {
+      return res.status(400).json({ success: false, message: 'Invalid address ID' });
     }
 
     const updates = req.body;
@@ -119,9 +122,11 @@ export async function updateAddress(req, res) {
 // Delete one address
 export async function deleteAddress(req, res) {
   try {
-    const { userId, addressId } = req.params;
-    if (!isId(userId) || !isId(addressId)) {
-      return res.status(400).json({ success: false, message: 'Invalid ids' });
+    // SECURITY: Get user ID from authenticated token.
+    const userId = req.user._id;
+    const { addressId } = req.params;
+    if (!isId(addressId)) {
+      return res.status(400).json({ success: false, message: 'Invalid address ID' });
     }
 
     const doc = await Address.findOne({ user: userId });
@@ -142,9 +147,11 @@ export async function deleteAddress(req, res) {
 // Set default explicitly
 export async function setDefaultAddress(req, res) {
   try {
-    const { userId, addressId } = req.params;
-    if (!isId(userId) || !isId(addressId)) {
-      return res.status(400).json({ success: false, message: 'Invalid ids' });
+    // SECURITY: Get user ID from authenticated token.
+    const userId = req.user._id;
+    const { addressId } = req.params;
+    if (!isId(addressId)) {
+      return res.status(400).json({ success: false, message: 'Invalid address ID' });
     }
 
     const doc = await Address.findOne({ user: userId });

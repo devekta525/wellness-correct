@@ -3,7 +3,9 @@ import User from '../models/userModel.js';
 export const addPaymentMethod = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
-        user.paymentMethods.push(req.body);
+        const { cardType, last4Digits, cardHolderName, expiryDate, token } = req.body;
+
+        user.paymentMethods.push({ cardType, last4Digits, cardHolderName, expiryDate, token });
         if (user.paymentMethods.length === 1) {
             user.paymentMethods[0].isDefault = true;
         }

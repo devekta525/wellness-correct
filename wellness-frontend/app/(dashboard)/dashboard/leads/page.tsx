@@ -91,7 +91,7 @@ const LeadsPage = () => {
     if (typeof window !== "undefined") {
       let token =
         localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
         localStorage.getItem("accessToken") ||
         "";
       return token.replace(/^"|"$/g, "");

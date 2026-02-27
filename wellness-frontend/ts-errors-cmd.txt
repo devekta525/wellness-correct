@@ -1,0 +1,7 @@
+lib/redux/features/dashboardSlice.ts(73,7): error TS2698: Spread types may only be created from object types.
+lib/redux/features/doctorSettingsSlice.ts(84,7): error TS2698: Spread types may only be created from object types.
+lib/redux/features/newsletterSlice.ts(64,9): error TS2873: This kind of expression is always falsy.
+lib/redux/features/notesSlice.ts(211,7): error TS2698: Spread types may only be created from object types.
+lib/redux/features/orderSlice.ts(19,9): error TS2873: This kind of expression is always falsy.
+lib/redux/features/prescriptionSlice.ts(85,7): error TS2698: Spread types may only be created from object types.
+lib/redux/features/reportSlice.ts(32,7): error TS2698: Spread types may only be created from object types.

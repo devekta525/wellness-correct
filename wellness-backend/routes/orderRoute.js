@@ -8,8 +8,10 @@ import {
     updateOrder,
     getUserOrders,
     getUsersWithOrders,
-    getUserOrdersCount
+    getUserOrdersCount,
+    getUserNotifications,
 } from "../controllers/orderController.js";
+import { getAvgOrderValue } from "../controllers/avgOrderValueController.js";
 import { isLogin } from "../middleWares/isLogin.js";
 import { isAdmin } from "../middleWares/isAdmin.js";
 
@@ -20,6 +22,11 @@ router.post('/', isLogin, createOrder);
 router.get('/user/my-orders', isLogin, getUserOrders);
 
 router.get('/user/my-orders/count', isLogin, getUserOrdersCount);
+
+router.get('/user/notifications', isLogin, getUserNotifications);
+
+// GET /api/v1/orders/avg-order-value
+router.get('/avg-order-value', isLogin, getAvgOrderValue);
 
 router.get('/admin/count', isLogin, isAdmin, countOrders);
 

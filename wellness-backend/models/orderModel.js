@@ -80,6 +80,7 @@ const OrderSchema = new Schema(
     },
     trackingNumber: { type: String, trim: true },
     shippingCost: { type: Number, default: 0, min: 0 },
+    tax: { type: Number, default: 0, min: 0 },
     subtotal: { type: Number, default: 0, min: 0 },
     totalAmount: { type: Number, default: 0, min: 0 },
     notes: { type: String, trim: true },
@@ -138,7 +139,7 @@ OrderSchema.pre('save', function (next) {
     }
 
     // Calculate total
-    this.totalAmount = Math.max(0, this.subtotal - discountAmount + (this.shippingCost || 0));
+    this.totalAmount = Math.max(0, this.subtotal - discountAmount + (this.shippingCost || 0) + (this.tax || 0));
 
     // Set isPaid based on payment status
     this.isPaid = this.paymentStatus === 'Paid';
@@ -147,6 +148,7 @@ OrderSchema.pre('save', function (next) {
       subtotal: this.subtotal,
       discount: discountAmount,
       shipping: this.shippingCost,
+      tax: this.tax,
       total: this.totalAmount
     });
 

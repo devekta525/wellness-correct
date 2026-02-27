@@ -42,6 +42,32 @@ const productSchema = new mongoose.Schema({
     required: true
   },
 
+  for: {
+    type: String
+  },
+
+  with: {
+    type: String
+  },
+
+  badge: {
+    type: String
+  },
+
+  tagline: {
+    type: String
+  },
+
+  rating: {
+    type: Number,
+    default: 5
+  },
+
+  reviews: {
+    type: Number,
+    default: 0
+  },
+
   weightSize: {
     value: Number,
     unit: String

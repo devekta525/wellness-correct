@@ -16,7 +16,8 @@ import {
   Settings,
 } from 'lucide-react'
 import Image from 'next/image'
-import logoImage from '../../../public/logo.png'
+import LOGO_URL from '../../../public/logo.jpeg';
+
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -73,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
           {!isCollapsed && (
             <div className="flex items-center justify-center flex-1">
               <Image
-                src={logoImage}
+                src={LOGO_URL}
                 alt="HealthCare"
                 width={100}
                 height={40}
@@ -84,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
           {isCollapsed && (
             <div className="flex items-center justify-center flex-1">
               <Image
-                src={logoImage}
+                src={LOGO_URL}
                 alt="HealthCare"
                 height={32}
                 className="object-contain"

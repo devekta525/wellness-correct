@@ -1,18 +1,30 @@
 import { Router } from "express";
-import { addAddress, deleteAddress, getAddresses, setDefaultAddress, updateAddress, upsertAddressDoc } from "../controllers/addressController.js";
+import { addAddress, deleteAddress, getAddress, setDefaultAddress, updateAddress, upsertAddressDoc } from "../controllers/addressController.js";
 import { isLogin } from "../middleWares/isLogin.js";
 
 
 const router = Router();
 
-// Document level
-router.post('/', isLogin, upsertAddressDoc);                 // create/replace entire doc for a user
-router.get('/user/:userId', isLogin, getAddresses);          // read addresses for user
+// All routes below are for the authenticated user and require a valid JWT.
+// The 'isLogin' middleware ensures req.user is populated.
+router.use(isLogin);
 
-// Address item level
-router.post('/user/:userId', isLogin, addAddress);           // add one address
-router.put('/user/:userId/:addressId', isLogin, updateAddress);      // update one address
-router.delete('/user/:userId/:addressId', isLogin, deleteAddress);   // delete one address
-router.patch('/user/:userId/:addressId/default', isLogin, setDefaultAddress); // set default
+// Get all addresses for the logged-in user
+router.get('/my', getAddress);
+
+// Add a new address for the logged-in user
+router.post('/add', addAddress);
+
+// Update a specific address by its ID
+router.put('/:addressId', updateAddress);
+
+// Delete a specific address by its ID
+router.delete('/:addressId', deleteAddress);
+
+// Set a specific address as the default
+router.patch('/:addressId/default', setDefaultAddress);
+
+// Create or replace the entire address document for the logged-in user
+router.post('/', upsertAddressDoc);
 
 export default router;

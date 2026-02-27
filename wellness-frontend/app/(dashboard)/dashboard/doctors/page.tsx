@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import {
   Stethoscope,
   Search,
@@ -80,6 +81,7 @@ import {
   selectUsersPagination,
   updateUser,
   deleteUser,
+  createUser,
   User as UserType,
 } from "@/lib/redux/features/userSlice";
 import Loader from "@/components/common/dashboard/Loader";
@@ -114,6 +116,7 @@ const DoctorsPage = () => {
   const isLoading = useAppSelector(selectUsersLoading);
   const error = useAppSelector(selectUsersError);
   const pagination = useAppSelector(selectUsersPagination);
+  const searchParams = useSearchParams();
 
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const [searchTerm, setSearchTerm] = useState("");
@@ -124,12 +127,34 @@ const DoctorsPage = () => {
   const [selectedDoctor, setSelectedDoctor] = useState<UserType | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const addDoctorFileRef = useRef<HTMLInputElement>(null);
+  const [newDoctor, setNewDoctor] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    specialization: "",
+    experience: "",
+    consultationFee: "",
+    hospital: "",
+    location: "",
+    qualifications: "",
+    status: "active",
+    password: "Doctor@123",
+    imageUrl: "",
+  });
 
   // Fetch doctors data on component mount
   useEffect(() => {
     dispatch(setFilters({ role: "Doctor" }));
     dispatch(fetchUsersData());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (searchParams?.get("action") === "add") {
+      setIsAddModalOpen(true);
+    }
+  }, [searchParams]);
 
   // Convert users to doctors format and filter
   const doctors: Doctor[] = users
@@ -262,11 +287,72 @@ const DoctorsPage = () => {
     }
   };
 
+  const handleAddDoctorImageUpload = () => {
+    addDoctorFileRef.current?.click();
+  };
+
+  const handleAddDoctorFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setNewDoctor((prev) => ({ ...prev, imageUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveAddDoctorImage = () => {
+    setNewDoctor((prev) => ({ ...prev, imageUrl: "" }));
+    if (addDoctorFileRef.current) {
+      addDoctorFileRef.current.value = "";
+    }
+  };
+
   const handleAddDoctor = async () => {
     try {
-      // Add logic to create doctor via API
-      setIsAddModalOpen(false);
-      dispatch(fetchUsersData());
+      const formData = new FormData();
+      formData.append("firstName", newDoctor.firstName);
+      formData.append("lastName", newDoctor.lastName);
+      formData.append("email", newDoctor.email);
+      formData.append("phone", newDoctor.phone);
+      formData.append("password", newDoctor.password);
+      formData.append("role", "Doctor");
+      formData.append("status", newDoctor.status);
+      formData.append("specialization", newDoctor.specialization);
+      formData.append("experience", newDoctor.experience);
+      formData.append("consultationFee", newDoctor.consultationFee);
+      formData.append("hospital", newDoctor.hospital);
+      formData.append("location", newDoctor.location);
+      formData.append("qualifications", newDoctor.qualifications);
+
+      if (addDoctorFileRef.current?.files?.[0]) {
+        formData.append("image", addDoctorFileRef.current.files[0]);
+      }
+
+      const success = (await dispatch(createUser(formData as any))) as unknown as boolean;
+      if (success) {
+        setIsAddModalOpen(false);
+        setNewDoctor({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          specialization: "",
+          experience: "",
+          consultationFee: "",
+          hospital: "",
+          location: "",
+          qualifications: "",
+          status: "active",
+          password: "Doctor@123",
+          imageUrl: "",
+        });
+        if (addDoctorFileRef.current) {
+          addDoctorFileRef.current.value = "";
+        }
+        dispatch(fetchUsersData());
+      }
     } catch (error) {
       console.error("Error adding doctor:", error);
     }
@@ -311,6 +397,7 @@ const DoctorsPage = () => {
                 <Button
                   onClick={() => setIsAddModalOpen(true)}
                   className="gap-2"
+                  type="button"
                 >
                   <UserPlus className="w-4 h-4" />
                   Add Doctor
@@ -819,24 +906,47 @@ const DoctorsPage = () => {
             <div className="flex flex-col items-center space-y-4 py-4">
               <Label className="text-lg font-medium">Profile Picture</Label>
               <Avatar className="w-24 h-24">
-                <AvatarImage src="/placeholder-doctor.svg" />
+                <AvatarImage src={newDoctor.imageUrl || "/placeholder-doctor.svg"} />
                 <AvatarFallback className="text-xl">DR</AvatarFallback>
               </Avatar>
               <div className="flex gap-3">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleAddDoctorImageUpload}>
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Photo
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleRemoveAddDoctorImage}>
                   <Camera className="w-4 h-4 mr-2" />
                   Remove
                 </Button>
               </div>
+              <input
+                type="file"
+                ref={addDoctorFileRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleAddDoctorFileChange}
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="addName">Full Name</Label>
-                <Input id="addName" placeholder="Dr. Full Name" />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label htmlFor="addFirstName">First Name</Label>
+                  <Input 
+                    id="addFirstName" 
+                    placeholder="First Name" 
+                    value={newDoctor.firstName}
+                    onChange={(e) => setNewDoctor({ ...newDoctor, firstName: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="addLastName">Last Name</Label>
+                  <Input 
+                    id="addLastName" 
+                    placeholder="Last Name" 
+                    value={newDoctor.lastName}
+                    onChange={(e) => setNewDoctor({ ...newDoctor, lastName: e.target.value })}
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="addEmail">Email</Label>
@@ -844,15 +954,25 @@ const DoctorsPage = () => {
                   id="addEmail"
                   type="email"
                   placeholder="doctor@email.com"
+                  value={newDoctor.email}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, email: e.target.value })}
                 />
               </div>
               <div>
                 <Label htmlFor="addPhone">Phone</Label>
-                <Input id="addPhone" placeholder="+91 98765 43210" />
+                <Input 
+                  id="addPhone" 
+                  placeholder="+91 98765 43210" 
+                  value={newDoctor.phone}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, phone: e.target.value })}
+                />
               </div>
               <div>
                 <Label htmlFor="addSpecialization">Specialization</Label>
-                <Select>
+                <Select 
+                  value={newDoctor.specialization} 
+                  onValueChange={(value) => setNewDoctor({ ...newDoctor, specialization: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select specialization" />
                   </SelectTrigger>
@@ -868,23 +988,50 @@ const DoctorsPage = () => {
               </div>
               <div>
                 <Label htmlFor="addExperience">Experience (Years)</Label>
-                <Input id="addExperience" type="number" placeholder="5" />
+                <Input 
+                  id="addExperience" 
+                  type="number" 
+                  placeholder="5" 
+                  value={newDoctor.experience}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, experience: e.target.value })}
+                />
               </div>
               <div>
                 <Label htmlFor="addFee">Consultation Fee</Label>
-                <Input id="addFee" type="number" placeholder="1500" />
+                <Input 
+                  id="addFee" 
+                  type="number" 
+                  placeholder="1500" 
+                  value={newDoctor.consultationFee}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, consultationFee: e.target.value })}
+                />
               </div>
               <div>
                 <Label htmlFor="addHospital">Hospital</Label>
-                <Input id="addHospital" placeholder="Hospital Name" />
+                <Input 
+                  id="addHospital" 
+                  placeholder="Hospital Name" 
+                  value={newDoctor.hospital}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, hospital: e.target.value })}
+                />
               </div>
               <div>
                 <Label htmlFor="addLocation">Location</Label>
-                <Input id="addLocation" placeholder="City, State" />
+                <Input 
+                  id="addLocation" 
+                  placeholder="City, State" 
+                  value={newDoctor.location}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, location: e.target.value })}
+                />
               </div>
               <div className="md:col-span-2">
                 <Label htmlFor="addQualifications">Qualifications</Label>
-                <Textarea id="addQualifications" placeholder="MBBS, MD, etc." />
+                <Textarea 
+                  id="addQualifications" 
+                  placeholder="MBBS, MD, etc." 
+                  value={newDoctor.qualifications}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, qualifications: e.target.value })}
+                />
               </div>
             </div>
             <DialogFooter>

@@ -21,56 +21,112 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats: initialStats }) => {
   const [totalSpent, setTotalSpent] = useState<number>(initialStats.totalSpent)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [avgOrderValue, setAvgOrderValue] = useState<number>(initialStats.averageOrderValue)
+  const [aovLoading, setAovLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchStats = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token')
 
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token')
-
-        if (!token) {
-          setLoading(false)
-          return
-        }
-
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1`
-        const headers = {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-
-        // Fetch both stats in parallel
-        // Note: We do NOT pass userId in the URL for total-amount
-        const [countRes, amountRes] = await Promise.all([
-          fetch(`${apiUrl}/orders/user/my-orders/count`, { headers }),
-          fetch(`${apiUrl}/total-amount`, { headers })
-        ])
-
-        if (!countRes.ok || !amountRes.ok) {
-          throw new Error('Failed to fetch stats')
-        }
-
-        const countData = await countRes.json()
-        const amountData = await amountRes.json()
-
-        if (countData.success) {
-          setTotalOrders(countData.totalOrders)
-        }
-
-        if (amountData.success) {
-          setTotalSpent(amountData.totalSpent)
-        }
-      } catch (err) {
-        console.error('Error fetching stats:', err)
-        setError('Failed to load')
-      } finally {
+      if (!token) {
         setLoading(false)
+        return
       }
+
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1`
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+
+      setLoading(true)
+      setError(null)
+
+      // Fetch both stats in parallel, handle each independently
+      const [countRes, amountRes] = await Promise.allSettled([
+        fetch(`${apiUrl}/orders/user/my-orders/count`, { headers }),
+        fetch(`${apiUrl}/total-amount`, { headers })
+      ])
+
+      let hasError = false
+
+      // Handle order count
+      if (countRes.status === 'fulfilled') {
+        if (countRes.value.ok) {
+          try {
+            const countData = await countRes.value.json()
+            if (countData.success) setTotalOrders(countData.totalOrders)
+          } catch {
+            console.error('Failed to parse order count response')
+            hasError = true
+          }
+        } else {
+          console.error(`Order count endpoint failed: ${countRes.value.status} ${countRes.value.statusText} — URL: ${apiUrl}/orders/user/my-orders/count`)
+          hasError = true
+        }
+      } else {
+        console.error('Order count request failed (network error):', countRes.reason)
+        hasError = true
+      }
+
+      // Handle total amount
+      if (amountRes.status === 'fulfilled') {
+        if (amountRes.value.ok) {
+          try {
+            const amountData = await amountRes.value.json()
+            if (amountData.success) setTotalSpent(amountData.totalSpent)
+          } catch {
+            console.error('Failed to parse total amount response')
+            hasError = true
+          }
+        } else {
+          console.error(`Total amount endpoint failed: ${amountRes.value.status} ${amountRes.value.statusText} — URL: ${apiUrl}/total-amount`)
+          hasError = true
+        }
+      } else {
+        console.error('Total amount request failed (network error):', amountRes.reason)
+        hasError = true
+      }
+
+      if (hasError) setError('Failed to load')
+      setLoading(false)
     }
 
     fetchStats()
+  }, [])
+
+  useEffect(() => {
+    const fetchAvgOrderValue = async () => {
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token')
+      if (!token) {
+        setAovLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/v1/orders/avg-order-value`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            setAvgOrderValue(data.avgOrderValue)
+            setTotalOrders(data.orderCount)
+            setTotalSpent(data.totalSpent)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch average order value', err)
+      } finally {
+        setAovLoading(false)
+      }
+    }
+
+    fetchAvgOrderValue()
   }, [])
 
   return (
@@ -126,7 +182,11 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats: initialStats }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-purple-600 font-medium">Avg Order Value</p>
-              <p className="text-3xl font-bold text-purple-900">₹{initialStats.averageOrderValue.toLocaleString()}</p>
+              {aovLoading ? (
+                <Loader2 className="h-8 w-8 animate-spin text-purple-600 mt-1" />
+              ) : (
+                <p className="text-3xl font-bold text-purple-900">₹{avgOrderValue.toLocaleString()}</p>
+              )}
             </div>
             <div className="p-3 bg-purple-500 rounded-full">
               <TrendingUp className="w-8 h-8 text-white" />

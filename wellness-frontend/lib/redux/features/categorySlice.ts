@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 export interface Category {
@@ -61,18 +62,15 @@ const initialState: CategoryState = {
   },
 };
 
-const api = axios.create({
+const api = axiosInstance.create({
   baseURL: getApiV1BaseUrl(),
-  withCredentials: true,
+
 });
 
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      let token =
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
-        localStorage.getItem("accessToken");
+      let token = localStorage.getItem("accessToken");
 
       if (token) {
         token = token.replace(/^"|"$/g, "");
@@ -154,42 +152,42 @@ const handleApiError = (error: unknown) => {
 
 export const fetchCategoriesData =
   () =>
-  async (
-    dispatch: AppDispatch,
-    getState: () => { categories: CategoryState },
-  ) => {
-    dispatch(setCategoryLoading());
-    try {
-      const { filters } = getState().categories;
-      const queryParams = new URLSearchParams();
+    async (
+      dispatch: AppDispatch,
+      getState: () => { categories: CategoryState },
+    ) => {
+      dispatch(setCategoryLoading());
+      try {
+        const { filters } = getState().categories;
+        const queryParams = new URLSearchParams();
 
-      if (filters.status && filters.status !== "all") {
-        queryParams.append("status", filters.status);
+        if (filters.status && filters.status !== "all") {
+          queryParams.append("status", filters.status);
+        }
+        if (filters.name) {
+          queryParams.append("name", filters.name);
+        }
+
+        const queryString = queryParams.toString();
+        const url = queryString ? `/categories?${queryString}` : `/categories`;
+
+        const response = await api.get(url);
+
+        if (response.data?.success && Array.isArray(response.data.data)) {
+          const mappedCategories = response.data.data.map((cat: ApiCategory) =>
+            mapApiCategoryToCategory(cat),
+          );
+          dispatch(setCategoryData(mappedCategories));
+        } else {
+          throw new Error(response.data?.message || "Failed to fetch categories");
+        }
+        return true;
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setCategoryError(errorMessage));
+        return false;
       }
-      if (filters.name) {
-        queryParams.append("name", filters.name);
-      }
-
-      const queryString = queryParams.toString();
-      const url = queryString ? `/categories?${queryString}` : `/categories`;
-
-      const response = await api.get(url);
-
-      if (response.data?.success && Array.isArray(response.data.data)) {
-        const mappedCategories = response.data.data.map((cat: ApiCategory) =>
-          mapApiCategoryToCategory(cat),
-        );
-        dispatch(setCategoryData(mappedCategories));
-      } else {
-        throw new Error(response.data?.message || "Failed to fetch categories");
-      }
-      return true;
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setCategoryError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 export const fetchActiveCategories = () => async (dispatch: AppDispatch) => {
   dispatch(setCategoryLoading());
@@ -329,25 +327,25 @@ export const updateCategoryStatus =
 
 export const updateCategory =
   (categoryId: string, updatedData: FormData) =>
-  async (dispatch: AppDispatch) => {
-    try {
-      const response = await api.put(`/categories/${categoryId}`, updatedData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      if (response.data?.success) {
-        dispatch(setCategoryLoading());
-        return true;
-      } else {
-        throw new Error(response.data?.message || "Failed to update category");
+    async (dispatch: AppDispatch) => {
+      try {
+        const response = await api.put(`/categories/${categoryId}`, updatedData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        if (response.data?.success) {
+          dispatch(setCategoryLoading());
+          return true;
+        } else {
+          throw new Error(response.data?.message || "Failed to update category");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setCategoryError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setCategoryError(errorMessage));
-      return false;
-    }
-  };
+    };
 
 export const deleteCategory =
   (categoryId: string) => async (dispatch: AppDispatch) => {

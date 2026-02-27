@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import {
   Megaphone,
   Search,
@@ -110,6 +111,7 @@ const InfluencersPage = () => {
   const isLoading = useAppSelector(selectUsersLoading);
   const error = useAppSelector(selectUsersError);
   const pagination = useAppSelector(selectUsersPagination);
+  const searchParams = useSearchParams();
 
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const [searchTerm, setSearchTerm] = useState("");
@@ -129,6 +131,12 @@ const InfluencersPage = () => {
     dispatch(setFilters({ role: "Influencer" }));
     dispatch(fetchUsersData());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (searchParams?.get("action") === "add") {
+      setIsAddModalOpen(true);
+    }
+  }, [searchParams]);
 
   // Convert users to influencers format and filter
   const influencers: Influencer[] = users

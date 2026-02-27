@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 import { RootState } from "../store";
 
@@ -77,9 +78,9 @@ const initialState: PrescriptionState = {
 
 const getAuthConfig = () => {
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    typeof window !== "undefined" ? "" : null;
   return {
-    withCredentials: true,
+    
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
       "Content-Type": "application/json",
@@ -110,7 +111,7 @@ export const fetchPrescriptions = createAsyncThunk(
         query.append("status", params.status);
       if (params.search) query.append("search", params.search);
 
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}?${query.toString()}`,
         getAuthConfig(),
       );
@@ -127,7 +128,7 @@ export const fetchPrescriptionById = createAsyncThunk(
   "prescriptions/fetchById",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/${id}`, getAuthConfig());
+      const response = await axiosInstance.get(`${API_URL}/${id}`, getAuthConfig());
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -141,7 +142,7 @@ export const createPrescription = createAsyncThunk(
   "prescriptions/create",
   async (data: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(API_URL, data, getAuthConfig());
+      const response = await axiosInstance.post(API_URL, data, getAuthConfig());
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -155,7 +156,7 @@ export const updatePrescription = createAsyncThunk(
   "prescriptions/update",
   async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_URL}/${id}`,
         data,
         getAuthConfig(),
@@ -173,7 +174,7 @@ export const deletePrescription = createAsyncThunk(
   "prescriptions/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/${id}`, getAuthConfig());
+      await axiosInstance.delete(`${API_URL}/${id}`, getAuthConfig());
       return id;
     } catch (error: any) {
       return rejectWithValue(
@@ -187,7 +188,7 @@ export const fetchPrescriptionStats = createAsyncThunk(
   "prescriptions/fetchStats",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/stats`, getAuthConfig());
+      const response = await axiosInstance.get(`${API_URL}/stats`, getAuthConfig());
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -202,7 +203,7 @@ export const exportPrescriptions = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const config = getAuthConfig();
-      const response = await axios.get(`${API_URL}/export`, {
+      const response = await axiosInstance.get(`${API_URL}/export`, {
         ...config,
         responseType: "blob",
       });

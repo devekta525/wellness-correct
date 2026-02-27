@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import {
   Plus,
   Search,
@@ -108,6 +109,7 @@ const ProductsPage = () => {
   const error = useAppSelector(selectProductsError);
   const filters = useAppSelector(selectProductsFilters);
   const pagination = useAppSelector(selectProductsPagination);
+  const searchParams = useSearchParams();
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -213,12 +215,20 @@ const ProductsPage = () => {
     images: "",
     metaTitle: "",
     metaDescription: "",
+    for: "",
+    with: "",
   });
 
-  // Fetch data on component mount
+  // Fetch data on component mount or filter/pagination change
   useEffect(() => {
     dispatch(fetchProductsData());
-  }, [dispatch]);
+  }, [dispatch, filters, pagination.page]);
+
+  useEffect(() => {
+    if (searchParams?.get("action") === "add") {
+      setShowAddModal(true);
+    }
+  }, [searchParams]);
 
   // Pagination logic using Redux pagination
   const totalPages = Math.ceil(pagination.total / pagination.limit);
@@ -248,64 +258,45 @@ const ProductsPage = () => {
   // --- FIXED ADD FUNCTION ---
   const handleAddProduct = async () => {
     try {
-      const formData = new FormData();
-
-      // Direct Fields (Must match Schema exact keys)
-      formData.append("name", newProduct.name);
-      formData.append("category", newProduct.category);
-      formData.append("shortDescription", newProduct.shortDescription);
-      formData.append("longDescription", newProduct.longDescription);
-      // Sending short description as fallback for description if needed
-      formData.append("description", newProduct.longDescription);
-      formData.append("stockQuantity", newProduct.stockQuantity);
-      formData.append("expiryDate", newProduct.expiryDate);
-      formData.append("manufacturer", newProduct.manufacturer);
-      formData.append("dosageInstructions", newProduct.dosageInstructions);
-
-      // Nested Objects (Using bracket notation for standard parsers)
-      formData.append("price[amount]", newProduct.price.amount);
-      formData.append("price[currency]", newProduct.price.currency);
-      if (newProduct.price.mrp)
-        formData.append("price[mrp]", newProduct.price.mrp);
-
-      formData.append("weightSize[value]", newProduct.weightSize.value);
-      formData.append("weightSize[unit]", newProduct.weightSize.unit);
-
-      // Arrays (Split strings and append multiple times)
-      const ingredientsArray = newProduct.ingredients
-        .split(",")
-        .map((i) => i.trim())
-        .filter(Boolean);
-      ingredientsArray.forEach((ing) => {
-        formData.append("ingredients", ing);
-      });
-
-      const benefitsArray = newProduct.benefits
-        .split("\n")
-        .map((b) => b.trim())
-        .filter(Boolean);
-      benefitsArray.forEach((ben) => {
-        formData.append("benefits", ben);
-      });
-
-      // Images
-      productImages.forEach((img, index) => {
-        formData.append(`images[${index}]`, img.url);
-      });
-      // Legacy/Fallback image field
-      if (productImages.length > 0) {
-        formData.append("imageUrl", productImages[0].url);
-      }
-
-      // Optional
-      if (newProduct.slug) formData.append("slug", newProduct.slug);
-      if (newProduct.metaTitle)
-        formData.append("metaTitle", newProduct.metaTitle);
-      if (newProduct.metaDescription)
-        formData.append("metaDescription", newProduct.metaDescription);
+      // Build plain object for create
+      const productPayload = {
+        name: newProduct.name,
+        category: newProduct.category,
+        shortDescription: newProduct.shortDescription,
+        longDescription: newProduct.longDescription,
+        description: newProduct.longDescription,
+        stockQuantity: Number(newProduct.stockQuantity),
+        expiryDate: newProduct.expiryDate,
+        manufacturer: newProduct.manufacturer,
+        dosageInstructions: newProduct.dosageInstructions,
+        price: {
+          amount: Number(newProduct.price.amount),
+          currency: newProduct.price.currency,
+          mrp: newProduct.price.mrp ? Number(newProduct.price.mrp) : undefined,
+        },
+        weightSize: {
+          value: Number(newProduct.weightSize.value),
+          unit: newProduct.weightSize.unit,
+        },
+        ingredients: newProduct.ingredients
+          .split(",")
+          .map((i) => i.trim())
+          .filter(Boolean),
+        benefits: newProduct.benefits
+          .split("\n")
+          .map((b) => b.trim())
+          .filter(Boolean),
+        images: productImages.map((img) => img.url),
+        imageUrl: productImages[0]?.url || "",
+        slug: newProduct.slug,
+        metaTitle: newProduct.metaTitle,
+        metaDescription: newProduct.metaDescription,
+        for: newProduct.for,
+        with: newProduct.with,
+      };
 
       const success = (await dispatch(
-        createProduct(formData),
+        createProduct(productPayload),
       )) as unknown as boolean;
       if (success) {
         setShowAddModal(false);
@@ -327,6 +318,8 @@ const ProductsPage = () => {
           images: "",
           metaTitle: "",
           metaDescription: "",
+          for: "",
+          with: "",
         });
         setProductImages([]);
         setUrlInput("");
@@ -375,6 +368,8 @@ const ProductsPage = () => {
         slug: newProduct.slug,
         metaTitle: newProduct.metaTitle,
         metaDescription: newProduct.metaDescription,
+        for: newProduct.for,
+        with: newProduct.with,
       };
 
       const success = (await dispatch(
@@ -475,6 +470,8 @@ const ProductsPage = () => {
         (product.images.length > 0 ? product.images[0] : ""),
       metaTitle: product.metaTitle || "",
       metaDescription: product.metaDescription || "",
+      for: product.for || "",
+      with: product.with || "",
     });
     setUrlInput("");
     setShowEditModal(true);
@@ -514,8 +511,8 @@ const ProductsPage = () => {
                   <TooltipTrigger asChild>
                     <Button
                       onClick={() =>
-                        (window.location.href =
-                          "/dashboard/products/addProduct")
+                      (window.location.href =
+                        "/dashboard/products/addProduct")
                       }
                       className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
@@ -1712,43 +1709,43 @@ const ProductsPage = () => {
                         </div>
                       )}
                       {productImages.length > 0 && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {productImages.map((image) => (
-                              <div
-                                key={image.id}
-                                className="border rounded-lg p-3 space-y-2"
-                              >
-                                <div className="relative w-full h-20 overflow-hidden rounded-lg">
-                                  <img
-                                    src={image.url}
-                                    alt={image.alt}
-                                    className="object-cover"
-                                  />
-                                  <Button
-                                    onClick={() => removeImage(image.id)}
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute top-1 right-1 h-5 w-5"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                                <Input
-                                  placeholder="Alt text"
-                                  value={image.alt}
-                                  onChange={(e) => updateImage(image.id, "alt", e.target.value)}
-                                  className="text-sm"
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {productImages.map((image) => (
+                            <div
+                              key={image.id}
+                              className="border rounded-lg p-3 space-y-2"
+                            >
+                              <div className="relative w-full h-20 overflow-hidden rounded-lg">
+                                <img
+                                  src={image.url}
+                                  alt={image.alt}
+                                  className="object-cover"
                                 />
-                                <Input
-                                  placeholder="Caption (optional)"
-                                  value={image.caption || ""}
-                                  onChange={(e) => updateImage(image.id, "caption", e.target.value)}
-                                  className="text-sm"
-                                />
+                                <Button
+                                  onClick={() => removeImage(image.id)}
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-1 right-1 h-5 w-5"
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
                               </div>
-                            ))}
-                          </div>
-                        )}
+                              <Input
+                                placeholder="Alt text"
+                                value={image.alt}
+                                onChange={(e) => updateImage(image.id, "alt", e.target.value)}
+                                className="text-sm"
+                              />
+                              <Input
+                                placeholder="Caption (optional)"
+                                value={image.caption || ""}
+                                onChange={(e) => updateImage(image.id, "caption", e.target.value)}
+                                className="text-sm"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

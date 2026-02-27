@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { removeUserCookie } from '@/lib/auth'
 import { Loader2, CheckCircle } from 'lucide-react'
+import Swal from "sweetalert2";
 
 const LogoutPage = () => {
   const router = useRouter()
@@ -10,26 +11,41 @@ const LogoutPage = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(true)
 
   useEffect(() => {
-    // Clear user cookie immediately
-    removeUserCookie()
-    
-    // Start countdown
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          setIsLoggingOut(false)
-          clearInterval(timer)
-          // Redirect to login after countdown
-          setTimeout(() => {
-            router.push('/')
-          }, 500)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+    try {
+      // Clear user cookie immediately
+      removeUserCookie()
+      
+      Swal.fire({
+        title: "Logged Out",
+        text: "You have been logged out successfully",
+        icon: "success",
+      });
 
-    return () => clearInterval(timer)
+      // Start countdown
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setIsLoggingOut(false)
+            clearInterval(timer)
+            // Redirect to login after countdown
+            setTimeout(() => {
+              router.push('/')
+            }, 500)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+
+      return () => clearInterval(timer)
+    } catch (error) {
+      Swal.fire({
+        title: "Logout Failed",
+        text: "Something went wrong. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
+    }
   }, [router])
 
   return (

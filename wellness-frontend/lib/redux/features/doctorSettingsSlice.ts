@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 import { RootState } from "../store";
 
@@ -76,9 +77,9 @@ const initialState: DoctorSettingsState = {
 // Helper for Auth Headers
 const getAuthConfig = () => {
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    typeof window !== "undefined" ? "" : null;
   return {
-    withCredentials: true,
+    
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
       "Content-Type": "application/json",
@@ -93,7 +94,7 @@ export const fetchDoctorSettings = createAsyncThunk(
   "doctorSettings/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(API_URL, getAuthConfig());
+      const response = await axiosInstance.get(API_URL, getAuthConfig());
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -107,7 +108,7 @@ export const updateProfileSettings = createAsyncThunk(
   "doctorSettings/updateProfile",
   async (profileData: Partial<ProfileSettings>, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_URL}/profile`,
         profileData,
         getAuthConfig(),
@@ -125,7 +126,7 @@ export const updateBusinessSettings = createAsyncThunk(
   "doctorSettings/updateBusiness",
   async (businessData: Partial<BusinessSettings>, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_URL}/business`,
         businessData,
         getAuthConfig(),
@@ -143,7 +144,7 @@ export const updateSecuritySettings = createAsyncThunk(
   "doctorSettings/updateSecurity",
   async (securityData: Partial<SecuritySettings>, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_URL}/security`,
         securityData,
         getAuthConfig(),

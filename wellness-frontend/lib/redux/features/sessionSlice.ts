@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
@@ -111,7 +112,7 @@ export const fetchUserSessions =
   (_userId: string) => async (dispatch: AppDispatch) => {
     dispatch(setSessionLoading());
     try {
-      const response = await axios.get(`${API_BASE_URL}/sessions/user/`);
+      const response = await axiosInstance.get(`/sessions/user/`);
       if (response.data?.success) {
         dispatch(setSessionsData(response.data.data));
         return true;
@@ -130,7 +131,7 @@ export const endSession =
   (sessionId: string) => async (dispatch: AppDispatch) => {
     dispatch(setSessionLoading());
     try {
-      const response = await axios.delete(
+      const response = await axiosInstance.delete(
         `${API_BASE_URL}/sessions/user/session/${sessionId}`,
       );
       if (response.data?.success) {
@@ -152,7 +153,7 @@ export const endAllOtherSessions =
   async (dispatch: AppDispatch) => {
     dispatch(setSessionLoading());
     try {
-      const response = await axios.delete(`${API_BASE_URL}/sessions/user/`);
+      const response = await axiosInstance.delete(`/sessions/user/`);
       if (response.data?.success) {
         dispatch(clearSessions());
         return true;

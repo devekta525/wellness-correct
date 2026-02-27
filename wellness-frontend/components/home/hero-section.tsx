@@ -1,128 +1,200 @@
 "use client";
-import React from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Star } from "lucide-react";
-import Image from 'next/image';
-import { motion } from "framer-motion";
-import HERO_IMAGE from '../../public/Hero.png';
-import Product1 from "../../public/supplement-bottle-blue.png"
-import Product2 from "../../public/1.jpg"
-import Product4 from "../../public/4.jpg"
+
+import React, { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
+import axios from "axios";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import HERO_IMAGE from "../../public/Hero.png";
+
+interface Banner {
+  _id: string;
+  imageUrl: string;
+}
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const NEXT_PUBLIC_API_URL = `${API_BASE}/v1`;
+
+const getImageUrl = (url?: string) => {
+  if (!url) return HERO_IMAGE;
+  let finalUrl = url;
+  if (!url.startsWith("http")) {
+    finalUrl = url.startsWith("/") ? `${API_BASE}${url}` : `${API_BASE}/${url}`;
+  }
+  return encodeURI(finalUrl);
+};
 
 const HeroSection = () => {
-  const products = [
-    { name: "Longevity Pro", rating: 5, image: Product1 },
-    { name: "Complete Superfoods Blend", rating: 5, image: Product2 },
-    { name: "Complete Gut Fibre", rating: 5, image: Product1 },
-    { name: "Forever Gut", rating: 5, image: Product4 },
-  ];
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  return (
-    <section className="relative overflow-hidden bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-100 dark:from-slate-900 dark:to-slate-950 min-h-[650px] flex items-center">
+  // Initialize Embla Carousel with Autoplay
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }),
+  ]);
 
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div 
-          className="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] bg-gradient-to-b from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.1, 1], rotate: [0, 10, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+  // Navigation callbacks
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const scrollTo = useCallback((index: number) => {
+    if (emblaApi) emblaApi.scrollTo(index);
+  }, [emblaApi]);
+
+  // Update selected index
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+  }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    fetchBanners();
+  }, []);
+
+  const fetchBanners = async () => {
+    try {
+      const res = await axios.get(`${NEXT_PUBLIC_API_URL}/banners`);
+      if (res.data.success && res.data.data.length > 0) {
+        setBanners(res.data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch banners", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderSlides = () => {
+    const slidesToRender = loading || banners.length === 0
+      ? [{ _id: 'default', imageUrl: HERO_IMAGE }]
+      : banners;
+
+    return slidesToRender.map((banner, idx) => (
+      <div
+        key={banner._id}
+        className="flex-[0_0_100%] min-w-0 w-full relative h-[400px] sm:h-[500px] lg:h-[600px] xl:h-[720px]"
+      >
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
+
+        {/* Side Gradient for better text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent z-10" />
+
+        {/* Banner Image */}
+        <Image
+          src={typeof banner.imageUrl === 'string' ? getImageUrl(banner.imageUrl) : HERO_IMAGE}
+          alt={`Banner ${idx + 1}`}
+          fill
+          className="object-cover object-center"
+          priority={idx === 0}
+          sizes="100vw"
+          unoptimized
         />
-        <motion.div 
-          className="absolute top-[20%] -left-[10%] w-[50%] h-[50%] bg-gradient-to-r from-cyan-200/30 to-blue-200/30 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], x: [0, 50, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
 
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 relative z-20 w-full">
-        <div className="flex flex-col lg:flex-row items-center cursor-default">
-
-          {/* Left Content:  Image */}
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full lg:w-[45%] flex justify-center lg:justify-start relative mb-12 lg:mb-0"
-          >
-            {/* Circular/Glow effect behind image if needed, for now just the image */}
-            <motion.div 
-              className="relative w-full max-w-[500px] lg:max-w-none h-[400px] sm:h-[500px] lg:h-[700px]"
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Image
-                src={HERO_IMAGE}
-                alt=" "
-                fill
-                className="object-contain object-center lg:object-left-bottom drop-shadow-2xl"
-                priority
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* Right Content: Text & Products */}
-          <div className="w-full lg:w-[55%] flex flex-col items-center lg:items-start space-y-8 pl-0 lg:pl-10">
-
-            {/* Heading */}
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative z-30 text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-blue-900 leading-[1.1] text-center lg:text-left"
-            >
-              4 for <br />
-              <span className="text-blue-600">Everyday Longevity</span>
-            </motion.h1>
-
-            {/* Product Cards Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl">
-              {products.map((product, idx) => (
-                <motion.div 
-                  key={idx} 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + (idx * 0.1) }}
-                  whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                  className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-4 border border-blue-200 shadow-lg flex flex-col items-center text-center hover:shadow-xl hover:shadow-blue-200/50 hover:border-blue-400 transition-all"
-                >
-                  <div className="w-full aspect-square relative mb-3 bg-blue-50/50 rounded-xl overflow-hidden flex items-center justify-center">
-                    <div className="w-20 h-20 relative">
-                      <Image src={product.image} alt={product.name} fill className="object-contain" />
-                    </div>
-                  </div>
-                  <h3 className="font-bold text-slate-800 text-sm leading-tight min-h-[40px] flex items-center justify-center">
-                    {product.name}
-                  </h3>
-                  <div className="flex gap-0.5 mt-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* CTA Button */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className="pt-6 w-full flex justify-center lg:justify-start"
-            >
-              <Link href="/products">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold px-10 py-7 rounded-full shadow-lg shadow-blue-300/50 hover:shadow-xl hover:scale-105 transition-all duration-300">
-                  Explore Our Products
-                </Button>
-              </Link>
-            </motion.div>
-
+        {/* Content Overlay - You can add your content here */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 p-8 sm:p-12 lg:p-16 xl:p-20">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 
+                         drop-shadow-2xl animate-fadeInUp">
+              Welcome to Our Store
+            </h1>
+            <p className="text-lg sm:text-xl text-white/90 mb-6 max-w-2xl drop-shadow-lg 
+                        animate-fadeInUp animation-delay-200">
+              Discover amazing products at unbeatable prices
+            </p>
+            <button className="px-8 py-3 bg-white text-black font-semibold rounded-full 
+                             hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 
+                             shadow-lg animate-fadeInUp animation-delay-400">
+              Shop Now
+            </button>
           </div>
-
         </div>
       </div>
+    ));
+  };
+
+  const totalSlides = loading || banners.length === 0 ? 1 : banners.length;
+
+  return (
+    <section className="relative w-full overflow-hidden bg-gray-900 group">
+      {/* Loading Skeleton */}
+      {loading && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-gray-900">
+          <div className="flex space-x-2">
+            <div className="w-3 h-3 bg-white rounded-full animate-bounce" />
+            <div className="w-3 h-3 bg-white rounded-full animate-bounce animation-delay-200" />
+            <div className="w-3 h-3 bg-white rounded-full animate-bounce animation-delay-400" />
+          </div>
+        </div>
+      )}
+
+      {/* Embla Viewport */}
+      <div className="overflow-hidden w-full" ref={emblaRef}>
+        <div className="flex touch-pan-y">
+          {renderSlides()}
+        </div>
+      </div>
+
+      {/* Navigation Arrows - Only show if more than 1 slide */}
+      {totalSlides > 1 && (
+        <>
+          <button
+            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 
+                     bg-white/20 backdrop-blur-sm rounded-full text-white 
+                     hover:bg-white/30 transition-all duration-300 
+                     opacity-0 group-hover:opacity-100 transform hover:scale-110"
+            onClick={scrollPrev}
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+
+          <button
+            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 
+                     bg-white/20 backdrop-blur-sm rounded-full text-white 
+                     hover:bg-white/30 transition-all duration-300 
+                     opacity-0 group-hover:opacity-100 transform hover:scale-110"
+            onClick={scrollNext}
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+        </>
+      )}
+
+      {/* Dots Indicator - Only show if more than 1 slide */}
+      {totalSlides > 1 && (
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 
+                      flex items-center gap-2">
+          {Array.from({ length: totalSlides }).map((_, index) => (
+            <button
+              key={index}
+              className={`transition-all duration-300 rounded-full 
+                        ${selectedIndex === index
+                  ? 'w-8 h-2 bg-white'
+                  : 'w-2 h-2 bg-white/50 hover:bg-white/70'}`}
+              onClick={() => scrollTo(index)}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };
 
-export default HeroSection
+export default HeroSection;

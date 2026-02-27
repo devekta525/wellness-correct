@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { clearAuthData } from "../../utils/auth";
 import { getApiV1BaseUrl } from "../../utils/api";
 
@@ -15,16 +16,19 @@ export interface User {
   password: string;
   phone: string;
   role:
-    | "admin"
-    | "super_admin"
-    | "Admin"
-    | "Doctor"
-    | "Influencer"
-    | "Customer";
+  | "admin"
+  | "super_admin"
+  | "Admin"
+  | "Doctor"
+  | "Influencer"
+  | "Customer";
   status: "Active" | "Inactive";
   dateOfBirth?: string;
   verified: boolean;
   address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: number;
   bio?: string;
   hospital?: string;
   experience?: number;
@@ -163,7 +167,7 @@ export const loginUser =
   (email: string, password: string) => async (dispatch: AppDispatch) => {
     dispatch(setAuthLoading());
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      const response = await axiosInstance.post(`/auth/login`, {
         email,
         password,
       });
@@ -191,14 +195,14 @@ export const registerUser =
     try {
       console.log("Sending registration data:", userData);
 
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${API_BASE_URL}/auth/register`,
         userData,
         {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true,
+
         },
       );
 
@@ -263,66 +267,66 @@ export const sendPasswordResetEmail =
 // Reset password
 export const resetPassword =
   (oldPassword: string, newPassword: string) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setPasswordResetStatus({ loading: true, error: null }));
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/resetpassword`,
-        {
-          oldPassword,
-          newPassword,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    async (dispatch: AppDispatch) => {
+      dispatch(setPasswordResetStatus({ loading: true, error: null }));
+      try {
+        const response = await axiosInstance.post(
+          `${API_BASE_URL}/auth/resetpassword`,
+          {
+            oldPassword,
+            newPassword,
           },
-        },
-      );
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${""}`,
+            },
+          },
+        );
 
-      // According to the prompt, the response will be: { "message": "Password Reset Successfully" }
-      if (response.data?.message === "Password Reset Successfully") {
-        dispatch(setPasswordResetStatus({ loading: false }));
-        return true;
-      } else {
-        throw new Error(response.data?.message || "Password reset failed");
+        // According to the prompt, the response will be: { "message": "Password Reset Successfully" }
+        if (response.data?.message === "Password Reset Successfully") {
+          dispatch(setPasswordResetStatus({ loading: false }));
+          return true;
+        } else {
+          throw new Error(response.data?.message || "Password reset failed");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setPasswordResetStatus({ loading: false, error: errorMessage }));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setPasswordResetStatus({ loading: false, error: errorMessage }));
-      return false;
-    }
-  };
+    };
 
 // Update profile
 export const updateProfile =
   (userId: string, profileData: Partial<User>) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setAuthLoading());
-    try {
-      const response = await axios.put(
-        `${API_BASE_URL}/users/${userId}`,
-        profileData,
-      );
+    async (dispatch: AppDispatch) => {
+      dispatch(setAuthLoading());
+      try {
+        const response = await axiosInstance.put(
+          `${API_BASE_URL}/users/${userId}`,
+          profileData,
+        );
 
-      if (response.data?.success) {
-        dispatch(setUser(response.data.user));
-        return true;
-      } else {
-        throw new Error(response.data?.message || "Profile update failed");
+        if (response.data?.success) {
+          dispatch(setUser(response.data.user));
+          return true;
+        } else {
+          throw new Error(response.data?.message || "Profile update failed");
+        }
+      } catch (error: unknown) {
+        const errorMessage = handleApiError(error);
+        dispatch(setAuthError(errorMessage));
+        return false;
       }
-    } catch (error: unknown) {
-      const errorMessage = handleApiError(error);
-      dispatch(setAuthError(errorMessage));
-      return false;
-    }
-  };
+    };
 // Update profile image
 export const updateProfileImage =
   (userId: string, imageFile: FormData) => async (dispatch: AppDispatch) => {
     dispatch(setAuthLoading());
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/users/${userId}`,
         imageFile,
         {
@@ -352,7 +356,7 @@ export const toggle2FA =
   (userId: string, enable: boolean) => async (dispatch: AppDispatch) => {
     dispatch(setAuthLoading());
     try {
-      const response = await axios.put(`${API_BASE_URL}/users/${userId}`, {
+      const response = await axiosInstance.put(`/users/${userId}`, {
         twoFactorEnabled: enable,
       });
 
@@ -372,7 +376,7 @@ export const toggle2FA =
 // Logout user
 export const logoutUser = () => async (dispatch: AppDispatch) => {
   try {
-    await axios.post(`${API_BASE_URL}/auth/logout`);
+    await axiosInstance.post(`/auth/logout`);
     dispatch(logout());
     clearAuthData(); // Clear local storage and cookies
     return true;

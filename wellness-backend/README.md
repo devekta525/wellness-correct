@@ -38,9 +38,8 @@ The backend is an Express + MongoDB API that powers authentication, content, eco
 ## Environment Variables
 Create a .env file in backend/ with:
 - PORT
-- MONGODB_URI
-- DB_URL (optional, used in db logging)
-- JWT_TOKEN
+- MONGODB_URI (or DB_URL as a legacy fallback)
+- JWT_TOKEN  (the secret used for signing/verifying JWTs)
 - NODE_ENV
 - AWS_REGION
 - AWS_ACCESS_KEY_ID

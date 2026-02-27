@@ -22,8 +22,7 @@ const PrescriptionDetailPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const token =
-          localStorage.getItem("authToken") || localStorage.getItem("token");
+        const token = localStorage.getItem("authToken");
 
         if (!token) {
           setError("Authentication token not found. Please login again.");

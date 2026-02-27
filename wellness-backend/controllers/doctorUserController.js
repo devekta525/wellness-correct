@@ -6,7 +6,7 @@ export async function createDoctor(req, res) {
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
-    const doctor = new Doctor(req.body);
+    const doctor = new User({ ...req.body, role: 'Doctor' });
     const savedDoctor = await doctor.save();
 
     // Remove password from response
@@ -24,7 +24,7 @@ export async function updateDoctor(req, res) {
 
   try {
     const updatedDoctor = await User.findOneAndUpdate(
-      { _id: req.params.id },
+      { _id: req.params.id, role: 'Doctor' },
       req.body,
       { new: true }
     ).select('-password');
@@ -39,7 +39,7 @@ export async function updateDoctor(req, res) {
 // Toggle doctor status
 export async function toggleDoctorStatus(req, res) {
   try {
-    const doctor = await User.findOne({ _id: req.params.id });
+    const doctor = await User.findOne({ _id: req.params.id, role: 'Doctor' });
     if (!doctor) return res.status(404).json({ error: 'Doctor not found' });
 
     const newStatus = doctor.status === 'active' ? 'inactive' : 'active';
@@ -58,7 +58,7 @@ export async function toggleDoctorStatus(req, res) {
 // Get all doctors
 export async function getAllDoctors(req, res) {
   try {
-    const doctors = await User.find().select('-password');
+    const doctors = await User.find({ role: 'Doctor' }).select('-password');
     res.json(doctors);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -68,7 +68,7 @@ export async function getAllDoctors(req, res) {
 // Get doctor by ID
 export async function getDoctorById(req, res) {
   try {
-    const doctor = await User.findOne({ _id: req.params.id }).select('-password');
+    const doctor = await User.findOne({ _id: req.params.id, role: 'Doctor' }).select('-password');
     if (!doctor) return res.status(404).json({ error: 'Doctor not found' });
     res.json(doctor);
   } catch (error) {

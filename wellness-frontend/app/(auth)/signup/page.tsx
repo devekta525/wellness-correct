@@ -43,6 +43,7 @@ import {
   updateUserRole,
   getDashboardForRole,
 } from "@/lib/utils/auth";
+import Swal from "sweetalert2";
 
 const SignupPage = () => {
   const dispatch = useAppDispatch();
@@ -185,6 +186,11 @@ const SignupPage = () => {
     setIsLoading(false);
 
     if (result && result.success) {
+      Swal.fire({
+        title: "Account Created",
+        text: "Your account has been created successfully",
+        icon: "success",
+      });
       setSuccess(true);
 
       if (result.session) {
@@ -199,6 +205,12 @@ const SignupPage = () => {
         const dashboardUrl = getDashboardForRole(role);
         router.replace(dashboardUrl);
       }, 2000);
+    } else {
+      Swal.fire({
+        title: "Signup Failed",
+        text: result?.message || "Signup failed",
+        icon: "error",
+      });
     }
   };
 

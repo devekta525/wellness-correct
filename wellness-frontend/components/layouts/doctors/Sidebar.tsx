@@ -17,7 +17,8 @@ import {
   BarChart2,
   } from 'lucide-react'
 import Image from 'next/image'
-import logoimg from '@/public/logo.png'
+import LOGO_URL from '../../../public/logo.jpeg';
+
 
 interface SidebarProps {
   isCollapsed: boolean
@@ -75,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
           {!isCollapsed && (
             <div className="flex items-center justify-center flex-1">
               <Image 
-                src={logoimg}
+                src={LOGO_URL}
                 alt="HealthCare" 
                 width={100} 
                 height={40} 
@@ -86,7 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed }) => {
           {isCollapsed && (
             <div className="flex items-center justify-center flex-1">
               <Image 
-                src= {logoimg} 
+                src={LOGO_URL} 
                 alt="HealthCare" 
                 width={80}
                 height={32} 

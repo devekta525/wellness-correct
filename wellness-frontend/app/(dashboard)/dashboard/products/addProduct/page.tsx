@@ -58,6 +58,12 @@ interface AIProductData {
   expiryDate: string;
   manufacturer: string;
   confidence: number;
+  for?: string;
+  with?: string;
+  badge?: string;
+  tagline?: string;
+  rating?: string;
+  reviews?: string;
 }
 
 const AddProduct = () => {
@@ -84,6 +90,12 @@ const AddProduct = () => {
     expiryDate: "",
     manufacturer: "",
     confidence: 0,
+    for: "",
+    with: "",
+    badge: "",
+    tagline: "",
+    rating: "5",
+    reviews: "0",
   });
 
   const categories = ["Supplements", "Vitamins", "Beverages", "Wellness"];
@@ -226,6 +238,12 @@ const AddProduct = () => {
         expiryDate: "2025-12-31",
         manufacturer: "Wellness Fuel Labs",
         confidence: 85,
+        for: "Muscle Building & Recovery",
+        with: "Water or Milk",
+        badge: "Bestseller",
+        tagline: "The Ultimate Protein Powerhouse",
+        rating: "4.8",
+        reviews: "128",
       };
       setAiData(demoData);
       setFormData(demoData);
@@ -257,6 +275,7 @@ const AddProduct = () => {
       productFormData.append("category", formData.category);
       productFormData.append("price[amount]", formData.price.toString());
       productFormData.append("price[currency]", "INR"); // Default or dynamic
+      productFormData.append("price[mrp]", formData.originalPrice.toString());
       productFormData.append("stockQuantity", formData.stock.toString());
       productFormData.append("shortDescription", formData.shortDescription);
       productFormData.append("longDescription", formData.longDescription);
@@ -266,7 +285,7 @@ const AddProduct = () => {
       const benefitsArray = Array.isArray(formData.benefits)
         ? formData.benefits
         : (typeof formData.benefits === 'string' ? (formData.benefits as string).split('\n') : []);
-      
+
       benefitsArray.forEach((benefit) => {
         if (benefit.trim()) productFormData.append("benefits", benefit.trim());
       });
@@ -290,6 +309,13 @@ const AddProduct = () => {
         .replace(/ /g, "-")
         .replace(/[^\w-]+/g, "");
       productFormData.append("slug", slug);
+
+      productFormData.append("for", formData.for || "");
+      productFormData.append("with", formData.with || "");
+      productFormData.append("badge", formData.badge || "");
+      productFormData.append("tagline", formData.tagline || "");
+      if (formData.rating) productFormData.append("rating", formData.rating);
+      if (formData.reviews) productFormData.append("reviews", formData.reviews);
 
       // Append images
       if (imagePreviews.length > 0) {
@@ -331,12 +357,18 @@ const AddProduct = () => {
       expiryDate: "",
       manufacturer: "",
       confidence: 0,
+      for: "",
+      with: "",
+      badge: "",
+      tagline: "",
+      rating: "5",
+      reviews: "0",
     });
     setIsEditing(false);
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -397,7 +429,7 @@ const AddProduct = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {imagePreviews.map((preview, index) => (
                     <motion.div
-                      key={index} 
+                      key={index}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       className="relative group rounded-xl overflow-hidden border border-border shadow-sm aspect-square"
@@ -457,7 +489,7 @@ const AddProduct = () => {
                 </div>
 
                 {!aiData && (
-                  <Button 
+                  <Button
                     onClick={processImagesWithAI}
                     disabled={isProcessing}
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20 transition-all duration-300 h-12 text-base font-medium rounded-xl"
@@ -492,350 +524,435 @@ const AddProduct = () => {
 
         {/* AI Analysis Results */}
         <AnimatePresence>
-        {aiData && (
-          <motion.div
-            initial={{ opacity: 0, x: 20, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -20, scale: 0.95 }}
-            className="h-full"
-          >
-          <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-lg overflow-hidden h-full flex flex-col bg-card/50 backdrop-blur-sm">
-            <CardHeader className="bg-indigo-50/50 dark:bg-indigo-950/20 border-b border-indigo-100 dark:border-indigo-900/50 pb-4">
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-indigo-500" />
-                AI Analysis Results
-                <Badge variant="secondary" className="ml-auto bg-white/50 dark:bg-black/20 backdrop-blur-sm">
-                  {aiData.confidence}% Confidence
-                </Badge>
-              </CardTitle>
-              <CardDescription>
-                AI has extracted the following product information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6 flex-1">
-              <div className="grid grid-cols-2 gap-4 bg-muted/30 p-5 rounded-xl border border-border/50">
-                <div className="flex items-center gap-2">
-                  <Package className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Category:</span>
-                  <span className="text-sm">{aiData.category}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Price:</span>
-                  <span className="text-sm">₹{aiData.price}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Scale className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Weight:</span>
-                  <span className="text-sm">{aiData.weight}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Expiry:</span>
-                  <span className="text-sm">{aiData.expiryDate}</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t">
-                <h4 className="font-semibold mb-3 flex items-center gap-2"><Sparkles className="w-3 h-3 text-indigo-500" /> Key Benefits</h4>
-                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-2">
-                  {aiData.benefits.map((benefit, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {benefit}
+          {aiData && (
+            <motion.div
+              initial={{ opacity: 0, x: 20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -20, scale: 0.95 }}
+              className="h-full"
+            >
+              <Card className="border-indigo-100 dark:border-indigo-900/50 shadow-lg overflow-hidden h-full flex flex-col bg-card/50 backdrop-blur-sm">
+                <CardHeader className="bg-indigo-50/50 dark:bg-indigo-950/20 border-b border-indigo-100 dark:border-indigo-900/50 pb-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-indigo-500" />
+                    AI Analysis Results
+                    <Badge variant="secondary" className="ml-auto bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+                      {aiData.confidence}% Confidence
                     </Badge>
-                  ))}
-                </div>
-              </div>
+                  </CardTitle>
+                  <CardDescription>
+                    AI has extracted the following product information
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6 flex-1">
+                  <div className="grid grid-cols-2 gap-4 bg-muted/30 p-5 rounded-xl border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">Category:</span>
+                      <span className="text-sm">{aiData.category}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">Price:</span>
+                      <span className="text-sm">₹{aiData.price}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Scale className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">Weight:</span>
+                      <span className="text-sm">{aiData.weight}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">Expiry:</span>
+                      <span className="text-sm">{aiData.expiryDate}</span>
+                    </div>
+                  </div>
 
-              <div className="flex gap-3 mt-auto pt-4">
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  className="flex-1"
-                  variant="outline"
-                >
-                  <Edit3 className="w-4 h-4 mr-2" />
-                  Customize Data
-                </Button>
-                <Button
-                  onClick={saveProduct}
-                  disabled={isProcessing || isEditing}
-                  className="flex-1"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Save Product
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          </motion.div>
-        )}
+                  <div className="pt-4 border-t">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2"><Sparkles className="w-3 h-3 text-indigo-500" /> Key Benefits</h4>
+                    <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-2">
+                      {aiData.benefits.map((benefit, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {benefit}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-auto pt-4">
+                    <Button
+                      onClick={() => setIsEditing(true)}
+                      className="flex-1"
+                      variant="outline"
+                    >
+                      <Edit3 className="w-4 h-4 mr-2" />
+                      Customize Data
+                    </Button>
+                    <Button
+                      onClick={saveProduct}
+                      disabled={isProcessing || isEditing}
+                      className="flex-1"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Save Product
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
       {/* Editable Form */}
       <AnimatePresence>
-      {isEditing && (
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 40 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-        <Card className="border-primary/20 shadow-xl ring-1 ring-primary/5 bg-card/80 backdrop-blur-sm">
-          <CardHeader className="border-b border-border/50 bg-muted/5 pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <Edit3 className="w-5 h-5" />
-              Customize Product Data
-            </CardTitle>
-            <CardDescription>
-              Review and modify the AI-generated product information
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
-                  Basic Information
-                </h3>
+        {isEditing && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <Card className="border-primary/20 shadow-xl ring-1 ring-primary/5 bg-card/80 backdrop-blur-sm">
+              <CardHeader className="border-b border-border/50 bg-muted/5 pb-4">
+                <CardTitle className="flex items-center gap-2">
+                  <Edit3 className="w-5 h-5" />
+                  Customize Product Data
+                </CardTitle>
+                <CardDescription>
+                  Review and modify the AI-generated product information
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Basic Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
+                      Basic Information
+                    </h3>
 
-                <div>
-                  <Label htmlFor="name" className="mb-1.5 block">Product Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    className="focus-visible:ring-primary"
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    placeholder="Enter product name"
-                  />
+                    <div>
+                      <Label htmlFor="name" className="mb-1.5 block">Product Name</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        className="focus-visible:ring-primary"
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        placeholder="Enter product name"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="category" className="mb-1.5 block">Category</Label>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) =>
+                          handleInputChange("category", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="shortDescription" className="mb-1.5 block">Short Description</Label>
+                      <Input
+                        id="shortDescription"
+                        value={formData.shortDescription}
+                        onChange={(e) =>
+                          handleInputChange("shortDescription", e.target.value)
+                        }
+                        placeholder="Brief description"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="longDescription" className="mb-1.5 block">Long Description</Label>
+                      <Textarea
+                        id="longDescription"
+                        value={formData.longDescription}
+                        onChange={(e) =>
+                          handleInputChange("longDescription", e.target.value)
+                        }
+                        placeholder="Detailed description"
+                        className="min-h-[100px]"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Pricing & Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
+                      Pricing & Details
+                    </h3>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="price" className="mb-1.5 block">Price (₹)</Label>
+                        <Input
+                          id="price"
+                          type="number"
+                          step="0.01"
+                          value={formData.price}
+                          onChange={(e) =>
+                            handleInputChange("price", e.target.value)
+                          }
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="originalPrice" className="mb-1.5 block">Original Price (₹)</Label>
+                        <Input
+                          id="originalPrice"
+                          type="number"
+                          step="0.01"
+                          value={formData.originalPrice}
+                          onChange={(e) =>
+                            handleInputChange("originalPrice", e.target.value)
+                          }
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="stock" className="mb-1.5 block">Stock Quantity</Label>
+                      <Input
+                        id="stock"
+                        type="number"
+                        value={formData.stock}
+                        onChange={(e) => handleInputChange("stock", e.target.value)}
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="weight" className="mb-1.5 block">Weight/Size</Label>
+                      <Input
+                        id="weight"
+                        value={formData.weight}
+                        onChange={(e) =>
+                          handleInputChange("weight", e.target.value)
+                        }
+                        placeholder="e.g., 2.2 lbs (1kg)"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="expiryDate" className="mb-1.5 block">Expiry Date</Label>
+                      <Input
+                        id="expiryDate"
+                        type="date"
+                        value={formData.expiryDate}
+                        onChange={(e) =>
+                          handleInputChange("expiryDate", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
+                      Product Details
+                    </h3>
+
+                    <div>
+                      <Label htmlFor="ingredients" className="mb-1.5 block">Ingredients</Label>
+                      <Textarea
+                        id="ingredients"
+                        value={formData.ingredients}
+                        onChange={(e) =>
+                          handleInputChange("ingredients", e.target.value)
+                        }
+                        placeholder="List ingredients separated by commas"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="dosage" className="mb-1.5 block">Dosage Instructions</Label>
+                      <Textarea
+                        id="dosage"
+                        value={formData.dosage}
+                        onChange={(e) =>
+                          handleInputChange("dosage", e.target.value)
+                        }
+                        placeholder="e.g., 1 capsule daily with food"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="forField" className="mb-1.5 block">For (Target Use)</Label>
+                      <Input
+                        id="forField"
+                        value={formData.for || ""}
+                        onChange={(e) =>
+                          handleInputChange("for", e.target.value)
+                        }
+                        placeholder="e.g., Energy, Immunity & Gut Health"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="withField" className="mb-1.5 block">With (Key Elements)</Label>
+                      <Input
+                        id="withField"
+                        value={formData.with || ""}
+                        onChange={(e) =>
+                          handleInputChange("with", e.target.value)
+                        }
+                        placeholder="e.g., Spirulina, Moringa, Ashwagandha"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="manufacturer" className="mb-1.5 block">Manufacturer</Label>
+                      <Input
+                        id="manufacturer"
+                        value={formData.manufacturer}
+                        onChange={(e) =>
+                          handleInputChange("manufacturer", e.target.value)
+                        }
+                        placeholder="Manufacturer name"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Highlights (Badge, Rating, Reviews, Tagline) */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
+                      Highlights
+                    </h3>
+
+                    <div>
+                      <Label htmlFor="badgeField" className="mb-1.5 block">Badge</Label>
+                      <Input
+                        id="badgeField"
+                        value={formData.badge || ""}
+                        onChange={(e) =>
+                          handleInputChange("badge", e.target.value)
+                        }
+                        placeholder="e.g., Bestseller, New Arrival"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="taglineField" className="mb-1.5 block">Tagline</Label>
+                      <Input
+                        id="taglineField"
+                        value={formData.tagline || ""}
+                        onChange={(e) =>
+                          handleInputChange("tagline", e.target.value)
+                        }
+                        placeholder="e.g., The Ultimate Green Powerhouse"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="ratingField" className="mb-1.5 block">Rating</Label>
+                        <Input
+                          id="ratingField"
+                          type="number"
+                          step="0.1"
+                          max="5"
+                          min="0"
+                          value={formData.rating || "5"}
+                          onChange={(e) =>
+                            handleInputChange("rating", e.target.value)
+                          }
+                          placeholder="e.g., 4.5"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="reviewsField" className="mb-1.5 block">Reviews Count</Label>
+                        <Input
+                          id="reviewsField"
+                          type="number"
+                          value={formData.reviews || "0"}
+                          onChange={(e) =>
+                            handleInputChange("reviews", e.target.value)
+                          }
+                          placeholder="e.g., 248"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Benefits */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
+                      Benefits
+                    </h3>
+
+                    <div>
+                      <Label htmlFor="benefits" className="mb-1.5 block">Benefits (one per line)</Label>
+                      <Textarea
+                        id="benefits"
+                        value={formData.benefits.join("\n")}
+                        onChange={(e) => handleBenefitsChange(e.target.value)}
+                        className="min-h-[120px]"
+                        placeholder="Enter benefits, one per line"
+                        rows={5}
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="category" className="mb-1.5 block">Category</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) =>
-                      handleInputChange("category", value)
-                    }
+                <div className="flex gap-4 mt-8 pt-6 border-t">
+                  <Button
+                    onClick={() => setIsEditing(false)}
+                    variant="outline"
+                    className="flex-1"
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={saveProduct}
+                    disabled={isProcessing}
+                    className="flex-1"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Saving Product...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 mr-2" />
+                        Save Product
+                      </>
+                    )}
+                  </Button>
                 </div>
-
-                <div>
-                  <Label htmlFor="shortDescription" className="mb-1.5 block">Short Description</Label>
-                  <Input
-                    id="shortDescription"
-                    value={formData.shortDescription}
-                    onChange={(e) =>
-                      handleInputChange("shortDescription", e.target.value)
-                    }
-                    placeholder="Brief description"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="longDescription" className="mb-1.5 block">Long Description</Label>
-                  <Textarea
-                    id="longDescription"
-                    value={formData.longDescription}
-                    onChange={(e) =>
-                      handleInputChange("longDescription", e.target.value)
-                    }
-                    placeholder="Detailed description"
-                    className="min-h-[100px]"
-                    rows={3}
-                  />
-                </div>
-              </div>
-
-              {/* Pricing & Details */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
-                  Pricing & Details
-                </h3>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="price" className="mb-1.5 block">Price (₹)</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) =>
-                        handleInputChange("price", e.target.value)
-                      }
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="originalPrice" className="mb-1.5 block">Original Price (₹)</Label>
-                    <Input
-                      id="originalPrice"
-                      type="number"
-                      step="0.01"
-                      value={formData.originalPrice}
-                      onChange={(e) =>
-                        handleInputChange("originalPrice", e.target.value)
-                      }
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="stock" className="mb-1.5 block">Stock Quantity</Label>
-                  <Input
-                    id="stock"
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) => handleInputChange("stock", e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="weight" className="mb-1.5 block">Weight/Size</Label>
-                  <Input
-                    id="weight"
-                    value={formData.weight}
-                    onChange={(e) =>
-                      handleInputChange("weight", e.target.value)
-                    }
-                    placeholder="e.g., 2.2 lbs (1kg)"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="expiryDate" className="mb-1.5 block">Expiry Date</Label>
-                  <Input
-                    id="expiryDate"
-                    type="date"
-                    value={formData.expiryDate}
-                    onChange={(e) =>
-                      handleInputChange("expiryDate", e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Product Details */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
-                  Product Details
-                </h3>
-
-                <div>
-                  <Label htmlFor="ingredients" className="mb-1.5 block">Ingredients</Label>
-                  <Textarea
-                    id="ingredients"
-                    value={formData.ingredients}
-                    onChange={(e) =>
-                      handleInputChange("ingredients", e.target.value)
-                    }
-                    placeholder="List ingredients separated by commas"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="dosage" className="mb-1.5 block">Dosage Instructions</Label>
-                  <Textarea
-                    id="dosage"
-                    value={formData.dosage}
-                    onChange={(e) =>
-                      handleInputChange("dosage", e.target.value)
-                    }
-                    placeholder="e.g., 1 capsule daily with food"
-                    rows={2}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="manufacturer" className="mb-1.5 block">Manufacturer</Label>
-                  <Input
-                    id="manufacturer"
-                    value={formData.manufacturer}
-                    onChange={(e) =>
-                      handleInputChange("manufacturer", e.target.value)
-                    }
-                    placeholder="Manufacturer name"
-                  />
-                </div>
-              </div>
-
-              {/* Benefits */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold border-b pb-2 flex items-center gap-2 text-primary">
-                  Benefits
-                </h3>
-
-                <div>
-                  <Label htmlFor="benefits" className="mb-1.5 block">Benefits (one per line)</Label>
-                  <Textarea
-                    id="benefits"
-                    value={formData.benefits.join("\n")}
-                    onChange={(e) => handleBenefitsChange(e.target.value)}
-                    className="min-h-[120px]"
-                    placeholder="Enter benefits, one per line"
-                    rows={5}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-4 mt-8 pt-6 border-t">
-              <Button
-                onClick={() => setIsEditing(false)}
-                variant="outline"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={saveProduct}
-                disabled={isProcessing}
-                className="flex-1"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving Product...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Save Product
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        </motion.div>
-      )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </AnimatePresence>
     </motion.div>
-   
+
   );
 };
 

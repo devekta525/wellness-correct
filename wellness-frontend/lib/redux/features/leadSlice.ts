@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
@@ -218,7 +219,7 @@ export const fetchLeadsData =
         );
       }
 
-      const response = await axios.get(`${API_BASE_URL}/leads?${queryParams}`);
+      const response = await axiosInstance.get(`/leads?${queryParams}`);
 
       if (response.data?.success) {
         // Map API response to our Lead interface
@@ -263,7 +264,7 @@ export const fetchActiveLeads =
         queryParams.append("q", filters.search);
       }
 
-      const response = await axios.get(`${API_BASE_URL}/leads?${queryParams}`);
+      const response = await axiosInstance.get(`/leads?${queryParams}`);
       if (response.data?.success) {
         // Map API response to our Lead interface
         const mappedLeads = response.data.data.map((lead: ApiLead) =>
@@ -292,7 +293,7 @@ export const fetchLeadById =
   (leadId: string) => async (dispatch: AppDispatch) => {
     dispatch(setLeadLoading());
     try {
-      const response = await axios.get(`${API_BASE_URL}/leads/${leadId}`);
+      const response = await axiosInstance.get(`/leads/${leadId}`);
       if (response.data?.success) {
         const lead = response.data.data;
         const mappedLead = mapApiLeadToLead(lead);
@@ -321,7 +322,7 @@ export const fetchLeadsByStatus =
       queryParams.append("limit", pagination.limit.toString());
       queryParams.append("status", status);
 
-      const response = await axios.get(`${API_BASE_URL}/leads?${queryParams}`);
+      const response = await axiosInstance.get(`/leads?${queryParams}`);
       if (response.data?.success) {
         const mappedLeads = response.data.data.map((lead: ApiLead) =>
           mapApiLeadToLead(lead),
@@ -350,7 +351,7 @@ export const fetchLeadsByStatus =
 export const fetchLatestLeads = () => async (dispatch: AppDispatch) => {
   dispatch(setLeadLoading());
   try {
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/leads?sort=-createdAt&limit=10`,
     );
     if (response.data?.success) {
@@ -380,7 +381,7 @@ export const fetchLatestLeads = () => async (dispatch: AppDispatch) => {
 export const createLead =
   (newLead: Partial<Lead>) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/leads`, newLead);
+      const response = await axiosInstance.post(`/leads`, newLead);
       if (response.data?.success) {
         dispatch(setLeadLoading());
         return true;
@@ -399,7 +400,7 @@ export const createLead =
 export const updateLeadStatus =
   (leadId: string, status: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosInstance.patch(
         `${API_BASE_URL}/leads/${leadId}/status`,
         { status },
       );
@@ -421,7 +422,7 @@ export const updateLeadStatus =
 export const updateLeadPriority =
   (leadId: string, priority: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/leads/${leadId}`, {
+      const response = await axiosInstance.put(`/leads/${leadId}`, {
         priority,
       });
       if (response.data?.success) {
@@ -443,7 +444,7 @@ export const updateLeadPriority =
 export const assignLead =
   (leadId: string, assignedTo: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/leads/${leadId}`, {
+      const response = await axiosInstance.put(`/leads/${leadId}`, {
         assignedTo,
       });
       if (response.data?.success) {
@@ -464,7 +465,7 @@ export const updateLead =
   (leadId: string, updatedData: Partial<Lead>) =>
   async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/leads/${leadId}`,
         updatedData,
       );
@@ -488,7 +489,7 @@ export const updateLead =
 // Delete a lead
 export const deleteLead = (leadId: string) => async (dispatch: AppDispatch) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/leads/${leadId}`);
+    const response = await axiosInstance.delete(`/leads/${leadId}`);
     if (response.data?.success) {
       dispatch(removeLeadFromList(leadId));
       return true;
@@ -506,7 +507,7 @@ export const deleteLead = (leadId: string) => async (dispatch: AppDispatch) => {
 export const markLeadContacted =
   (leadId: string, notes?: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosInstance.patch(
         `${API_BASE_URL}/leads/${leadId}/last-contact`,
         { notes },
       );

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -77,7 +78,15 @@ interface UserType {
   lastName: string;
   email: string;
   phone: string;
-  role: "Admin" | "Doctor" | "Influencer" | "Customer" | "admin" | "doctor" | "influencer" | "customer";
+  role:
+    | "Admin"
+    | "Doctor"
+    | "Influencer"
+    | "Customer"
+    | "admin"
+    | "doctor"
+    | "influencer"
+    | "customer";
   status: "Active" | "Inactive" | "active" | "inactive";
   imageUrl?: string;
   verified: boolean;
@@ -99,6 +108,7 @@ const userRoles = ["All", "Admin", "Doctor", "Influencer", "Customer"];
 const userStatuses = ["All", "Active", "Inactive"];
 
 const UsersPage = () => {
+  const searchParams = useSearchParams();
   const [users, setUsers] = useState<UserType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -210,7 +220,26 @@ const UsersPage = () => {
       if (filters.status && filters.status !== "All")
         queryParams.append("status", filters.status);
 
-      const res = await fetch(getApiV1Url(`/users?${queryParams.toString()}`));
+      // Attach auth token if available
+      let token =
+        (typeof window !== "undefined" &&
+          (localStorage.getItem("authToken") ||
+            localStorage.getItem("accessToken"))) ||
+        null;
+
+      if (token && typeof token === "string") token = token.replace(/^"|"$/g, "");
+
+      if (!token) {
+        setError("Could not find authentication token. Please log in again.");
+        setIsLoading(false);
+        return;
+      }
+
+      const res = await fetch(getApiV1Url(`/users?${queryParams.toString()}`), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
 
       if (res.ok || data.success) {
@@ -234,6 +263,12 @@ const UsersPage = () => {
   useEffect(() => {
     fetchUsers();
   }, [pagination.page, filters]);
+
+  useEffect(() => {
+    if (searchParams?.get("action") === "add") {
+      setShowAddModal(true);
+    }
+  }, [searchParams]);
 
   // Pagination logic using Redux pagination
   const totalPages = Math.ceil(pagination.total / pagination.limit);
@@ -315,9 +350,8 @@ const UsersPage = () => {
   const handleDeleteUser = async () => {
     // Prevent deleting admin users (check both lowercase and capitalized formats)
     const isAdminUser =
-      selectedUser?.role === "Admin" ||
-      selectedUser?.role === "admin";
-    
+      selectedUser?.role === "Admin" || selectedUser?.role === "admin";
+
     if (!selectedUser || isAdminUser) return;
 
     Swal.fire({
@@ -332,8 +366,18 @@ const UsersPage = () => {
       if (result.isConfirmed) {
         setModalLoading(true);
         try {
+          // include auth token for protected route
+          let token =
+            (typeof window !== "undefined" &&
+              (localStorage.getItem("authToken") ||
+                localStorage.getItem("accessToken"))) ||
+            null;
+
+          if (token && typeof token === "string") token = token.replace(/^"|"$/g, "");
+
           const res = await fetch(getApiV1Url(`/users/${selectedUser._id}`), {
             method: "DELETE",
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
           });
           const data = await res.json();
 
@@ -391,9 +435,19 @@ const UsersPage = () => {
         formData.append("image", fileInputRef.current.files[0]);
       }
 
+      // include auth token for protected route
+      let token =
+        (typeof window !== "undefined" &&
+          (localStorage.getItem("authToken") ||
+            localStorage.getItem("accessToken"))) ||
+        null;
+
+      if (token && typeof token === "string") token = token.replace(/^"|"$/g, "");
+
       const res = await fetch(getApiV1Url(`/users/${selectedUser._id}`), {
         method: "PUT",
         body: formData,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
 
@@ -428,9 +482,19 @@ const UsersPage = () => {
         formData.append("image", newUserFileInputRef.current.files[0]);
       }
 
+      // include auth token for protected route
+      let token =
+        (typeof window !== "undefined" &&
+          (localStorage.getItem("authToken") ||
+            localStorage.getItem("accessToken"))) ||
+        null;
+
+      if (token && typeof token === "string") token = token.replace(/^"|"$/g, "");
+
       const res = await fetch(getApiV1Url("/users"), {
         method: "POST",
         body: formData,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
 
@@ -1752,12 +1816,11 @@ const UsersPage = () => {
                 Are you sure you want to delete {selectedUser?.firstName}{" "}
                 {selectedUser?.lastName}? This action cannot be undone.
                 {(selectedUser?.role === "Admin" ||
-                  selectedUser?.role === "admin") && (  
+                  selectedUser?.role === "admin") && (
                   <span className="text-red-500 font-semibold">
                     {" "}
                     Admin users cannot be deleted.
-                  </span> 
-                
+                  </span>
                 )}
               </DialogDescription>
             </DialogHeader>
@@ -1776,7 +1839,6 @@ const UsersPage = () => {
                   isLoading ||
                   selectedUser?.role === "Admin" ||
                   selectedUser?.role === "admin"
-                
                 }
               >
                 {modalLoading ? (

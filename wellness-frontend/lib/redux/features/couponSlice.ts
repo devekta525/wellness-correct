@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
@@ -164,7 +165,7 @@ export const fetchCouponsData =
         ? `${API_BASE_URL}/coupons?${queryString}`
         : `${API_BASE_URL}/coupons`;
 
-      const response = await axios.get(url);
+      const response = await axiosInstance.get(url);
 
       if (response.data?.success && Array.isArray(response.data.data)) {
         // Map API response to our Coupon interface
@@ -188,7 +189,7 @@ export const fetchCouponsData =
 export const fetchActiveCoupons = () => async (dispatch: AppDispatch) => {
   dispatch(setCouponLoading());
   try {
-    const response = await axios.get(`${API_BASE_URL}/coupons?status=active`);
+    const response = await axiosInstance.get(`/coupons?status=active`);
     if (response.data?.success && Array.isArray(response.data.data)) {
       // Map API response to our Coupon interface
       const mappedCoupons = response.data.data.map((coupon: ApiCoupon) =>
@@ -212,7 +213,7 @@ export const fetchCouponById =
   (couponId: string) => async (dispatch: AppDispatch) => {
     dispatch(setCouponLoading());
     try {
-      const response = await axios.get(`${API_BASE_URL}/coupons/${couponId}`);
+      const response = await axiosInstance.get(`/coupons/${couponId}`);
       if (response.data?.success) {
         const coupon = response.data.data;
         const mappedCoupon = mapApiCouponToCoupon(coupon);
@@ -233,7 +234,7 @@ export const fetchCouponByCode =
   (code: string) => async (dispatch: AppDispatch) => {
     dispatch(setCouponLoading());
     try {
-      const response = await axios.get(`${API_BASE_URL}/coupons?q=${code}`);
+      const response = await axiosInstance.get(`/coupons?q=${code}`);
       if (response.data?.success) {
         const coupon = Array.isArray(response.data.data)
           ? response.data.data[0]
@@ -258,7 +259,7 @@ export const fetchCouponByCode =
 export const fetchLatestCoupons = () => async (dispatch: AppDispatch) => {
   dispatch(setCouponLoading());
   try {
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/coupons?sort=-createdAt&limit=10`,
     );
     if (response.data?.success) {
@@ -285,7 +286,7 @@ export const createCoupon =
   (newCoupon: Coupon) => async (dispatch: AppDispatch) => {
     dispatch(setCouponLoading());
     try {
-      const response = await axios.post(`${API_BASE_URL}/coupons`, newCoupon);
+      const response = await axiosInstance.post(`/coupons`, newCoupon);
       if (response.data?.success) {
         dispatch(setCouponLoading());
         return true;
@@ -307,7 +308,7 @@ export const updateCouponStatus =
   (couponId: string, status: "active" | "inactive") =>
   async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosInstance.patch(
         `${API_BASE_URL}/coupons/${couponId}/status`,
         { status },
       );
@@ -330,7 +331,7 @@ export const updateCoupon =
   (couponId: string, updatedData: Coupon) => async (dispatch: AppDispatch) => {
     dispatch(setCouponLoading());
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/coupons/${couponId}`,
         updatedData,
       );
@@ -352,7 +353,7 @@ export const deleteCoupon =
   (couponId: string) => async (dispatch: AppDispatch) => {
     dispatch(setCouponLoading());
     try {
-      const response = await axios.delete(
+      const response = await axiosInstance.delete(
         `${API_BASE_URL}/coupons/${couponId}`,
       );
       if (response.data?.success) {
@@ -373,7 +374,7 @@ export const validateCoupon =
   async (dispatch: AppDispatch) => {
     dispatch(setCouponLoading());
     try {
-      const response = await axios.post(`${API_BASE_URL}/coupons/validate`, {
+      const response = await axiosInstance.post(`/coupons/validate`, {
         code: couponCode,
         orderAmount,
         userId,
@@ -394,7 +395,7 @@ export const redeemCoupon =
   (couponCode: string) => async (dispatch: AppDispatch) => {
     dispatch(setCouponLoading());
     try {
-      const response = await axios.post(`${API_BASE_URL}/coupons/redeem`, {
+      const response = await axiosInstance.post(`/coupons/redeem`, {
         code: couponCode,
       });
       if (response.data?.success) {

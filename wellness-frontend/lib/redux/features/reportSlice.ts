@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 import { RootState } from "../store";
 
@@ -24,9 +25,9 @@ const initialState: ReportState = {
 // Helper for Auth Headers
 const getAuthConfig = () => {
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    typeof window !== "undefined" ? "" : null;
   return {
-    withCredentials: true,
+    
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
       "Content-Type": "application/json",
@@ -44,7 +45,7 @@ export const fetchOverviewReport = createAsyncThunk(
   async (params: { from?: string; to?: string } = {}, { rejectWithValue }) => {
     try {
       const query = new URLSearchParams(params as any).toString();
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}/overview?${query}`,
         getAuthConfig(),
       );
@@ -63,7 +64,7 @@ export const fetchAppointmentReport = createAsyncThunk(
   async (params: { from?: string; to?: string } = {}, { rejectWithValue }) => {
     try {
       const query = new URLSearchParams(params as any).toString();
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}/appointments?${query}`,
         getAuthConfig(),
       );
@@ -82,7 +83,7 @@ export const fetchPatientReport = createAsyncThunk(
   async (params: { from?: string; to?: string } = {}, { rejectWithValue }) => {
     try {
       const query = new URLSearchParams(params as any).toString();
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}/patients?${query}`,
         getAuthConfig(),
       );
@@ -101,7 +102,7 @@ export const fetchPrescriptionReport = createAsyncThunk(
   async (params: { from?: string; to?: string } = {}, { rejectWithValue }) => {
     try {
       const query = new URLSearchParams(params as any).toString();
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_URL}/prescriptions?${query}`,
         getAuthConfig(),
       );
@@ -125,7 +126,7 @@ export const exportReportData = createAsyncThunk(
       const config = getAuthConfig();
       const query = new URLSearchParams(params as any).toString();
 
-      const response = await axios.get(`${API_URL}/export?${query}`, {
+      const response = await axiosInstance.get(`${API_URL}/export?${query}`, {
         ...config,
         responseType: "blob", // Important for file download
       });

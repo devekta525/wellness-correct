@@ -2,9 +2,7 @@
 
 import Image from "next/image";
 import React from "react";
-import ScienceFeatured from "./science-featured";
-import EcosystemSection from "@/components/home/ecosystem-section";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 import img1 from "../../../public/sciencelab.png";
 import img2 from "../../../public/supplement-bottle-blue.png";
@@ -16,7 +14,7 @@ type ScienceSection = {
   number: string;
   title: string;
   description: string;
-  
+
   imageSrc: any;
   imageAlt: string;
 };
@@ -64,112 +62,144 @@ const sections: ScienceSection[] = [
     description:
       "Every Wellness product is plant-based, scientifically developed, and crafted to address the nutritional gaps of modern lifestyles. Wellness provides solutions to empower individuals in overcoming today’s nutritional challenges for a healthier tomorrow.",
     imageSrc:
-     img5,
+      img5,
     imageAlt: "Science based wellness",
   },
 ];
 
 const Science = () => {
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  React.useEffect(() => {
+    return scrollYProgress.on("change", (latest) => {
+      let index = Math.floor(latest * sections.length);
+      if (index >= sections.length) index = sections.length - 1;
+      if (index < 0) index = 0;
+
+      if (index !== activeIndex) {
+        setActiveIndex(index);
+      }
+    });
+  }, [scrollYProgress, activeIndex]);
+
   const activeSection = sections[activeIndex];
 
-  return (
-    <main className="bg-white dark:bg-slate-950 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div 
-          className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50/50 dark:bg-blue-900/10 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.1, 1], x: [0, 50, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-50/50 dark:bg-indigo-900/10 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], x: [0, -50, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
+  // We map scroll progress to a step-based indicator height
+  const progressHeight = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["20%", "100%"]
+  );
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 relative z-10">
-        {/* Tab Navigation */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-16 sm:mb-24">
-          <div className="hidden sm:block w-12 h-[2px] bg-blue-600" />
-          <div className="flex flex-wrap items-center gap-3">
-            {sections.map((section, idx) => (
-              <button
-                key={section.number}
-                type="button"
-                onClick={() => setActiveIndex(idx)}
-                className={`relative px-4 py-2 text-sm font-bold tracking-widest transition-all duration-300 rounded-full ${
-                  idx === activeIndex
-                    ? "text-white bg-blue-600 shadow-lg shadow-blue-200"
-                    : "text-slate-400 hover:text-blue-600 hover:bg-blue-50"
-                }`}
-                aria-pressed={idx === activeIndex}
+  return (
+    <main className="bg-white dark:bg-slate-950 relative">
+      <div
+        ref={containerRef}
+        className="relative"
+        style={{ height: `${sections.length * 100}vh` }}
+      >
+        <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden">
+          {/* Subtle Background Elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <motion.div
+              className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-50 dark:bg-slate-900/50 rounded-full blur-3xl"
+              animate={{ scale: [1, 1.05, 1], x: [0, 30, 0] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeIndex}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -40 }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-24 items-center"
               >
-                {section.number}
-              </button>
+                {/* Text Content */}
+                <div className={`max-w-xl order-2 ${activeIndex % 2 === 0 ? 'lg:order-1' : 'lg:order-2 lg:ml-auto'}`}>
+                  <div className="flex items-center gap-4 mb-6 md:mb-8">
+                    <div className="w-8 md:w-12 h-[2px] bg-[#1a3644] dark:bg-slate-200" />
+                    <span className="text-xs md:text-sm font-bold tracking-widest text-[#1a3644] dark:text-slate-200">
+                      {activeSection.number}
+                    </span>
+                  </div>
+
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] text-[#1a3644] dark:text-white whitespace-pre-line tracking-tight mb-6 md:mb-8">
+                    {activeSection.title}
+                  </h2>
+
+                  <p className="text-sm md:text-base leading-relaxed text-[#4a5f6a] dark:text-slate-300">
+                    {activeSection.description}
+                  </p>
+                </div>
+
+                {/* Image Content */}
+                <div className={`w-full flex justify-center order-1 ${activeIndex % 2 === 0 ? 'lg:order-2 lg:justify-end' : 'lg:order-1 lg:justify-start'}`}>
+                  <motion.div
+                    className="relative w-full max-w-xs md:max-w-sm lg:max-w-md aspect-[4/5] bg-slate-100 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                  >
+                    <Image
+                      src={activeSection.imageSrc}
+                      alt={activeSection.imageAlt}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 500px, 100vw"
+                      priority
+                    />
+                  </motion.div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+          </div>
+
+          {/* Scroll Progress Indicator */}
+          <div className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-1 h-32 md:h-48 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden z-20">
+            <motion.div
+              className="w-full bg-[#1a3644] dark:bg-blue-500 rounded-full origin-top"
+              style={{
+                height: "100%",
+                scaleY: progressHeight
+              }}
+            />
+          </div>
+
+          <div className="absolute right-8 md:right-12 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-6 z-20">
+            {sections.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  if (containerRef.current) {
+                    const sectionHeight = containerRef.current.scrollHeight / sections.length;
+                    window.scrollTo({
+                      top: containerRef.current.offsetTop + (sectionHeight * i) + (sectionHeight / 2),
+                      behavior: 'smooth'
+                    });
+                  }
+                }}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${i === activeIndex
+                  ? 'bg-[#1a3644] dark:bg-white scale-150'
+                  : 'bg-slate-300 dark:bg-slate-600 hover:bg-slate-400'
+                  }`}
+                aria-label={`Go to section ${i + 1}`}
+              />
             ))}
           </div>
+
         </div>
-
-        {/* Content Section */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center"
-          >
-            <div className="max-w-xl order-2 lg:order-1">
-              <motion.h2 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] text-blue-900 dark:text-white whitespace-pre-line tracking-tight"
-              >
-                {activeSection.title}
-              </motion.h2>
-
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-8 relative"
-              >
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-transparent rounded-full" />
-                <p className="pl-6 text-base sm:text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-                  {activeSection.description}
-                </p>
-              </motion.div>
-            </div>
-
-            <div className="w-full order-1 lg:order-2">
-              <motion.div 
-                className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-800 shadow-2xl shadow-blue-900/10"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Image
-                  src={activeSection.imageSrc}
-                  alt={activeSection.imageAlt}
-                  fill
-                  className="object-cover hover:scale-105 transition-transform duration-700"
-                  sizes="(min-width: 1024px) 520px, 100vw"
-                  priority
-                />
-                
-                {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent pointer-events-none" />
-              </motion.div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
       </div>
-       <ScienceFeatured /> 
-      <EcosystemSection />
     </main>
   );
 };

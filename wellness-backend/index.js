@@ -22,7 +22,10 @@ import sessionRoute from './routes/sessionRoute.js';
 import popupRoute from './routes/popupRoute.js'
 import newsLetterRoute from './routes/newsLetterRoute.js'
 import contactRoute from './routes/contactRoute.js';
+import bannerRoute from './routes/bannerRoute.js';
 //doctor routes
+
+
 import appointmentRoute from './routes/appointmentRoute.js';
 import patientRoute from './routes/patientRoute.js';
 import prescriptionRoute from './routes/prescriptionRoute.js';
@@ -43,9 +46,31 @@ import influencerNoteRoute from './routes/influencerNoteRoute.js';
 import influencerReportRoute from './routes/influencerReportRoute.js';
 import influencerSettingsRoute from './routes/influencerSettingsRoute.js';
 import influencerRoute from './routes/influencerRoute.js';
+import wishlistRoute from './routes/wishlistRoute.js';
 
 dotenv.config();
 
+// verify required environment variables before starting
+// JWT_SECRET used to appear in earlier versions but the code now
+// consistently uses JWT_TOKEN for signing/verifying.  Warn only if
+// the value that is actually consumed is missing.
+const requiredEnvs = [
+  'MONGO_URI',
+  'JWT_TOKEN',
+  'NODE_ENV'
+];
+requiredEnvs.forEach((name) => {
+  if (!process.env[name]) {
+    console.warn(`⚠️  Environment variable ${name} is not set`);
+  }
+});
+
+// if JWT_SECRET is still set we don't care, but we can log it for debugging
+if (process.env.JWT_SECRET && process.env.NODE_ENV === 'development') {
+  console.debug('Note: JWT_SECRET is defined but not used; JWT_TOKEN takes precedence.');
+}
+
+// connect to database
 dbConnection();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -103,9 +128,14 @@ app.use('/v1/sessions', sessionRoute);
 app.use('/v1/popups', popupRoute);
 app.use('/v1/newsletters', newsLetterRoute);
 app.use('/v1/contacts', contactRoute);
-//doctor
+app.use('/v1/wishlist', wishlistRoute);
+app.use('/v1/banners', bannerRoute);
+
+//doctor routes
 app.use('/v1/doctor', doctorRoute);
-app.use("/v1/appointments", appointmentRoute);
+
+app.use('/v1/appointments', appointmentRoute);
+
 app.use('/v1/patients', patientRoute);
 app.use('/v1/prescriptions', prescriptionRoute);
 app.use('/v1/reports', reportRoute);
@@ -115,7 +145,7 @@ app.use('/v1/doctor-settings', doctorSettingsRoute);
 //customer routes
 app.use('/v1/customer', customerRoute);
 app.use('/v1/payment-methods', paymentMethodRoute);
-app.use('/v1/total-amount',totalAmountRoute )
+app.use('/v1/total-amount', totalAmountRoute)
 app.use('/v1/razorpay', razorpayRoute);
 
 //influencer routes

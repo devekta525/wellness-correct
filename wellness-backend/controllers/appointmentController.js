@@ -7,13 +7,23 @@ const isId = (id) => mongoose.isValidObjectId(id);
 
 export const createAppointment = async (req, res) => {
   try {
-    const doctorId = req.user._id;
-    const { patientId, patientEmail, patientName, patientPhone, appointmentDate, appointmentTime, duration, type, reason, fee, paymentStatus, status, notes, location } = req.body;
+    let doctorId = req.body.doctorId;
+    let actualPatientId = req.body.patientId;
 
-    let actualPatientId = patientId;
+    if (req.user.role === 'Doctor') {
+      doctorId = req.user._id;
+    } else if (req.user.role === 'Customer' || req.user.role === 'User') {
+      actualPatientId = req.user._id;
+    }
 
-    // If patientId not provided, try to find or create patient by email
-    if (!patientId && patientEmail) {
+    if (!doctorId) {
+      return res.status(400).json({ success: false, message: 'Valid doctor ID is required' });
+    }
+
+    const { patientEmail, patientName, patientPhone, appointmentDate, appointmentTime, duration, type, reason, fee, paymentStatus, status, notes, location } = req.body;
+
+    // If actualPatientId not provided, try to find or create patient by email
+    if (!actualPatientId && patientEmail) {
       try {
         // Try to find existing patient by email in User
         const existingCustomer = await User.findOne({ email: patientEmail });
@@ -61,6 +71,18 @@ export const createAppointment = async (req, res) => {
       ? new Date(appointmentDate + 'T00:00:00Z')
       : new Date(appointmentDate);
 
+    // Prevent customers from forging fee and statuses
+    let finalFee = Number(fee) || 0;
+    let finalPaymentStatus = paymentStatus || 'pending';
+    let finalStatus = status || 'pending';
+
+    if (req.user.role === 'Customer' || req.user.role === 'User') {
+      const doctor = await User.findById(doctorId);
+      finalFee = doctor?.consultationFee || 0;
+      finalPaymentStatus = 'pending';
+      finalStatus = 'pending';
+    }
+
     const appointment = await Appointment.create({
       patient: actualPatientId,
       patientName: patientName || `${patientExists.firstName} ${patientExists.lastName}`.trim(),
@@ -70,9 +92,9 @@ export const createAppointment = async (req, res) => {
       duration: Number(duration) || 30,
       type,
       reason,
-      fee: Number(fee) || 0,
-      paymentStatus: paymentStatus || 'pending',
-      status: status || 'pending',
+      fee: finalFee,
+      paymentStatus: finalPaymentStatus,
+      status: finalStatus,
       notes: notes || '',
       location: location || 'Online'
     });
@@ -503,6 +525,98 @@ export async function getMyAppointments(req, res) {
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching your appointments.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
+
+/**
+ * @desc    Get all appointment-based notifications for the logged-in user (patient)
+ * @route   GET /api/v1/appointments/my-notifications
+ * @access  Private (requires user to be logged in)
+ */
+export async function getMyNotifications(req, res) {
+  try {
+    const userId = req.user._id;
+
+    const appointments = await Appointment.find({ patient: userId })
+      .populate('doctor', 'firstName lastName specialization imageUrl')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!appointments.length) {
+      return res.status(200).json({
+        success: true,
+        message: 'No notifications found.',
+        data: [],
+      });
+    }
+
+    const formattedNotifications = appointments.map(app => {
+      const createdAt = new Date(app.createdAt);
+      const appointmentDate = new Date(app.appointmentDate);
+
+      const dateTime = `${createdAt.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })} at ${createdAt.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      }).toLowerCase()}`;
+
+      const appointmentDateFormatted = appointmentDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+      });
+
+      const doctorName = `Dr. ${app.doctor.firstName} ${app.doctor.lastName}`;
+      let title;
+      let message;
+
+      switch (app.status) {
+        case 'pending':
+          title = 'Appointment Requested';
+          message = `Your appointment request with ${doctorName} for ${appointmentDateFormatted} is pending.`;
+          break;
+        case 'confirmed':
+          title = 'Appointment Scheduled';
+          message = `Appointment with ${doctorName} scheduled for ${appointmentDateFormatted}`;
+          break;
+        case 'completed':
+          title = 'Appointment Completed';
+          message = `Your appointment with ${doctorName} on ${appointmentDateFormatted} was completed.`;
+          break;
+        case 'cancelled':
+          title = 'Appointment Cancelled';
+          message = `Your appointment with ${doctorName} on ${appointmentDateFormatted} has been cancelled.`;
+          break;
+        default:
+          title = 'Appointment Update';
+          message = `Your appointment with ${doctorName} on ${appointmentDateFormatted} has been updated.`;
+          break;
+      }
+
+      return {
+        title,
+        message,
+        dateTime,
+        status: app.status,
+        appointmentId: app._id.toString(),
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: formattedNotifications,
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching user notifications:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching your notifications.',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }

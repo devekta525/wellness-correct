@@ -55,25 +55,51 @@ export const createProduct = async (req, res) => {
       };
     }
 
-    // Parse benefits and ingredients
+    // Helper to safely extract arrays sent via FormData (handles 'key', 'key[]', 'key[0]')
+    const extractArray = (key) => {
+      let arr = [];
+      if (req.body[key]) {
+        arr = Array.isArray(req.body[key]) ? req.body[key] : [req.body[key]];
+      } else if (req.body[`${key}[]`]) {
+        arr = Array.isArray(req.body[`${key}[]`]) ? req.body[`${key}[]`] : [req.body[`${key}[]`]];
+      } else {
+        let i = 0;
+        while (req.body[`${key}[${i}]`]) {
+          arr.push(req.body[`${key}[${i}]`]);
+          i++;
+        }
+      }
 
-    let benefits = req.body.benefits || [];
-    if (typeof benefits === 'string') {
-      benefits = benefits.split(/\n|,/).map(b => b.trim()).filter(Boolean);
-    }
-    let ingredients = req.body.ingredients || [];
-    if (typeof ingredients === 'string') {
-      ingredients = ingredients.split(/\n|,/).map(i => i.trim()).filter(Boolean);
-    }
+      // If it's a single string with newlines or commas, split it
+      if (arr.length === 1 && typeof arr[0] === 'string' && (arr[0].includes('\n') || arr[0].includes(','))) {
+        arr = arr[0].split(/\n|,/).map(item => item.trim()).filter(Boolean);
+      }
 
-    // Parse images (if sent as array or single string)
-    let images = req.body.images || req.body['images[]'] || [];
-    if (typeof images === 'string') {
-      images = [images];
+      return arr.map(item => typeof item === 'string' ? item.trim() : item).filter(Boolean);
+    };
+
+    const benefits = extractArray('benefits');
+    const ingredients = extractArray('ingredients');
+    let images = extractArray('images');
+
+    // Check files array if multer was used for images
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      const fileImages = req.files.map(file => file.path || file.location || file.filename);
+      images = [...images, ...fileImages];
     }
 
     // Parse dosageInstructions
     const dosageInstructions = req.body.dosageInstructions || req.body.dosage || '';
+
+    // Extract 'for' and 'with' details array or string
+    const targetFor = req.body.for || '';
+    const targetWith = req.body.with || '';
+
+    // Additional dynamic fields
+    const badge = req.body.badge || '';
+    const tagline = req.body.tagline || '';
+    const rating = req.body.rating ? Number(req.body.rating) : 5;
+    const reviews = req.body.reviews ? Number(req.body.reviews) : 0;
 
     // Build product data for backend schema
     const productData = {
@@ -91,6 +117,12 @@ export const createProduct = async (req, res) => {
       expiryDate,
       manufacturer,
       images,
+      for: targetFor,
+      with: targetWith,
+      badge,
+      tagline,
+      rating,
+      reviews,
     };
 
 
@@ -248,7 +280,7 @@ export const countProducts = async (req, res) => {
       error: error.message
     });
   }
-};  
+};
 
 // READ - Get single product by ID
 export const getProductById = async (req, res) => {

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
@@ -230,7 +231,7 @@ const handleApiError = (error: unknown) => {
 export const fetchSettingsData = () => async (dispatch: AppDispatch) => {
   dispatch(setSettingLoading());
   try {
-    const response = await axios.get(`${API_BASE_URL}/settings`);
+    const response = await axiosInstance.get(`/settings`);
 
     if (response.data?.success) {
       const mappedSetting = mapApiSettingToSetting(response.data.data);
@@ -250,7 +251,7 @@ export const fetchSettingsData = () => async (dispatch: AppDispatch) => {
 export const fetchSeoSettings = () => async (dispatch: AppDispatch) => {
   dispatch(setSettingLoading());
   try {
-    const response = await axios.get(`${API_BASE_URL}/settings/seo`);
+    const response = await axiosInstance.get(`/settings/seo`);
     if (response.data?.success) {
       const mappedSetting = mapApiSettingToSetting(response.data.data);
       dispatch(setSettingData(mappedSetting));
@@ -269,7 +270,7 @@ export const fetchSeoSettings = () => async (dispatch: AppDispatch) => {
 export const fetchBusinessSettings = () => async (dispatch: AppDispatch) => {
   dispatch(setSettingLoading());
   try {
-    const response = await axios.get(`${API_BASE_URL}/settings/business`);
+    const response = await axiosInstance.get(`/settings/business`);
     if (response.data?.success) {
       const mappedSetting = mapApiSettingToSetting(response.data.data);
       dispatch(setSettingData(mappedSetting));
@@ -290,7 +291,7 @@ export const fetchBusinessSettings = () => async (dispatch: AppDispatch) => {
 export const fetchShippingSettings = () => async (dispatch: AppDispatch) => {
   dispatch(setSettingLoading());
   try {
-    const response = await axios.get(`${API_BASE_URL}/settings/shipping`);
+    const response = await axiosInstance.get(`/settings/shipping`);
     if (response.data?.success) {
       const mappedSetting = mapApiSettingToSetting(response.data.data);
       dispatch(setSettingData(mappedSetting));
@@ -325,7 +326,7 @@ export const updateSettings =
         apiData.shippingSetting = [updatedData.shippingSetting];
       }
 
-      const response = await axios.put(`${API_BASE_URL}/settings`, apiData);
+      const response = await axiosInstance.put(`/settings`, apiData);
 
       if (response.data?.success) {
         const mappedSetting = mapApiSettingToSetting(response.data.data);

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 export interface Blog {
@@ -90,18 +91,15 @@ const initialState: BlogsState = {
   },
 };
 
-const api = axios.create({
+const api = axiosInstance.create({
   baseURL: getApiV1BaseUrl(),
-  withCredentials: true,
+
 });
 
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      let token =
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
-        localStorage.getItem("accessToken");
+      let token = localStorage.getItem("accessToken");
 
       if (token) {
         token = token.replace(/^"|"$/g, "");
@@ -170,31 +168,44 @@ export const {
   clearSelectedBlog,
 } = blogsSlice.actions;
 
-const mapApiBlogToBlog = (apiBlog: ApiBlog): Blog => ({
-  _id: apiBlog._id,
-  title: apiBlog.title,
-  slug: apiBlog.slug,
-  excerpt: apiBlog.excerpt,
-  content: apiBlog.content,
-  featuredImage: apiBlog.featuredImage,
-  author: apiBlog.author || "Admin",
-  category: apiBlog.category,
-  tags: apiBlog.tags || [],
-  status: apiBlog.status,
-  publishedAt: apiBlog.publishedAt,
-  createdAt: apiBlog.createdAt,
-  updatedAt: apiBlog.updatedAt,
-  readTime: apiBlog.readTime || "5 min read",
-  views: apiBlog.views || 0,
-  likes: apiBlog.likes || 0,
-  metaTitle: apiBlog.metaTitle || apiBlog.title,
-  metaDescription: apiBlog.metaDescription || apiBlog.excerpt,
-  metaKeywords: apiBlog.metaKeywords || "",
-  canonicalUrl: apiBlog.canonicalUrl || "",
-  ogTitle: apiBlog.ogTitle || apiBlog.title,
-  ogDescription: apiBlog.ogDescription || apiBlog.excerpt,
-  ogImage: apiBlog.ogImage || apiBlog.featuredImage,
-});
+const mapApiBlogToBlog = (apiBlog: any): Blog => {
+  let authorName = "Admin";
+  if (apiBlog.author) {
+    if (typeof apiBlog.author === 'string') {
+      authorName = apiBlog.author;
+    } else if (apiBlog.author.firstName) {
+      authorName = `${apiBlog.author.firstName} ${apiBlog.author.lastName || ''}`.trim();
+    } else if (apiBlog.author.name) {
+      authorName = apiBlog.author.name;
+    }
+  }
+
+  return {
+    _id: apiBlog._id,
+    title: apiBlog.title || "",
+    slug: apiBlog.slug || "",
+    excerpt: apiBlog.excerpt || "",
+    content: apiBlog.content || "",
+    featuredImage: apiBlog.featuredImage || "/placeholder-product.svg",
+    author: authorName,
+    category: apiBlog.category || "",
+    tags: apiBlog.tags || [],
+    status: apiBlog.status || "draft",
+    publishedAt: apiBlog.publishedAt || null,
+    createdAt: apiBlog.createdAt || new Date().toISOString(),
+    updatedAt: apiBlog.updatedAt || new Date().toISOString(),
+    readTime: apiBlog.readTime || "5 min read",
+    views: apiBlog.views || 0,
+    likes: apiBlog.likes || 0,
+    metaTitle: apiBlog.metaTitle || apiBlog.title || "",
+    metaDescription: apiBlog.metaDescription || apiBlog.excerpt || "",
+    metaKeywords: apiBlog.metaKeywords || "",
+    canonicalUrl: apiBlog.canonicalUrl || "",
+    ogTitle: apiBlog.ogTitle || apiBlog.title || "",
+    ogDescription: apiBlog.ogDescription || apiBlog.excerpt || "",
+    ogImage: apiBlog.ogImage || apiBlog.featuredImage || "",
+  };
+};
 
 const handleApiError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
@@ -234,7 +245,7 @@ export const fetchBlogsData =
           dispatch(
             setBlogsData({
               data: mappedBlogs,
-              total: response.data.data.pagination.totalBlogs,
+              total: response.data.data.pagination.total || response.data.data.pagination.totalBlogs || 0,
             }),
           );
         } else {
@@ -277,7 +288,7 @@ export const fetchActiveBlogs =
           dispatch(
             setBlogsData({
               data: mappedBlogs,
-              total: response.data.data.pagination.totalBlogs,
+              total: response.data.data.pagination.total || response.data.data.pagination.totalBlogs || 0,
             }),
           );
         } else {
@@ -347,7 +358,7 @@ export const fetchLatestBlogs = () => async (dispatch: AppDispatch) => {
       dispatch(
         setBlogsData({
           data: mappedBlogs,
-          total: response.data.data.pagination.totalBlogs,
+          total: response.data.data.pagination.total || response.data.data.pagination.totalBlogs || 0,
         }),
       );
     } else {

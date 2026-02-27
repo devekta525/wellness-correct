@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = getApiV1BaseUrl();
@@ -201,10 +202,10 @@ const handleApiError = (error: unknown) => {
 // --- NEW HELPER FUNCTION ---
 // This grabs the token from Local Storage (authToken) to send in the header
 const getAuthConfig = () => {
-  const token = localStorage.getItem("authToken");
+  const token = "";
 
   return {
-    withCredentials: true, // Keep cookies enabled just in case
+     // Keep cookies enabled just in case
     headers: {
       // Only add header if token exists
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -237,7 +238,7 @@ export const fetchNotes =
         queryParams.append("search", filters.search);
       }
 
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_BASE_URL}/notes?${queryParams}`,
         getAuthConfig(), // <--- UPDATED
       );
@@ -269,7 +270,7 @@ export const fetchNoteById =
   (noteId: string) => async (dispatch: AppDispatch) => {
     dispatch(setNoteLoading());
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_BASE_URL}/notes/${noteId}`,
         getAuthConfig(), // <--- UPDATED
       );
@@ -291,7 +292,7 @@ export const fetchNoteById =
 // Fetch note stats
 export const fetchNoteStats = () => async (dispatch: AppDispatch) => {
   try {
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/notes/stats`,
       getAuthConfig(), // <--- UPDATED
     );
@@ -319,7 +320,7 @@ export const createNote =
   (newNote: Partial<Note>) => async (dispatch: AppDispatch) => {
     dispatch(setNoteLoading());
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${API_BASE_URL}/notes`,
         newNote,
         getAuthConfig(), // <--- UPDATED
@@ -345,7 +346,7 @@ export const updateNote =
   async (dispatch: AppDispatch) => {
     dispatch(setNoteLoading());
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/notes/${noteId}`,
         updatedData,
         getAuthConfig(), // <--- UPDATED
@@ -371,7 +372,7 @@ export const updateNote =
 export const deleteNote = (noteId: string) => async (dispatch: AppDispatch) => {
   dispatch(setNoteLoading());
   try {
-    const response = await axios.delete(
+    const response = await axiosInstance.delete(
       `${API_BASE_URL}/notes/${noteId}`,
       getAuthConfig(), // <--- UPDATED
     );
@@ -393,7 +394,7 @@ export const deleteNote = (noteId: string) => async (dispatch: AppDispatch) => {
 export const toggleFavorite =
   (noteId: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.patch(
+      const response = await axiosInstance.patch(
         `${API_BASE_URL}/notes/${noteId}/favorite`,
         {},
         getAuthConfig(), // <--- UPDATED
@@ -420,7 +421,7 @@ export const exportNotes = () => async () => {
       responseType: "blob" as const,
     };
 
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/notes/export`,
       exportConfig,
     );

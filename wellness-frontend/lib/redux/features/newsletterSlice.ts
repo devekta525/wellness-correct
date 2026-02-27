@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 export interface Newsletter {
@@ -51,17 +52,17 @@ const initialState: NewsletterState = {
   },
 };
 
-const api = axios.create({
+const api = axiosInstance.create({
   baseURL: getApiV1BaseUrl(),
-  withCredentials: true,
+  
 });
 
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
       let token =
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
+        "" ||
+        "" ||
         localStorage.getItem("accessToken");
 
       if (token) {

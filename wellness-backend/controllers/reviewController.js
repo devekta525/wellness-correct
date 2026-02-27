@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Review from '../models/reviewModel.js';
+import { uploadToS3 } from '../config/s3Config.js';
 
 const isId = (id) => mongoose.isValidObjectId(id);
 

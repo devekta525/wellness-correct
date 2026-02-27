@@ -32,6 +32,7 @@ import {
   getDashboardForRole,
 } from "@/lib/utils/auth";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 const LoginContent = () => {
   const router = useRouter();
@@ -45,29 +46,14 @@ const LoginContent = () => {
 
   // Check if user is already logged in
   useEffect(() => {
-    if (isAuthenticated()) {
+    const token = localStorage.getItem("authToken");
+    if (token) {
       const redirectParam = searchParams.get("redirect");
       const safeRedirect =
         redirectParam && redirectParam.startsWith("/") ? redirectParam : null;
 
       if (safeRedirect) {
         router.push(safeRedirect);
-        return;
-      }
-
-      const userCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("user="));
-
-      if (userCookie) {
-        try {
-          const user = JSON.parse(decodeURIComponent(userCookie.split("=")[1]));
-          const dashboardUrl = getDashboardForRole(user.role);
-          router.push(dashboardUrl);
-        } catch (error) {
-          console.error("Error parsing user cookie:", error);
-          router.push("/profile");
-        }
       } else {
         router.push("/profile");
       }
@@ -85,8 +71,12 @@ const LoginContent = () => {
         (result.success ||
           (result.message === "login successful" && result.session))
       ) {
+        Swal.fire({
+          title: "Login Successful",
+          text: "Welcome back!",
+          icon: "success",
+        });
         const { session } = result;
-
         storeAuthData(session);
 
         let userDetails = result.user;
@@ -121,9 +111,19 @@ const LoginContent = () => {
           router.replace(safeRedirect || "/profile");
         }
       } else {
+        Swal.fire({
+          title: "Login Failed",
+          text: result?.message || "Invalid credentials",
+          icon: "error",
+        });
       }
     } catch (error) {
       console.error("Login error:", error);
+      Swal.fire({
+        title: "Login Failed",
+        text: (error as any)?.message || "Invalid credentials",
+        icon: "error",
+      });
     }
   };
 

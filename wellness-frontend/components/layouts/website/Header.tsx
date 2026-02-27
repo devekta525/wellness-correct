@@ -94,27 +94,15 @@ const Header = () => {
 
   return (
     <>
-      {/* Top Announcement Bar */}
-      <div className="w-full bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white py-2.5 overflow-hidden relative z-50 shadow-sm">
-        <div className="flex items-center justify-center gap-8 animate-marquee whitespace-nowrap text-xs md:text-sm font-bold tracking-wide">
-          {Array(10).fill("Up to 40% off Sitewide").map((text, i) => (
-            <div key={i} className="flex items-center gap-8">
-              <span>{text}</span>
-              <span className="text-white/50">•</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <header className="w-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800 shadow-sm sticky top-0 z-40 transition-all duration-300">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="flex items-center justify-between h-20 md:h-24">
+          <div className="flex items-center justify-between h-14 md:h-16">
 
             {/* Logo Section */}
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="group block">
                 {!logoError ? (
-                  <div className="w-[140px] md:w-[180px] h-[40px] md:h-[60px] relative flex items-center">
+                  <div className="w-[160px] md:w-[220px] h-[50px] md:h-[60px] relative flex items-center">
                     <Image
                       src={LOGO_URL}
                       alt="Wellness"
@@ -143,14 +131,14 @@ const Header = () => {
                 <div key={item.href} className="relative group">
                   <Link
                     href={item.href}
-                    className={`flex items-center gap-1.5 text-[15px] font-bold transition-all duration-300 py-4 tracking-wide ${isActive(item.href)
+                    className={`flex items-center gap-1.5 text-[14px] font-bold transition-all duration-300 py-3 tracking-wide ${isActive(item.href)
                       ? "text-blue-600"
                       : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
                       }`}
                   >
                     {item.label}
                     {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 mt-0.5 stroke-[3] transition-transform duration-300 group-hover:-rotate-180" />}
-                    
+
                     {/* Hover Underline Animation */}
                     <span className={`absolute bottom-2 left-0 w-full h-0.5 bg-blue-600 transform origin-left transition-transform duration-300 ${isActive(item.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
                   </Link>
@@ -227,20 +215,20 @@ const Header = () => {
             </nav>
 
             {/* Icons / Actions */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-4">
               {/* Search */}
               <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                <Search className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" />
+                <Search className="w-4 h-4 md:w-5 md:h-5 stroke-[1.5]" />
               </motion.button>
 
               {/* Logged In User Actions */}
               {isClient && user && (
                 <>
                   <Link href="/wishlist" className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                    <Heart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" />
+                    <Heart className="w-4 h-4 md:w-5 md:h-5 stroke-[1.5]" />
                   </Link>
                   <Link href="/track-order" className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                    <Truck className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" />
+                    <Truck className="w-4 h-4 md:w-5 md:h-5 stroke-[1.5]" />
                   </Link>
                 </>
               )}
@@ -256,10 +244,10 @@ const Header = () => {
                     href={getDashboardLink()}
                     className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
                   >
-                    <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                      <User className="w-4 h-4 md:w-5 md:h-5 stroke-[2]" />
+                    <div className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                      <User className="w-3.5 h-3.5 md:w-4 md:h-4 stroke-[2]" />
                     </div>
-                    <span className="text-sm font-bold hidden lg:block">
+                    <span className="text-xs font-semibold hidden lg:block">
                       Hi, {user.name?.split(' ')[0] || user.user?.name?.split(' ')[0] || 'User'}
                     </span>
                   </Link>
@@ -267,44 +255,44 @@ const Header = () => {
                   {/* User Dropdown */}
                   <AnimatePresence>
                     {isUserMenuOpen && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
                         className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-900 shadow-2xl shadow-blue-900/10 rounded-2xl border border-slate-100 dark:border-slate-800 z-50 overflow-hidden ring-1 ring-black/5"
                       >
-                      <div className="p-2 flex flex-col gap-1">
-                        <Link
-                          href={getDashboardLink()}
-                          className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800/50 hover:text-blue-600 rounded-xl transition-colors"
-                          onClick={() => setIsUserMenuOpen(false)}
-                        >
-                          <LayoutDashboard className="w-4 h-4" />
-                          <span>Dashboard</span>
-                        </Link>
-                        <button
-                          onClick={handleLogout}
-                          className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors w-full text-left"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          <span>Logout</span>
-                        </button>
-                      </div>
+                        <div className="p-2 flex flex-col gap-1">
+                          <Link
+                            href={getDashboardLink()}
+                            className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800/50 hover:text-blue-600 rounded-xl transition-colors"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span>Dashboard</span>
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors w-full text-left"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Logout</span>
+                          </button>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
               ) : (
                 <Link href="/login" className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                  <User className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" />
+                  <User className="w-4 h-4 md:w-5 md:h-5 stroke-[1.5]" />
                 </Link>
               )}
 
               {/* Cart */}
               <Link href="/cart" className="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group">
                 <span className="sr-only">Cart</span>
-                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 stroke-[1.5]" />
+                <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 stroke-[1.5]" />
                 {cartCount > 0 && (
                   <span className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-900 group-hover:scale-110 transition-transform">
                     {cartCount > 99 ? '99+' : cartCount}
@@ -336,62 +324,62 @@ const Header = () => {
         {/* Mobile Navigation Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "calc(100vh - 80px)" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="xl:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 absolute w-full left-0 shadow-xl overflow-y-auto z-30"
             >
-            <nav className="flex flex-col p-6 space-y-6">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex justify-between items-center text-lg font-bold p-2 rounded-xl transition-colors ${isActive(item.href)
-                    ? "text-blue-600"
-                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900"
-                    }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                  {item.hasDropdown && <ChevronDown className="w-5 h-5" />}
-                </Link>
-              ))}
-              <div className="border-t border-slate-100 dark:border-slate-800 pt-6 mt-2 space-y-4">
-                {user ? (
-                  <div className="flex flex-col gap-4">
-                    <Link
-                      href={getDashboardLink()}
-                      className="flex items-center gap-3 text-lg font-semibold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-50 rounded-xl"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <User className="w-6 h-6" />
-                      <span>My Profile</span>
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-3 text-lg font-semibold text-red-600 dark:text-red-400 text-left w-full p-2 hover:bg-red-50 rounded-xl"
-                    >
-                      <LogOut className="w-6 h-6" />
-                      <span>Logout</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    <Link href="/login" className="flex items-center gap-3 text-lg font-semibold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-50 rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                      <User className="w-6 h-6" />
-                      <span>Login</span>
-                    </Link>
-                  </div>
-                )}
+              <nav className="flex flex-col p-6 space-y-6">
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex justify-between items-center text-lg font-bold p-2 rounded-xl transition-colors ${isActive(item.href)
+                      ? "text-blue-600"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900"
+                      }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                    {item.hasDropdown && <ChevronDown className="w-5 h-5" />}
+                  </Link>
+                ))}
+                <div className="border-t border-slate-100 dark:border-slate-800 pt-6 mt-2 space-y-4">
+                  {user ? (
+                    <div className="flex flex-col gap-4">
+                      <Link
+                        href={getDashboardLink()}
+                        className="flex items-center gap-3 text-lg font-semibold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-50 rounded-xl"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <User className="w-6 h-6" />
+                        <span>My Profile</span>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 text-lg font-semibold text-red-600 dark:text-red-400 text-left w-full p-2 hover:bg-red-50 rounded-xl"
+                      >
+                        <LogOut className="w-6 h-6" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      <Link href="/login" className="flex items-center gap-3 text-lg font-semibold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-50 rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
+                        <User className="w-6 h-6" />
+                        <span>Login</span>
+                      </Link>
+                    </div>
+                  )}
 
-                <div className="flex items-center gap-3 text-lg font-semibold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-50 rounded-xl cursor-pointer">
-                  <Search className="w-6 h-6" />
-                  <span>Search</span>
+                  <div className="flex items-center gap-3 text-lg font-semibold text-slate-700 dark:text-slate-300 p-2 hover:bg-slate-50 rounded-xl cursor-pointer">
+                    <Search className="w-6 h-6" />
+                    <span>Search</span>
+                  </div>
                 </div>
-              </div>
-            </nav>
+              </nav>
             </motion.div>
           )}
         </AnimatePresence>

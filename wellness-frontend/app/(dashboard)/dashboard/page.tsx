@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
   Users,
@@ -54,7 +53,7 @@ const DashboardPage = () => {
         if (typeof window !== "undefined") {
           token =
             localStorage.getItem("authToken") ||
-            localStorage.getItem("token") ||
+            localStorage.getItem("authToken") ||
             localStorage.getItem("accessToken") ||
             "";
           token = token.replace(/^"|"$/g, "");
@@ -414,7 +413,7 @@ const DashboardPage = () => {
               <Button
                 variant="outline"
                 className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-950"
-                onClick={() => router.push("/dashboard/users")}
+                onClick={() => router.push("/dashboard/users?action=add")}
               >
                 <Users className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-medium">Add User</span>
@@ -422,7 +421,7 @@ const DashboardPage = () => {
               <Button
                 variant="outline"
                 className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-green-50 dark:hover:bg-green-950"
-                onClick={() => router.push("/dashboard/products")}
+                onClick={() => router.push("/dashboard/products?action=add")}
               >
                 <Package className="w-5 h-5 text-green-600" />
                 <span className="text-sm font-medium">Add Product</span>
@@ -609,12 +608,4 @@ const DashboardPage = () => {
   );
 };
 
-// Export as dynamic component to prevent prerendering issues
-export default dynamic(() => Promise.resolve(DashboardPage), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="w-8 h-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-    </div>
-  ),
-});
+export default DashboardPage;

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = `${getApiV1BaseUrl()}/popups`;
@@ -172,7 +173,7 @@ export const fetchPopupsData =
         params.name = filters.name;
       }
 
-      const response = await axios.get(API_BASE_URL, { params });
+      const response = await axiosInstance.get(API_BASE_URL, { params });
 
       if (response.data?.success && Array.isArray(response.data.data)) {
         const mappedPopups = response.data.data.map((popup: ApiPopup) =>
@@ -193,7 +194,7 @@ export const fetchPopupsData =
 export const fetchActivePopups = () => async (dispatch: AppDispatch) => {
   dispatch(setPopupLoading());
   try {
-    const response = await axios.get(API_BASE_URL, {
+    const response = await axiosInstance.get(API_BASE_URL, {
       params: { status: "Active" },
     });
     if (response.data?.success && Array.isArray(response.data.data)) {
@@ -216,7 +217,7 @@ export const fetchPopupById =
   (popupId: string) => async (dispatch: AppDispatch) => {
     dispatch(setPopupLoading());
     try {
-      const response = await axios.get(`${API_BASE_URL}/${popupId}`);
+      const response = await axiosInstance.get(`/${popupId}`);
       if (response.data?.success) {
         const popup = response.data.data;
         const mappedPopup = mapApiPopupToPopup(popup);
@@ -236,7 +237,7 @@ export const createPopup =
   (newPopup: FormData) => async (dispatch: AppDispatch) => {
     dispatch(setPopupLoading());
     try {
-      const response = await axios.post(API_BASE_URL, newPopup, {
+      const response = await axiosInstance.post(API_BASE_URL, newPopup, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -260,7 +261,7 @@ export const updatePopupStatus =
   (popupId: string) => async (dispatch: AppDispatch) => {
     dispatch(setPopupLoading());
     try {
-      const response = await axios.patch(`${API_BASE_URL}/${popupId}/status`);
+      const response = await axiosInstance.patch(`${API_BASE_URL}/${popupId}/status`);
       if (response.data?.success) {
         dispatch(setPopupLoading());
       } else {
@@ -279,7 +280,7 @@ export const updatePopup =
   (popupId: string, updatedData: FormData) => async (dispatch: AppDispatch) => {
     dispatch(setPopupLoading());
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/${popupId}`,
         updatedData,
         {
@@ -305,7 +306,7 @@ export const deletePopup =
   (popupId: string) => async (dispatch: AppDispatch) => {
     dispatch(setPopupLoading());
     try {
-      const response = await axios.delete(`${API_BASE_URL}/${popupId}`);
+      const response = await axiosInstance.delete(`/${popupId}`);
       if (response.data?.success) {
         dispatch(setPopupLoading());
         return true;

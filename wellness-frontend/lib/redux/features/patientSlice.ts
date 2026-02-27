@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { AppDispatch, RootState } from "../store";
 import { getApiV1BaseUrl } from "../../utils/api";
 
@@ -175,7 +176,7 @@ export const fetchPatients =
   async (dispatch: AppDispatch): Promise<boolean> => {
     dispatch(setPatientsLoading());
     try {
-      const response = await axios.get(API_BASE_URL, getAuthConfig());
+      const response = await axiosInstance.get(API_BASE_URL, getAuthConfig());
       if (response.data?.success && Array.isArray(response.data.data)) {
         const mapped = response.data.data.map(mapApiPatientToPatient);
         dispatch(setPatients(mapped));
@@ -194,7 +195,7 @@ export const fetchPatientStats =
   async (dispatch: AppDispatch): Promise<boolean> => {
     dispatch(setStatsLoading());
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_BASE_URL}/stats`,
         getAuthConfig(),
       );
@@ -222,7 +223,7 @@ export const fetchPatientById =
   async (dispatch: AppDispatch): Promise<boolean> => {
     dispatch(setPatientsLoading());
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${API_BASE_URL}/${patientId}`,
         getAuthConfig(),
       );
@@ -244,7 +245,7 @@ export const createPatient =
   (payload: Partial<Patient>) =>
   async (dispatch: AppDispatch): Promise<boolean> => {
     try {
-      const response = await axios.post(API_BASE_URL, payload, getAuthConfig());
+      const response = await axiosInstance.post(API_BASE_URL, payload, getAuthConfig());
       if (response.data?.success) {
         await dispatch(fetchPatients());
         return true;
@@ -263,7 +264,7 @@ export const updatePatientRecord =
   (patientId: string, payload: Partial<Patient>) =>
   async (dispatch: AppDispatch): Promise<boolean> => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/${patientId}`,
         payload,
         getAuthConfig(),
@@ -284,7 +285,7 @@ export const deletePatientRecord =
   (patientId: string) =>
   async (dispatch: AppDispatch): Promise<boolean> => {
     try {
-      const response = await axios.delete(
+      const response = await axiosInstance.delete(
         `${API_BASE_URL}/${patientId}`,
         getAuthConfig(),
       );
@@ -302,7 +303,7 @@ export const deletePatientRecord =
 
 export const exportPatientsList = async (): Promise<Blob | null> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/export`, {
+    const response = await axiosInstance.get(`/export`, {
       responseType: "blob",
       ...getAuthConfig(),
     });

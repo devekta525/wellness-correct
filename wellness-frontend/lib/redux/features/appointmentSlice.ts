@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 export interface User {
@@ -93,15 +94,12 @@ const getAuthConfig = () => {
   // Added window check for Next.js SSR safety
   let token: string | null = null;
   if (typeof window !== "undefined") {
-    token =
-      localStorage.getItem("authToken") ||
-      localStorage.getItem("token") ||
-      localStorage.getItem("accessToken");
+    token = localStorage.getItem("accessToken");
     if (token) token = token.replace(/^"|"$/g, "");
   }
 
   return {
-    withCredentials: true,
+
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
       "Content-Type": "application/json",
@@ -207,7 +205,7 @@ export const fetchAppointments =
     try {
       const { page, limit } = getState().appointments.pagination;
       const url = `${API_BASE_URL}?page=${page}&limit=${limit}`;
-      const response = await axios.get(url, getAuthConfig());
+      const response = await axiosInstance.get(url, getAuthConfig());
 
       if (response.data.success) {
         const uiData = response.data.data.map((item: ApiAppointment) =>
@@ -230,8 +228,8 @@ export const fetchAppointments =
       dispatch(
         setError(
           error.response?.data?.message ||
-            error.message ||
-            "Failed to fetch appointments",
+          error.message ||
+          "Failed to fetch appointments",
         ),
       );
     }
@@ -241,7 +239,7 @@ export const createAppointment =
   (formData: any) => async (dispatch: AppDispatch) => {
     dispatch(setLoading());
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${API_BASE_URL}`,
         formData,
         getAuthConfig(),
@@ -271,7 +269,7 @@ export const updateAppointment =
         ...(formData.time && { appointmentTime: formData.time }),
       };
 
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/${id}`,
         payload,
         getAuthConfig(),
@@ -295,7 +293,7 @@ export const deleteAppointment =
   (id: string) => async (dispatch: AppDispatch) => {
     dispatch(setLoading());
     try {
-      const response = await axios.delete(
+      const response = await axiosInstance.delete(
         `${API_BASE_URL}/${id}`,
         getAuthConfig(),
       );
@@ -316,7 +314,7 @@ export const deleteAppointment =
 
 export const fetchAppointmentStats = () => async (dispatch: AppDispatch) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/stats`, getAuthConfig());
+    const response = await axiosInstance.get(`/stats`, getAuthConfig());
 
     if (response.data.success) {
       dispatch(setStats(response.data.data));
@@ -334,7 +332,7 @@ export const exportAppointments = async (
 ): Promise<Blob | null> => {
   try {
     const queryParams = new URLSearchParams(filters || {}).toString();
-    const response = await axios.get(
+    const response = await axiosInstance.get(
       `${API_BASE_URL}/export${queryParams ? `?${queryParams}` : ""}`,
       {
         ...getAuthConfig(),

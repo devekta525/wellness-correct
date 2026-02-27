@@ -32,13 +32,13 @@ export async function createInfluencer(req, res) {
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
-    const influencer = new Influencer(req.body);
+    const influencer = new User({ ...req.body, role: 'Influencer' });
 
     // Generate unique referral code if not provided
     if (!influencer.referralCode && influencer.firstName) {
       influencer.referralCode = await generateUniqueReferralCode(influencer.firstName);
     }
-
+    
     const savedInfluencer = await influencer.save();
 
     // Remove password from response
@@ -56,7 +56,7 @@ export async function updateInfluencer(req, res) {
 
   try {
     const updatedInfluencer = await User.findOneAndUpdate(
-      { _id: req.params.id },
+      { _id: req.params.id, role: 'Influencer' },
       req.body,
       { new: true }
     ).select('-password');
@@ -71,7 +71,7 @@ export async function updateInfluencer(req, res) {
 // Toggle influencer status
 export async function toggleInfluencerStatus(req, res) {
   try {
-    const influencer = await User.findOne({ _id: req.params.id });
+    const influencer = await User.findOne({ _id: req.params.id, role: 'Influencer' });
     if (!influencer) return res.status(404).json({ error: 'Influencer not found' });
 
     const newStatus = influencer.status === 'active' ? 'inactive' : 'active';
@@ -90,7 +90,7 @@ export async function toggleInfluencerStatus(req, res) {
 // Get all influencers
 export async function getAllInfluencers(req, res) {
   try {
-    const influencers = await User.find().select('-password');
+    const influencers = await User.find({ role: 'Influencer' }).select('-password');
     res.json(influencers);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -100,7 +100,7 @@ export async function getAllInfluencers(req, res) {
 // Get influencer by ID
 export async function getInfluencerById(req, res) {
   try {
-    const influencer = await User.findOne({ _id: req.params.id }).select('-password');
+    const influencer = await User.findOne({ _id: req.params.id, role: 'Influencer' }).select('-password');
     if (!influencer) return res.status(404).json({ error: 'Influencer not found' });
     res.json(influencer);
   } catch (error) {

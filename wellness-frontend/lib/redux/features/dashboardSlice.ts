@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { RootState } from "../store";
 import { getApiV1BaseUrl } from "../../utils/api";
 
@@ -65,9 +66,9 @@ const appointmentCountInitialState: AppointmentCountState = {
 // Helper for Auth Headers
 const getAuthConfig = () => {
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    typeof window !== "undefined" ? "" : null;
   return {
-    withCredentials: true,
+    
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
       "Content-Type": "application/json",
@@ -83,7 +84,7 @@ export const fetchDoctorDashboard = createAsyncThunk(
   "dashboard/fetchDoctor",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(API_URL, getAuthConfig());
+      const response = await axiosInstance.get(API_URL, getAuthConfig());
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -98,7 +99,7 @@ export const fetchTodaysAppointmentCount = createAsyncThunk(
   "dashboard/fetchTodaysCount",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(APPOINTMENT_COUNT_URL, getAuthConfig());
+      const response = await axiosInstance.get(APPOINTMENT_COUNT_URL, getAuthConfig());
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(

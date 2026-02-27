@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from "../store";
-import axios from "axios";
+import axiosInstance from '../../utils/axiosInstance';
+import axios from 'axios';
 import { getApiV1BaseUrl } from "../../utils/api";
 
 const API_BASE_URL = `${getApiV1BaseUrl()}/reviews`;
@@ -164,7 +165,7 @@ export const fetchReviewsData =
         params.search = filters.name;
       }
 
-      const response = await axios.get(API_BASE_URL, { params });
+      const response = await axiosInstance.get(API_BASE_URL, { params });
 
       if (response.data?.success && Array.isArray(response.data.data)) {
         const mappedReviews = response.data.data.map((review: ApiReview) =>
@@ -187,7 +188,7 @@ export const fetchReviewById =
   (reviewId: string) => async (dispatch: AppDispatch) => {
     dispatch(setReviewLoading());
     try {
-      const response = await axios.get(`${API_BASE_URL}/${reviewId}`);
+      const response = await axiosInstance.get(`/${reviewId}`);
       if (response.data?.success) {
         const review = response.data.data;
         const mappedReview = mapApiReviewToReview(review);
@@ -207,7 +208,7 @@ export const fetchReviewById =
 export const fetchLatestReviews = () => async (dispatch: AppDispatch) => {
   dispatch(setReviewLoading());
   try {
-    const response = await axios.get(API_BASE_URL, {
+    const response = await axiosInstance.get(API_BASE_URL, {
       params: {
         status: "Approved",
         limit: 5,
@@ -236,7 +237,7 @@ export const fetchLatestReviews = () => async (dispatch: AppDispatch) => {
 export const createReview =
   (newReview: FormData) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.post(API_BASE_URL, newReview, {
+      const response = await axiosInstance.post(API_BASE_URL, newReview, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -262,7 +263,7 @@ export const updateReviewStatus =
   (reviewId: string, status: "Pending" | "Approved" | "Rejected") =>
   async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.patch(`${API_BASE_URL}/${reviewId}/status`, {
+      const response = await axiosInstance.patch(`${API_BASE_URL}/${reviewId}/status`, {
         status,
       });
       if (response.data?.success) {
@@ -284,7 +285,7 @@ export const updateReview =
   (reviewId: string, updatedData: FormData) =>
   async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${API_BASE_URL}/${reviewId}`,
         updatedData,
         {
@@ -310,7 +311,7 @@ export const updateReview =
 export const deleteReview =
   (reviewId: string) => async (dispatch: AppDispatch) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/${reviewId}`);
+      const response = await axiosInstance.delete(`/${reviewId}`);
       if (response.data?.success) {
         dispatch(setReviewLoading());
         return true;
@@ -330,7 +331,7 @@ export const fetchTestimonialsReviews =
   async (dispatch: AppDispatch) => {
     dispatch(setTestimonialsLoading());
     try {
-      const response = await axios.get(API_BASE_URL, {
+      const response = await axiosInstance.get(API_BASE_URL, {
         params: {
           status: "Approved",
           limit,

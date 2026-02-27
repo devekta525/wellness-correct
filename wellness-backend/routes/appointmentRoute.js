@@ -9,6 +9,7 @@ import {
   getTodaysAppointmentsCount,
   exportAppointments,
   getMyAppointments,
+  getMyNotifications,
 } from '../controllers/appointmentController.js';
 import { isLogin } from '../middleWares/isLogin.js';
 
@@ -35,6 +36,8 @@ router.get('/stats', getAppointmentStats);
 router.get('/today/count', getTodaysAppointmentsCount);
 // GET - Appointments for the logged-in user
 router.get('/my-appointments', getMyAppointments);
+// GET - Notifications for the logged-in user
+router.get('/my-notifications', getMyNotifications);
 
 // GET - All appointments (list)
 router.get('/', getAppointments);

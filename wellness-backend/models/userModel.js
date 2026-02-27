@@ -30,7 +30,6 @@ const UserSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: true,
       unique: true,
       trim: true,
     },
@@ -264,13 +263,14 @@ const UserSchema = new mongoose.Schema(
       default: "daily",
     },
 
-    // ⚠️ WARNING: avoid storing real card numbers (PCI risk)
+    // Replaced raw card details with tokenized details for PCI compliance
     paymentMethods: [
       {
         cardType: { type: String, required: true },
-        cardNumber: { type: String, required: true },
+        last4Digits: { type: String, required: true },
         cardHolderName: { type: String, required: true },
         expiryDate: { type: String, required: true },
+        token: { type: String, required: true },
         isDefault: { type: Boolean, default: false },
       },
     ],

@@ -1,3 +1,17 @@
+/**
+ * Local Storage Configuration
+ *
+ * DEPRECATED: This file is now mostly handled by utils/uploadService.js
+ * Kept for backward compatibility and reference.
+ *
+ * The unified upload service in utils/uploadService.js now handles:
+ * - Local file storage
+ * - Multer configuration
+ * - File deletion
+ *
+ * For new code, import directly from utils/uploadService.js instead.
+ */
+
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';

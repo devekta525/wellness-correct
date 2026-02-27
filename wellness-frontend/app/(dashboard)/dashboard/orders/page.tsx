@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { selectUser } from "@/lib/redux/features/authSlice";
 import {
@@ -39,7 +39,7 @@ authenticatedAxios.interceptors.request.use(
       // Try multiple possible token storage keys
       let token =
         localStorage.getItem("authToken") ||
-        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
         localStorage.getItem("accessToken");
 
       if (token) {
@@ -201,13 +201,14 @@ const OrdersPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(""); // Clear previous errors
 
       if (!currentUser) {
         setOrders([]);
-        setError("User not logged in");
+        // Don't set error immediately to avoid flash during initial load
         setIsLoading(false);
         return;
       }
@@ -219,6 +220,9 @@ const OrdersPage = () => {
         currentUser.role === "super_admin" ||
         currentUser.role === "Admin";
 
+      // Handle potential ID mismatch (_id vs id)
+      const userId = currentUser._id || (currentUser as any).id;
+
       // Fetch all orders by handling pagination (backend max per page is 100)
       let allOrders: Order[] = [];
       let currentPage = 1;
@@ -227,7 +231,7 @@ const OrdersPage = () => {
       do {
         const baseUrl = isAdmin
           ? `/orders?limit=100&page=${currentPage}`
-          : `/orders?user=${currentUser._id}&limit=100&page=${currentPage}`;
+          : `/orders?user=${userId}&limit=100&page=${currentPage}`;
 
         const response = await authenticatedAxios.get(baseUrl);
 
@@ -278,9 +282,9 @@ const OrdersPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentUser]);
 
-  const fetchUsersWithOrders = async () => {
+  const fetchUsersWithOrders = useCallback(async () => {
     try {
       setIsLoadingUsers(true);
 
@@ -341,20 +345,20 @@ const OrdersPage = () => {
     } finally {
       setIsLoadingUsers(false);
     }
-  };
+  }, [currentUser]);
 
   // Fetch orders on mount and when filters change
   useEffect(() => {
     fetchOrders();
     // refetch when user changes (e.g., login/logout)
-  }, [currentUser]);
+  }, [fetchOrders]);
 
   // Fetch users with orders when switching to users view
   useEffect(() => {
     if (displayMode === "users" && usersWithOrders.length === 0) {
       fetchUsersWithOrders();
     }
-  }, [displayMode, currentUser]);
+  }, [displayMode, fetchUsersWithOrders, usersWithOrders.length]);
 
   // Filter orders
   const filteredOrders = React.useMemo(() => {
