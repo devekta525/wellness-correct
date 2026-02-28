@@ -11,10 +11,10 @@ import {
   getMyAppointments,
   getMyNotifications,
 } from '../controllers/appointmentController.js';
-import { isLogin } from '../middleWares/isLogin.js';
-import { isAdmin } from '../middleWares/isAdmin.js';
-import { isDoctor } from '../middleWares/isDoctor.js';
-import { isCustomer } from '../middleWares/isCustomer.js';
+import { isLogin } from '../middlewares/isLogin.js';
+import { isAdmin } from '../middlewares/isAdmin.js';
+import { isDoctor } from '../middlewares/isDoctor.js';
+import { isCustomer } from '../middlewares/isCustomer.js';
 
 const router = Router();
 

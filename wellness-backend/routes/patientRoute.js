@@ -9,9 +9,9 @@ import {
     getTotalPatientsCount,
     exportPatients
 } from '../controllers/patientController.js';
-import { isLogin } from '../middleWares/isLogin.js';
-import { isDoctor } from '../middleWares/isDoctor.js';
-import { isAdmin } from '../middleWares/isAdmin.js';
+import { isLogin } from '../middlewares/isLogin.js';
+import { isDoctor } from '../middlewares/isDoctor.js';
+import { isAdmin } from '../middlewares/isAdmin.js';
 
 const router = Router();
 

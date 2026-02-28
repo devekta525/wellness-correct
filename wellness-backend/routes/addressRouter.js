@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { addAddress, deleteAddress, getAddress, setDefaultAddress, updateAddress, upsertAddressDoc } from "../controllers/addressController.js";
-import { isLogin } from "../middleWares/isLogin.js";
+import { isLogin } from "../middlewares/isLogin.js";
 
 
 const router = Router();

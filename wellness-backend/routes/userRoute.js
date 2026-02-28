@@ -12,8 +12,8 @@ import { createDoctor, getAllDoctors, getDoctorById, toggleDoctorStatus, updateD
 import { createInfluencer, getAllInfluencers, getInfluencerById, toggleInfluencerStatus, updateInfluencer, countInfluencers } from "../controllers/influencerController.js";
 import { countCustomers } from "../controllers/customerController.js";
 import { upload } from "../config/s3Config.js";
-import { isLogin } from "../middleWares/isLogin.js";
-import { isAdmin } from "../middleWares/isAdmin.js";
+import { isLogin } from "../middlewares/isLogin.js";
+import { isAdmin } from "../middlewares/isAdmin.js";
 
 const router = Router();
 

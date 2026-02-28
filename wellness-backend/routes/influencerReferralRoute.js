@@ -1,7 +1,7 @@
 import express from "express";
-import { isLogin } from "../middleWares/isLogin.js";
-import { isInfluencer } from "../middleWares/isInfluencer.js";
-import { isAdmin } from "../middleWares/isAdmin.js";
+import { isLogin } from "../middlewares/isLogin.js";
+import { isInfluencer } from "../middlewares/isInfluencer.js";
+import { isAdmin } from "../middlewares/isAdmin.js";
 import {
   getReferralDashboardData,
   createDummyReferral

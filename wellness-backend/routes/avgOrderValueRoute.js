@@ -1,5 +1,5 @@
 import express from 'express';
-import { isLogin } from '../middleWares/isLogin.js';
+import { isLogin } from '../middlewares/isLogin.js';
 import { getAvgOrderValue } from '../controllers/avgOrderValueController.js';
 
 const router = express.Router();

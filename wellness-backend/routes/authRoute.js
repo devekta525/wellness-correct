@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check, login, logout, resetPassword, signup } from "../controllers/authController.js";
-import { isLogin } from "../middleWares/isLogin.js";
+import { isLogin } from "../middlewares/isLogin.js";
 
 const router=Router()
 
