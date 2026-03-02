@@ -52,7 +52,7 @@ export default function Banner() {
       {/* ── Content — 25% padding each side ── */}
       <div
         className="relative h-full flex items-center"
-        style={{ minHeight: "250px", paddingLeft: "25%", paddingRight: "25%" }}
+        style={{ minHeight: "250px", paddingLeft: "15%", paddingRight: "15%" }}
       >
         <div className="w-full text-center py-8">
           {/* Stat pills */}

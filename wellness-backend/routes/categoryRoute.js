@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { createCategory, deleteCategory, getCategories, getCategoryById, updateCategory } from "../controllers/categoryController.js";
 import { upload } from "../config/s3Config.js";
-import { isLogin } from "../middlewares/isLogin.js";
-import { isAdmin } from "../middlewares/isAdmin.js";
+import { isLogin } from "../middleWares/isLogin.js";
+import { isAdmin } from "../middleWares/isAdmin.js";
 
 
 const router = Router();

@@ -111,36 +111,36 @@ export default function ProductCard({ product, viewMode = "grid" }) {
       >
         {IMAGE_COUNT > 0
           ? [...Array(IMAGE_COUNT)].map((_, idx) => {
-            const src = images[idx] || "/placeholder-product.svg";
-            const isPlaceholder = src.endsWith("/placeholder-product.svg");
-            return (
-              <div
-                key={idx}
-                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${idx === imageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+              const src = images[idx] || "/placeholder-product.svg";
+              const isPlaceholder = src.endsWith("/placeholder-product.svg");
+              return (
+                <div
+                  key={idx}
+                  className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+                    idx === imageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
                   }`}
-                aria-hidden={idx !== imageIndex}
-              >
-                {isPlaceholder ? (
-                  <div className="w-full h-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 text-sm">
-                    Placeholder {idx + 1}
-                  </div>
-                ) : (
-                  <Image
-                    src={src}
-                    alt={product?.name || "Product image"}
-                    fill
-                    unoptimized
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes={
-                      isList
-                        ? "192px"
-                        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    }
-                  />
-                )}
-              </div>
-            );
-          })
+                  aria-hidden={idx !== imageIndex}
+                >
+                  {isPlaceholder ? (
+                    <div className="w-full h-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 text-sm">
+                      Placeholder {idx + 1}
+                    </div>
+                  ) : (
+                    <Image
+                      src={src}
+                      alt={product.name}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      sizes={
+                        isList
+                          ? "192px"
+                          : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      }
+                    />
+                  )}
+                </div>
+              );
+            })
           : null}
 
         {/* Wishlist Button Overlay */}
@@ -183,10 +183,11 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                   goToImage(i);
                 }}
                 aria-label={`View image ${i + 1}`}
-                className={`rounded-full transition-all duration-300 ${i === imageIndex
-                  ? "w-2 h-2 bg-blue-600 shadow-[0_0_4px_rgba(255,255,255,0.8)]"
-                  : "w-1.5 h-1.5 bg-white/80 hover:bg-white"
-                  }`}
+                className={`rounded-full transition-all duration-300 ${
+                  i === imageIndex
+                    ? "w-2 h-2 bg-blue-600 shadow-[0_0_4px_rgba(255,255,255,0.8)]"
+                    : "w-1.5 h-1.5 bg-white/80 hover:bg-white"
+                }`}
               />
             ))}
           </div>
@@ -208,10 +209,11 @@ export default function ProductCard({ product, viewMode = "grid" }) {
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`w-3 h-3 ${i < (product.rating || 5)
-                  ? "fill-amber-400 text-amber-400"
-                  : "text-slate-200 fill-slate-100 dark:text-slate-700 dark:fill-slate-800"
-                  }`}
+                className={`w-3 h-3 ${
+                  i < (product.rating || 5)
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-slate-200 fill-slate-100 dark:text-slate-700 dark:fill-slate-800"
+                }`}
               />
             ))}
             <span className="text-[11px] text-slate-400 dark:text-slate-500 ml-1 font-medium">
@@ -229,14 +231,14 @@ export default function ProductCard({ product, viewMode = "grid" }) {
         {(product.tagline ||
           product.description ||
           product.shortDescription) && (
-            <p className="text-[12px] text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
-              {product.tagline ? (
-                <span className="italic">{product.tagline}</span>
-              ) : (
-                product.shortDescription || product.description
-              )}
-            </p>
-          )}
+          <p className="text-[12px] text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
+            {product.tagline ? (
+              <span className="italic">{product.tagline}</span>
+            ) : (
+              product.shortDescription || product.description
+            )}
+          </p>
+        )}
 
         {/* Price row */}
         <div className="flex items-center flex-wrap gap-2.5 mb-4">
@@ -300,12 +302,13 @@ export default function ProductCard({ product, viewMode = "grid" }) {
           <button
             onClick={handleCart}
             disabled={isOutOfStock}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-300 ${isOutOfStock
-              ? "bg-slate-100 text-slate-400 dark:bg-slate-800 cursor-not-allowed"
-              : quantityInCart > 0
-                ? "bg-linear-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-200/50 hover:shadow-emerald-300/50 hover:scale-[1.02]"
-                : "bg-linear-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50 hover:scale-[1.02]"
-              }`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-300 ${
+              isOutOfStock
+                ? "bg-slate-100 text-slate-400 dark:bg-slate-800 cursor-not-allowed"
+                : quantityInCart > 0
+                  ? "bg-linear-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-200/50 hover:shadow-emerald-300/50 hover:scale-[1.02]"
+                  : "bg-linear-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50 hover:scale-[1.02]"
+            }`}
           >
             {quantityInCart > 0 ? (
               <span className="flex items-center gap-1.5">

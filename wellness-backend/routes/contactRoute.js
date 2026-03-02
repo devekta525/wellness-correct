@@ -7,8 +7,8 @@ import {
     deleteContact,
     countContacts
 } from "../controllers/contactController.js";
-import { isLogin } from "../middlewares/isLogin.js";
-import { isAdmin } from "../middlewares/isAdmin.js";
+import { isLogin } from "../middleWares/isLogin.js";
+import { isAdmin } from "../middleWares/isAdmin.js";
 
 const router = Router();
 

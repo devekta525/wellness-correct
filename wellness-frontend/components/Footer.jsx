@@ -90,7 +90,7 @@ export default function Footer() {
             {/* Contact info */}
             <div className="space-y-3 mb-7">
               {[
-                { Icon: MapPin, text: 'Mumbai, Maharashtra, India 400001' },
+                { Icon: MapPin, text: '5TH Floor, Tower C, Sector 75, Spectrum Metro, Noida, 201301' },
                 { Icon: Phone,  text: '+91 98765 43210' },
                 { Icon: Mail,   text: 'hello@wellnessfuel.com' },
               ].map(({ Icon, text }) => (

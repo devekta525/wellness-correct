@@ -42,7 +42,6 @@ export const isLogin = async (req, res, next) => {
     // 4. If no token is found anywhere, return 401
     if (!token) {
       console.warn("isLogin: no token provided in headers, query string, or cookies");
-      console.warn("isLogin: no token provided in headers, query string, or cookies");
       return res.status(401).json({
         success: false,
         message: "Could not find authentication token. Please log in again.",

@@ -95,7 +95,7 @@ export default function ProductsSection() {
             <span className="ml-2 text-slate-500">Loading products...</span>
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.slice(0, 8).map((product) => (
               <ProductCard key={product._id || product.id} product={product} />
             ))}
@@ -118,7 +118,7 @@ export default function ProductsSection() {
         </div>
 
         {/* ── Trust badges below cards ── */}
-        <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { icon: '🔬', title: 'Lab Tested', desc: 'Every batch verified by third-party labs' },
             { icon: '🌿', title: 'Natural Ingredients', desc: 'No artificial additives or fillers' },
