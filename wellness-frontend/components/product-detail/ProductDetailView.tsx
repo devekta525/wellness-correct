@@ -20,7 +20,8 @@ import {
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/lib/context/CartContext";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, updateQuantity } from "@/lib/redux/features/cartSlice";
 import { formatPrice } from "@/lib/formatters";
 
 interface ProductImageZoomProps {
@@ -71,22 +72,23 @@ const ProductImageZoom = ({ src, alt }: ProductImageZoomProps) => {
 };
 
 export default function ProductDetailView({ product }: { product: any }) {
+  const dispatch = useDispatch();
   // Handle images array or fallback to single image. Normalize URLs.
   const images =
     product.images && product.images.length > 0
       ? product.images.map(getImageUrl)
       : [
-          getImageUrl(
-            product.imageUrl || product.image || "/placeholder-product.svg",
-          ),
-        ];
+        getImageUrl(
+          product.imageUrl || product.image || "/placeholder-product.svg",
+        ),
+      ];
 
   const productId = product._id || product.id || product.slug;
 
   const [selectedImage, setSelectedImage] = useState(images[0]);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
-  const { addToCart, updateQuantity, cartItems } = useCart();
+  const cartItems = useSelector((state: any) => state.cart.items);
 
   // Update selected image when product changes
   useEffect(() => {
@@ -101,14 +103,13 @@ export default function ProductDetailView({ product }: { product: any }) {
   const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
   const handleAddToCart = () => {
-    addToCart(
-      {
+    dispatch(
+      addToCart({
         id: productId,
         name: product.name,
         price: Number(price),
         image: images[0],
-      },
-      1,
+      })
     );
   };
 
@@ -132,7 +133,7 @@ export default function ProductDetailView({ product }: { product: any }) {
     }
   };
 
-  const cartItem = cartItems.find((item) => item.id === productId);
+  const cartItem = cartItems.find((item: any) => item.id === productId);
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
   return (
@@ -232,7 +233,7 @@ export default function ProductDetailView({ product }: { product: any }) {
               <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden h-12 shrink-0">
                 <button
                   onClick={() =>
-                    updateQuantity(productId, Math.max(0, quantityInCart - 1))
+                    dispatch(updateQuantity({ id: productId, quantity: Math.max(0, quantityInCart - 1) }))
                   }
                   className="px-3 md:px-4 py-2 hover:bg-slate-50 transition-colors disabled:opacity-50"
                   disabled={quantityInCart <= 0}
@@ -243,7 +244,7 @@ export default function ProductDetailView({ product }: { product: any }) {
                   {quantityInCart}
                 </span>
                 <button
-                  onClick={() => updateQuantity(productId, quantityInCart + 1)}
+                  onClick={() => dispatch(updateQuantity({ id: productId, quantity: quantityInCart + 1 }))}
                   className="px-3 md:px-4 py-2 hover:bg-slate-50 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
@@ -258,11 +259,10 @@ export default function ProductDetailView({ product }: { product: any }) {
               </Button>
               <button
                 onClick={handleToggleWishlist}
-                className={`h-12 w-12 flex items-center justify-center border rounded-lg transition-colors ${
-                  isWishlisted
-                    ? "border-red-500 bg-red-50"
-                    : "border-slate-200 hover:bg-slate-50"
-                }`}
+                className={`h-12 w-12 flex items-center justify-center border rounded-lg transition-colors ${isWishlisted
+                  ? "border-red-500 bg-red-50"
+                  : "border-slate-200 hover:bg-slate-50"
+                  }`}
               >
                 <Heart
                   className={`w-5 h-5 ${isWishlisted ? "fill-red-500 text-red-500" : "text-slate-400"}`}
@@ -324,11 +324,10 @@ export default function ProductDetailView({ product }: { product: any }) {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-4 text-lg font-medium capitalize transition-colors relative whitespace-nowrap ${
-                activeTab === tab
-                  ? "text-blue-600"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
+              className={`pb-4 text-lg font-medium capitalize transition-colors relative whitespace-nowrap ${activeTab === tab
+                ? "text-blue-600"
+                : "text-slate-500 hover:text-slate-800"
+                }`}
             >
               {tab}
               {activeTab === tab && (

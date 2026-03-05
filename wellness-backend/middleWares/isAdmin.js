@@ -31,6 +31,7 @@ export const isAdmin = async (req, res, next) => {
         res.status(500).json({
             success: false,
             message: "Authorization check failed"
+
         });
     }
 };

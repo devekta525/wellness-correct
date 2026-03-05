@@ -241,8 +241,8 @@ const SettingsPage = () => {
   const [profileData, setProfileData] = useState({
     firstName: "John",
     lastName: "Doe",
-    email: "john.doe@wellnessfuel.com",
-    phone: "+91 98765 43210",
+    email: "dr.ritesh@wellnessfuel.in",
+    phone: "+91 9667766523",
     avatar: "",
     bio: "E-commerce store owner focused on wellness and health products.",
   });
@@ -284,10 +284,10 @@ const SettingsPage = () => {
   // Business Settings State
   const [businessData, setBusinessData] = useState({
     businessName: "Wellness Fuel Pvt Ltd",
-    businessEmail: "info@wellnessfuel.com",
-    businessPhone: "+91 98765 43210",
+    businessEmail: "dr.ritesh@wellnessfuel.in",
+    businessPhone: "+91 9667766523",
     businessAddress:
-      "123 Wellness Street, Health District, Mumbai, Maharashtra 400001",
+      "304, 3rd Floor, Procapitus Business Park, D-247, 4A, D Block, Sector 63, Noida, Uttar Pradesh – 201309",
     gstNumber: "27ABCDE1234F1Z5",
     panNumber: "ABCDE1234F",
     businessType: "Private Limited",

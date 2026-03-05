@@ -22,6 +22,9 @@ import { appointmentCountReducer } from "./features/dashboardSlice";
 import patientReducer from "./features/patientSlice";
 import doctorSettingsReducer from "./features/doctorSettingsSlice";
 
+import cartReducer from "./features/cartSlice";
+import wishlistReducer from "./features/wishlistSlice";
+
 export const store = configureStore({
   reducer: {
     blogs: blogsReducer,
@@ -46,6 +49,8 @@ export const store = configureStore({
     appointmentCount: appointmentCountReducer,
     patients: patientReducer,
     doctorSettings: doctorSettingsReducer,
+    cart: cartReducer,
+    wishlist: wishlistReducer,
   },
 });
 

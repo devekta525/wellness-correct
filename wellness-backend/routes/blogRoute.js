@@ -1,14 +1,16 @@
 import { Router } from "express"
-import { createBlog, deleteBlog, getAllBlogs, getBlogById, updateBlog } from "../controllers/blogController.js"
+import { createBlog, deleteBlog, getAllBlogs, getBlogById, updateBlog, getPublishedBlogs, getBlogBySlug } from "../controllers/blogController.js"
 import { isLogin } from "../middleWares/isLogin.js"
 import { isAdmin } from "../middleWares/isAdmin.js"
 
 const router = Router()
 
-// router.post("/bloggenerate",isLogin, blogGenerate)
+// Public routes
+router.get("/published", getPublishedBlogs);
+router.get("/public/:slug", getBlogBySlug);
 
+// Admin routes (protected)
 router.post("/create", isLogin, isAdmin, createBlog)
-
 router.get("/", isLogin, getAllBlogs)
 router.get("/:id", isLogin, getBlogById)
 router.put("/:id", isLogin, isAdmin, updateBlog)

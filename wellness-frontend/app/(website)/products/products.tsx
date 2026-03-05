@@ -18,11 +18,11 @@ import { getImageUrl } from "@/lib/utils/getImageUrl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useCart } from "@/lib/context/CartContext";
-import { useWishlist } from "@/lib/context/wishlistContext";
-import CommonHero from "@/components/common/common-hero";
+import { RootState } from "@/lib/redux/store";
+
 import { formatPrice } from "@/lib/formatters";
 import ProductCard from "@/components/ProductCard";
+import CommonHero from "@/components/common/common-hero";
 
 // Redux Imports
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
@@ -72,14 +72,12 @@ const sortOptions = [
 const ProductsPage = () => {
   const dispatch = useAppDispatch();
 
-  // Redux State
+  // Redux State Hub
   const reduxProducts = useAppSelector(selectProductsData);
   const isLoading = useAppSelector(selectProductsLoading);
   const error = useAppSelector(selectProductsError);
-
-  // Contexts
-  const { addToCart, cartItems } = useCart();
-  const { toggleWishlistItem, isInWishlist } = useWishlist();
+  const wishlistItems = useAppSelector((state: RootState) => state.wishlist?.items || []);
+  const isInWishlist = (id: string) => wishlistItems.some((item) => item.id === id);
 
   // Local UI State
   const [searchTerm, setSearchTerm] = useState("");
@@ -114,7 +112,7 @@ const ProductsPage = () => {
   const formattedProducts: UIProduct[] = useMemo(() => {
     if (!reduxProducts || reduxProducts.length === 0) return [];
 
-    const products = reduxProducts.map((p) => {
+    return reduxProducts.map((p) => {
       const currentPrice = p.price.amount;
       const mrp = p.price.mrp || currentPrice;
 
@@ -142,15 +140,18 @@ const ProductsPage = () => {
         tags: p.benefits || [],
       };
     });
+  }, [reduxProducts]);
 
-    const highestPrice = Math.max(...products.map((p) => p.price), 1000);
-    if (highestPrice !== maxPrice && highestPrice > 0) {
-      setMaxPrice(highestPrice);
-      setPriceRange([0, highestPrice]);
+  // Sync price filtering bounds when products load
+  useEffect(() => {
+    if (formattedProducts.length > 0) {
+      const highestPrice = Math.max(...formattedProducts.map((p) => p.price), 1000);
+      if (highestPrice !== maxPrice && highestPrice > 0) {
+        setMaxPrice(highestPrice);
+        setPriceRange([0, highestPrice]);
+      }
     }
-
-    return products;
-  }, [reduxProducts, maxPrice]);
+  }, [formattedProducts, maxPrice]);
 
   // Filter and Sort Products
   const filteredAndSortedProducts = useMemo(() => {
@@ -336,11 +337,10 @@ const ProductsPage = () => {
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedCategory === category
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700"
-                      }`}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === category
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700"
+                        }`}
                     >
                       {category}
                     </button>
@@ -407,11 +407,10 @@ const ProductsPage = () => {
               <>
                 {/* Products */}
                 <div
-                  className={`grid gap-6 ${
-                    viewMode === "grid"
-                      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-                      : "grid-cols-1"
-                  }`}
+                  className={`grid gap-6 ${viewMode === "grid"
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+                    : "grid-cols-1"
+                    }`}
                 >
                   {currentProducts.map((product) => (
                     <ProductCard
@@ -464,11 +463,10 @@ const ProductsPage = () => {
                           key={page}
                           variant={currentPage === page ? "default" : "outline"}
                           onClick={() => handlePageChange(page)}
-                          className={`rounded-xl ${
-                            currentPage === page
-                              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg"
-                              : ""
-                          }`}
+                          className={`rounded-xl ${currentPage === page
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-lg"
+                            : ""
+                            }`}
                         >
                           {page}
                         </Button>

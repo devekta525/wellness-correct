@@ -1,8 +1,10 @@
 /* Server Component */
 
 import Link from 'next/link';
-import { Leaf, MapPin, Phone, Mail, ArrowRight, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import Image from 'next/image';
+import { MapPin, Phone, Mail, ArrowRight, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
 import NewsletterForm from './NewsletterForm';
+import img from "@/public/logo.jpeg"
 
 const quickLinks = [
   { label: 'Home', href: '/' },
@@ -23,17 +25,17 @@ const productLinks = [
 
 const supportLinks = [
   { label: 'FAQ', href: '/faq' },
-  { label: 'Shipping Policy', href: '/shipping' },
-  { label: 'Return & Refund', href: '/returns' },
-  { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms & Conditions', href: '/terms' },
+  { label: 'Shipping Policy', href: '/shipping-policy' },
+  { label: 'Return & Refund', href: '/return-refund' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'Terms & Conditions', href: '/terms-conditions' },
 ];
 
 const socialLinks = [
   { Icon: Instagram, href: '#', label: 'Instagram', color: 'hover:bg-gradient-to-br hover:from-pink-500 hover:to-orange-400' },
-  { Icon: Facebook,  href: '#', label: 'Facebook',  color: 'hover:bg-blue-600' },
-  { Icon: Twitter,   href: '#', label: 'Twitter',   color: 'hover:bg-sky-500' },
-  { Icon: Youtube,   href: '#', label: 'YouTube',   color: 'hover:bg-red-600' },
+  { Icon: Facebook, href: '#', label: 'Facebook', color: 'hover:bg-blue-600' },
+  { Icon: Twitter, href: '#', label: 'Twitter', color: 'hover:bg-sky-500' },
+  { Icon: Youtube, href: '#', label: 'YouTube', color: 'hover:bg-red-600' },
 ];
 
 const certBadges = [
@@ -70,17 +72,31 @@ export default function Footer() {
 
           {/* ── Brand column (spans 2) ── */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2.5 mb-5 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
-                <Leaf className="w-[18px] h-[18px] text-white" />
-              </div>
-              <div>
-                <div className="text-xl font-bold text-white font-serif">Wellness Fuel</div>
-                <div className="text-[9px] text-blue-400 tracking-widest uppercase font-semibold">
-                  Premium Nutrition
+            {/* Brand Identity: Logo + Text side-by-side */}
+            <div className="flex justify-center md:justify-start mb-8">
+              <Link href="/" className="flex items-center gap-4 group transition-all duration-300">
+                {/* Rounded Logo Container */}
+                <div className="relative w-16 h-16 md:w-20 md:h-20 bg-white rounded-full p-2.5 shadow-[0_0_20px_rgba(37,99,235,0.2)] border-2 border-slate-800 group-hover:border-blue-500 group-hover:shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all duration-500 flex items-center justify-center overflow-hidden">
+                  <Image
+                    src={img}
+                    alt="Wellness Fuel Logo"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                  />
                 </div>
-              </div>
-            </Link>
+
+                {/* Brand Text */}
+                <div className="flex flex-col group-hover:translate-x-1 transition-transform duration-300">
+                  <span className="text-2xl md:text-3xl font-bold text-white font-serif tracking-tight">
+                    Wellness <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Fuel</span>
+                  </span>
+                  <span className="text-[10px] md:text-xs text-blue-400/80 font-bold tracking-[0.2em] uppercase mt-0.5">
+                    Premium Nutrition
+                  </span>
+                </div>
+              </Link>
+            </div>
 
             <p className="text-[13px] text-slate-400 leading-relaxed mb-6 max-w-xs">
               We believe true wellness starts from within. Our mission is to bring you the finest
@@ -88,17 +104,21 @@ export default function Footer() {
             </p>
 
             {/* Contact info */}
-            <div className="space-y-3 mb-7">
+            <div className="space-y-3 mb-7 w-full pr-4">
               {[
-                { Icon: MapPin, text: '5TH Floor, Tower C, Sector 75, Spectrum Metro, Noida, 201301' },
-                { Icon: Phone,  text: '+91 98765 43210' },
-                { Icon: Mail,   text: 'hello@wellnessfuel.com' },
-              ].map(({ Icon, text }) => (
-                <div key={text} className="flex items-center gap-3 text-[13px]">
-                  <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0">
+                { Icon: MapPin, text: '304, 3rd Floor, Procapitus Business Park, D-247, 4A, D Block, Sector 63, Noida, Uttar Pradesh – 201309, India' },
+                { Icon: Phone, text: '+91 9667766523', href: 'tel:+919667766523' },
+                { Icon: Mail, text: 'dr.ritesh@wellnessfuel.in', href: 'mailto:dr.ritesh@wellnessfuel.in' },
+              ].map(({ Icon, text, href }) => (
+                <div key={text} className="flex items-start gap-3 text-[13px]">
+                  <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Icon className="w-3.5 h-3.5 text-blue-400" />
                   </div>
-                  <span className="text-slate-400">{text}</span>
+                  {href ? (
+                    <a href={href} className="text-slate-400 hover:text-blue-400 transition-colors pt-1.5">{text}</a>
+                  ) : (
+                    <span className="text-slate-400 leading-relaxed pt-1.5">{text}</span>
+                  )}
                 </div>
               ))}
             </div>

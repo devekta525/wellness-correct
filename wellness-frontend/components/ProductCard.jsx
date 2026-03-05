@@ -3,20 +3,28 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Eye, Star, Heart } from "lucide-react";
-import { useCart } from "@/lib/context/CartContext";
-import { useWishlist } from "@/lib/context/wishlistContext";
+import { addToCart } from "@/lib/redux/features/cartSlice";
+import { toggleWishlist } from "@/lib/redux/features/wishlistSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/lib/utils/getImageUrl";
+import {
+  ShoppingCart,
+  Heart,
+  Star,
+  Eye
+} from "lucide-react";
 
 const AUTO_SLIDE_MS = 4000;
 
 export default function ProductCard({ product, viewMode = "grid" }) {
   const [imageIndex, setImageIndex] = useState(0);
+  const dispatch = useDispatch();
 
   // Safely get context
-  const { addToCart, cartItems } = useCart();
-  const { toggleWishlistItem, isInWishlist } = useWishlist();
+  const cartItems = useSelector((state) => state.cart.items);
+  const wishlistItems = useSelector((state) => state.wishlist?.items || []);
+  const isInWishlist = (id) => wishlistItems.some((item) => item.id === id);
 
   const isList = viewMode === "list";
 
@@ -82,65 +90,66 @@ export default function ProductCard({ product, viewMode = "grid" }) {
   const handleCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart({
-      id: productId,
-      name: product.name,
-      price: currentPrice,
-      image: getImageUrl(product.imageUrl || images[0] || ""),
-    });
+    dispatch(
+      addToCart({
+        id: productId,
+        name: product.name,
+        price: currentPrice,
+        image: getImageUrl(product.imageUrl || images[0] || ""),
+      })
+    );
   };
 
   const handleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleWishlistItem({
+    dispatch(toggleWishlist({
       id: productId,
       name: product.name,
       price: currentPrice,
-      imageUrl: getImageUrl(product.imageUrl || images[0] || ""),
-    });
+      image: getImageUrl(product.imageUrl || images[0] || ""),
+    }));
   };
 
   return (
     <div
-      className={`product-card group relative bg-white dark:bg-slate-800/90 rounded-3xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-100/60 dark:hover:shadow-blue-900/40 min-w-0 ${isList ? "flex flex-col sm:flex-row" : "flex flex-col"}`}
+      className={`product-card group relative bg-white dark:bg-slate-800/90 rounded-3xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-100/60 dark:hover:shadow-blue-900/40 min-w-0 h-full ${isList ? "flex flex-col sm:flex-row" : "flex flex-col"}`}
     >
       {/* ── Image Section ── */}
       <div
-        className={`relative bg-slate-100 dark:bg-slate-800 ${isList ? "w-full sm:w-48 h-48 sm:h-auto min-h-[200px] shrink-0" : "w-full aspect-4/3"} overflow-hidden`}
+        className={`relative bg-slate-100 dark:bg-slate-800 ${isList ? "w-full sm:w-48 h-48 sm:h-auto min-h-[200px] shrink-0" : "w-full aspect-[4/5]"} overflow-hidden`}
       >
         {IMAGE_COUNT > 0
           ? [...Array(IMAGE_COUNT)].map((_, idx) => {
-              const src = images[idx] || "/placeholder-product.svg";
-              const isPlaceholder = src.endsWith("/placeholder-product.svg");
-              return (
-                <div
-                  key={idx}
-                  className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
-                    idx === imageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            const src = images[idx] || "/placeholder-product.svg";
+            const isPlaceholder = src.endsWith("/placeholder-product.svg");
+            return (
+              <div
+                key={idx}
+                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${idx === imageIndex ? "opacity-100 z-10" : "opacity-0 z-0"
                   }`}
-                  aria-hidden={idx !== imageIndex}
-                >
-                  {isPlaceholder ? (
-                    <div className="w-full h-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 text-sm">
-                      Placeholder {idx + 1}
-                    </div>
-                  ) : (
-                    <Image
-                      src={src}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes={
-                        isList
-                          ? "192px"
-                          : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      }
-                    />
-                  )}
-                </div>
-              );
-            })
+                aria-hidden={idx !== imageIndex}
+              >
+                {isPlaceholder ? (
+                  <div className="w-full h-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 text-sm">
+                    Placeholder {idx + 1}
+                  </div>
+                ) : (
+                  <Image
+                    src={src}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes={
+                      isList
+                        ? "192px"
+                        : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    }
+                  />
+                )}
+              </div>
+            );
+          })
           : null}
 
         {/* Wishlist Button Overlay */}
@@ -183,11 +192,10 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                   goToImage(i);
                 }}
                 aria-label={`View image ${i + 1}`}
-                className={`rounded-full transition-all duration-300 ${
-                  i === imageIndex
-                    ? "w-2 h-2 bg-blue-600 shadow-[0_0_4px_rgba(255,255,255,0.8)]"
-                    : "w-1.5 h-1.5 bg-white/80 hover:bg-white"
-                }`}
+                className={`rounded-full transition-all duration-300 ${i === imageIndex
+                  ? "w-2 h-2 bg-blue-600 shadow-[0_0_4px_rgba(255,255,255,0.8)]"
+                  : "w-1.5 h-1.5 bg-white/80 hover:bg-white"
+                  }`}
               />
             ))}
           </div>
@@ -209,11 +217,10 @@ export default function ProductCard({ product, viewMode = "grid" }) {
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`w-3 h-3 ${
-                  i < (product.rating || 5)
-                    ? "fill-amber-400 text-amber-400"
-                    : "text-slate-200 fill-slate-100 dark:text-slate-700 dark:fill-slate-800"
-                }`}
+                className={`w-3 h-3 ${i < (product.rating || 5)
+                  ? "fill-amber-400 text-amber-400"
+                  : "text-slate-200 fill-slate-100 dark:text-slate-700 dark:fill-slate-800"
+                  }`}
               />
             ))}
             <span className="text-[11px] text-slate-400 dark:text-slate-500 ml-1 font-medium">
@@ -223,22 +230,28 @@ export default function ProductCard({ product, viewMode = "grid" }) {
         </div>
 
         {/* Product name */}
-        <h3 className="font-serif font-bold text-[16px] leading-snug text-slate-800 dark:text-white mb-1 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200 line-clamp-2">
-          {product.name}
-        </h3>
+        <div className="min-h-[3.5rem] mb-1">
+          <h3 className="font-serif font-bold text-[16px] leading-snug text-slate-800 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200 line-clamp-2">
+            {product.name}
+          </h3>
+        </div>
 
         {/* Tagline / Description */}
-        {(product.tagline ||
-          product.description ||
-          product.shortDescription) && (
-          <p className="text-[12px] text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
-            {product.tagline ? (
-              <span className="italic">{product.tagline}</span>
-            ) : (
-              product.shortDescription || product.description
-            )}
-          </p>
-        )}
+        <div className="min-h-[2.5rem] mb-4">
+          {(product.tagline ||
+            product.description ||
+            product.shortDescription) ? (
+            <p className="text-[12px] text-slate-500 dark:text-slate-400 line-clamp-2">
+              {product.tagline ? (
+                <span className="italic">{product.tagline}</span>
+              ) : (
+                product.shortDescription || product.description
+              )}
+            </p>
+          ) : (
+            <div className="h-full" /> // Placeholder to maintain height
+          )}
+        </div>
 
         {/* Price row */}
         <div className="flex items-center flex-wrap gap-2.5 mb-4">
@@ -257,15 +270,15 @@ export default function ProductCard({ product, viewMode = "grid" }) {
           )}
         </div>
 
-        {/* For / With (Render only if present, usually in Featured view) */}
-        {!isList && (product.for || product.with) && (
-          <div className="space-y-2 mb-5">
+        {/* For / With (Render with min-height to ensure alignment) */}
+        {!isList && (
+          <div className="space-y-2 mb-5 min-h-[4.5rem]">
             {product.for && (
               <div className="flex items-start gap-2">
                 <span className="shrink-0 mt-0.5 text-[9px] font-extrabold text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-800 border border-blue-100 px-2 py-0.5 rounded-lg tracking-wide uppercase">
                   FOR
                 </span>
-                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium line-clamp-2">
                   {Array.isArray(product.for)
                     ? product.for.join(", ")
                     : product.for}
@@ -277,7 +290,7 @@ export default function ProductCard({ product, viewMode = "grid" }) {
                 <span className="shrink-0 mt-0.5 text-[9px] font-extrabold text-cyan-600 bg-cyan-50 dark:bg-cyan-900/30 dark:border-cyan-800 border border-cyan-100 px-2 py-0.5 rounded-lg tracking-wide uppercase">
                   WITH
                 </span>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
                   {Array.isArray(product.with)
                     ? product.with.join(", ")
                     : product.with}
@@ -302,13 +315,12 @@ export default function ProductCard({ product, viewMode = "grid" }) {
           <button
             onClick={handleCart}
             disabled={isOutOfStock}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-300 ${
-              isOutOfStock
-                ? "bg-slate-100 text-slate-400 dark:bg-slate-800 cursor-not-allowed"
-                : quantityInCart > 0
-                  ? "bg-linear-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-200/50 hover:shadow-emerald-300/50 hover:scale-[1.02]"
-                  : "bg-linear-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50 hover:scale-[1.02]"
-            }`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-300 ${isOutOfStock
+              ? "bg-slate-100 text-slate-400 dark:bg-slate-800 cursor-not-allowed"
+              : quantityInCart > 0
+                ? "bg-linear-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-200/50 hover:shadow-emerald-300/50 hover:scale-[1.02]"
+                : "bg-linear-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-blue-900/50 hover:scale-[1.02]"
+              }`}
           >
             {quantityInCart > 0 ? (
               <span className="flex items-center gap-1.5">

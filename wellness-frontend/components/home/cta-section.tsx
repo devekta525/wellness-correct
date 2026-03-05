@@ -42,7 +42,7 @@ const CTASection = () => {
               </span>
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-8">
-              Join thousands of patients who have already experienced the future of healthcare. 
+              Join thousands of patients who have already experienced the future of healthcare.
               Get started today and take control of your wellness with our comprehensive platform.
             </p>
 
@@ -65,7 +65,7 @@ const CTASection = () => {
               </Button>
               <Button className="px-10 py-4 border-2 border-slate-300 text-slate-700 hover:bg-slate-100 text-lg font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg">
                 <Phone className="mr-2 w-5 h-5" />
-                Call Now: (555) 123-4567
+                Call Now: +91 9667766523
               </Button>
             </div>
           </div>

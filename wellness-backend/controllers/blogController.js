@@ -399,51 +399,48 @@ export async function getPublishedBlogs(req, res) {
       page = 1,
       limit = 10,
       category,
-      search,
-      sortBy = 'createdAt',
-      sortOrder = 'desc'
+      search
     } = req.query;
 
-    const query = { status: 'published' };
+    const query = { status: "published" };
 
-    if (category) query.category = new RegExp(category, 'i');
+    if (category) {
+      query.category = new RegExp(category, "i");
+    }
+
     if (search) {
       query.$or = [
-        { title: new RegExp(search, 'i') },
-        { excerpt: new RegExp(search, 'i') },
-        { tags: new RegExp(search, 'i') }
+        { title: new RegExp(search, "i") },
+        { excerpt: new RegExp(search, "i") },
+        { tags: new RegExp(search, "i") }
       ];
     }
 
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-
     const blogs = await Blog.find(query)
-      .populate('author', 'firstName lastName')
-      .sort(sortOptions)
+      .populate("author", "firstName lastName")
+      .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
-      .select('-content'); // Exclude content for listing
+      .select("-content"); // exclude full content for listing
 
     const total = await Blog.countDocuments(query);
 
-    res.json({
+    res.status(200).json({
       success: true,
       data: {
         blogs,
         pagination: {
-          currentPage: parseInt(page),
+          currentPage: Number(page),
           totalPages: Math.ceil(total / limit),
-          totalBlogs: total,
-          hasNext: page < Math.ceil(total / limit),
-          hasPrev: page > 1
+          totalBlogs: total
         }
       }
     });
+
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
-      message: 'Failed to fetch published blogs',
+      message: "Failed to fetch published blogs",
       error: error.message
     });
   }

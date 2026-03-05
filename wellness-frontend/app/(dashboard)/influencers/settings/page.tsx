@@ -60,7 +60,7 @@ const InfluencerSettingsPage = () => {
     business: {
       brandName: "Emma Rodriguez Brand",
       businessAddress: "456 Fashion District, Los Angeles, CA 90210",
-      businessPhone: "+1 (555) 987-6543",
+      businessPhone: "+91 9667766523",
       businessEmail: "business@emmarodriguez.com",
       website: "www.emmarodriguez.com",
       taxId: "12-3456789",
@@ -236,7 +236,7 @@ const InfluencerSettingsPage = () => {
         const errorData = await response.json();
         throw new Error(
           errorData.message ||
-            `Failed to save settings: ${response.statusText}`,
+          `Failed to save settings: ${response.statusText}`,
         );
       }
 

@@ -20,15 +20,16 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
-import { useCart } from "@/lib/context/CartContext";
-import { toast } from "sonner";
-import RazorpayButton from "@/components/RazorpayButton";
-import Swal from "sweetalert2";
-import { useAppSelector } from "@/lib/redux/hooks";
 import {
   selectUser,
   selectIsAuthenticated,
 } from "@/lib/redux/features/authSlice";
+import { toast } from "sonner";
+import RazorpayButton from "@/components/RazorpayButton";
+import Swal from "sweetalert2";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCart } from "@/lib/redux/features/cartSlice";
+import { useAppSelector } from "@/lib/redux/hooks";
 
 const formatPrice = (amount: number) => {
   return new Intl.NumberFormat("en-IN", {
@@ -50,7 +51,8 @@ interface ShippingAddress {
 
 const CheckoutPage = () => {
   const router = useRouter();
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const dispatch = useDispatch();
+  const { items: cartItems, totalAmount: cartTotal } = useSelector((state: any) => state.cart);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [couponCode, setCouponCode] = useState("");
@@ -82,11 +84,10 @@ const CheckoutPage = () => {
   }, [cartItems.length, router]);
 
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      // Optional: Redirect to login or show login prompt
-      // router.push("/login?redirect=/checkout");
-      // For now we might proceed if we want to allow guest checkout but backend requires user ID
-      // So we should probably enforce login
+    // Only redirect if we're sure the user isn't authenticated
+    const hasToken = typeof window !== 'undefined' && localStorage.getItem("authToken");
+
+    if (!isAuthenticated && !isLoading && !hasToken) {
       toast.error("Please login to place an order");
       router.push("/login?redirect=/checkout");
     }
@@ -216,7 +217,7 @@ const CheckoutPage = () => {
         user: user._id,
         shippingAddress: shippingAddress, // valid address object
         billingAddress: shippingAddress, // assuming same for now
-        items: cartItems.map((item) => ({
+        items: cartItems.map((item: any) => ({
           product: item.id, // or item.productId
           quantity: item.quantity
         })),
@@ -237,7 +238,7 @@ const CheckoutPage = () => {
         },
       });
 
-      clearCart();
+      dispatch(clearCart());
       setIsOrderPlaced(true);
       Swal.fire({
         title: "Order Placed!",
@@ -305,7 +306,7 @@ const CheckoutPage = () => {
         user: user._id,
         shippingAddress: shippingAddress, // valid address object
         billingAddress: shippingAddress,
-        items: cartItems.map((item) => ({
+        items: cartItems.map((item: any) => ({
           product: item.id,
           quantity: item.quantity
         })),
@@ -328,7 +329,7 @@ const CheckoutPage = () => {
         },
       });
 
-      clearCart();
+      dispatch(clearCart());
       setIsOrderPlaced(true);
       Swal.fire({
         title: "Order Placed!",
@@ -589,11 +590,10 @@ const CheckoutPage = () => {
 
               <div className="space-y-4">
                 <label
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    paymentMethod === "cod"
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
-                  }`}
+                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === "cod"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                    : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
+                    }`}
                 >
                   <input
                     type="radio"
@@ -615,11 +615,10 @@ const CheckoutPage = () => {
                 </label>
 
                 <label
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    paymentMethod === "online"
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
-                  }`}
+                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === "online"
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                    : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
+                    }`}
                 >
                   <input
                     type="radio"
@@ -653,7 +652,7 @@ const CheckoutPage = () => {
 
               {/* Cart Items */}
               <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
-                {cartItems.map((item) => (
+                {cartItems.map((item: any) => (
                   <div key={item.id} className="flex items-center gap-3">
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0">
                       <Image

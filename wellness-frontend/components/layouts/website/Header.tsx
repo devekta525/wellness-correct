@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { clearAuthData } from '@/lib/utils/auth';
 import { useAppDispatch } from '@/lib/redux/hooks';
 import { logout as reduxLogout } from '@/lib/redux/features/authSlice';
-import { useCart } from '@/lib/context/CartContext';
+import { useSelector } from 'react-redux';
 import {
   LogOut,
   User,
@@ -25,7 +25,7 @@ import LOGO_URL from '../../../public/logo.jpeg';
 const Header = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { cartCount } = useCart();
+  const cartCount = useSelector((state: any) => state.cart.totalQuantity);
   const [user, setUser] = useState<any>(null); // Use any or proper type from your utils
   const [isClient, setIsClient] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

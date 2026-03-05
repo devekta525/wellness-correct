@@ -56,21 +56,32 @@ export default function HeroCarousel() {
 
   const goTo = useCallback(
     (idx) => {
-      if (animating || slides.length <= 1) return;
-      setAnimating(true);
-      setCurrent(idx);
-      setTimeout(() => setAnimating(false), 700);
+      setAnimating((prev) => {
+        if (prev || slides.length <= 1) return prev;
+        setCurrent(idx);
+        setTimeout(() => setAnimating(false), 700);
+        return true;
+      });
     },
-    [animating, slides.length],
+    [slides.length],
   );
 
   const next = useCallback(
-    () => goTo((current + 1) % slides.length),
-    [current, goTo, slides.length],
+    () => {
+      if (slides.length > 1) {
+        setCurrent((prev) => (prev + 1) % slides.length);
+      }
+    },
+    [slides.length],
   );
+
   const prev = useCallback(
-    () => goTo((current - 1 + slides.length) % slides.length),
-    [current, goTo, slides.length],
+    () => {
+      if (slides.length > 1) {
+        setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+      }
+    },
+    [slides.length],
   );
 
   useEffect(() => {
@@ -106,9 +117,8 @@ export default function HeroCarousel() {
         return (
           <div
             key={slide._id || idx}
-            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-              isActive ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${isActive ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
             aria-hidden={!isActive}
           >
             <div className="relative z-10 h-full w-full">
@@ -145,11 +155,10 @@ export default function HeroCarousel() {
                 key={i}
                 onClick={() => goTo(i)}
                 aria-label={`Go to slide ${i + 1}`}
-                className={`rounded-full transition-all duration-400 ${
-                  i === current
-                    ? "w-8 h-2.5 bg-slate-600 shadow-md"
-                    : "w-2.5 h-2.5 bg-white/60 hover:bg-white/90 backdrop-blur-sm"
-                }`}
+                className={`rounded-full transition-all duration-400 ${i === current
+                  ? "w-8 h-2.5 bg-slate-600 shadow-md"
+                  : "w-2.5 h-2.5 bg-white/60 hover:bg-white/90 backdrop-blur-sm"
+                  }`}
               />
             ))}
           </div>

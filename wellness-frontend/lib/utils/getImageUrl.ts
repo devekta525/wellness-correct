@@ -7,8 +7,14 @@ export const getImageUrl = (url?: string) => {
   // blow up when it tried to load the invalid URL.
   if (!url) return "/placeholder-product.svg";
 
-  // handle base64
+  // handle base64 properly
   if (url.startsWith("data:")) return url;
+
+  // if raw base64 was sent without the prefix, detect and format it
+  if (url.startsWith("iVBORw0K")) return `data:image/png;base64,${url}`;
+  if (url.startsWith("/9j/")) return `data:image/jpeg;base64,${url}`;
+  if (url.startsWith("R0lGOD")) return `data:image/gif;base64,${url}`;
+  if (url.startsWith("UklGR")) return `data:image/webp;base64,${url}`;
 
   let finalUrl = url;
   if (!finalUrl.startsWith("http")) {

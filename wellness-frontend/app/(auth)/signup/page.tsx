@@ -200,10 +200,14 @@ const SignupPage = () => {
         }
       }
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectParam = searchParams.get("redirect");
+      const safeRedirect = redirectParam && redirectParam.startsWith("/") ? redirectParam : null;
+
       setTimeout(() => {
         const role = result.user?.role || formData.userType;
         const dashboardUrl = getDashboardForRole(role);
-        router.replace(dashboardUrl);
+        router.replace(safeRedirect || dashboardUrl);
       }, 2000);
     } else {
       Swal.fire({
@@ -360,41 +364,37 @@ const SignupPage = () => {
                 <div key={step.number} className="flex items-center flex-1">
                   <div className="flex flex-col items-center flex-1">
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        currentStep >= step.number
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= step.number
                           ? "bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50"
                           : "bg-gray-200 dark:bg-gray-700"
-                      }`}
+                        }`}
                     >
                       {currentStep > step.number ? (
                         <Check className="w-6 h-6 text-white" />
                       ) : (
                         <step.icon
-                          className={`w-6 h-6 ${
-                            currentStep >= step.number
+                          className={`w-6 h-6 ${currentStep >= step.number
                               ? "text-white"
                               : "text-gray-400"
-                          }`}
+                            }`}
                         />
                       )}
                     </div>
                     <span
-                      className={`text-xs mt-2 font-medium hidden sm:block ${
-                        currentStep >= step.number
+                      className={`text-xs mt-2 font-medium hidden sm:block ${currentStep >= step.number
                           ? "text-purple-600 dark:text-purple-400"
                           : "text-gray-400"
-                      }`}
+                        }`}
                     >
                       {step.title}
                     </span>
                   </div>
                   {index < steps.length - 1 && (
                     <div
-                      className={`h-1 flex-1 mx-2 rounded transition-all duration-300 ${
-                        currentStep > step.number
+                      className={`h-1 flex-1 mx-2 rounded transition-all duration-300 ${currentStep > step.number
                           ? "bg-gradient-to-r from-purple-600 to-pink-600"
                           : "bg-gray-200 dark:bg-gray-700"
-                      }`}
+                        }`}
                     />
                   )}
                 </div>

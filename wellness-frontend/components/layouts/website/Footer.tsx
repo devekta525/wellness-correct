@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Instagram, Youtube, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
- 
+
 import img from "../../../public/Hero.png";
 
 // Placeholder for  Image - reusing the one from public if available
@@ -20,9 +20,9 @@ const Footer = () => {
       <div className="w-full bg-gradient-to-r from-blue-400 via-purple-300 to-blue-400 border-b border-transparent">
         {/* Adjusted to Blue/White gradient */}
         <div className="relative w-full h-[300px] md:h-[350px] bg-gradient-to-r from-blue-400 via-white to-sky-400 flex items-center justify-center overflow-hidden">
-          
+
           {/* Animated Background Elements */}
-          <motion.div 
+          <motion.div
             className="absolute top-0 left-0 w-full h-full bg-white/10"
             animate={{ opacity: [0.1, 0.3, 0.1] }}
             transition={{ duration: 5, repeat: Infinity }}
@@ -31,7 +31,7 @@ const Footer = () => {
           <div className="max-w-7xl mx-auto w-full px-4 flex flex-col md:flex-row items-center justify-center md:gap-16 lg:gap-32 relative z-10">
 
             {/* Left Text */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -41,7 +41,7 @@ const Footer = () => {
             </motion.div>
 
             {/*  Image */}
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -56,7 +56,7 @@ const Footer = () => {
             </motion.div>
 
             {/* Right Text */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -77,14 +77,14 @@ const Footer = () => {
 
       {/* Main Footer */}
       <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white pt-20 pb-10 px-6 md:px-12 lg:px-20 relative overflow-hidden">
-        
+
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
 
         <div className="max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
 
           {/* Column 1: Info */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -104,7 +104,7 @@ const Footer = () => {
           </motion.div>
 
           {/* Column 2: Links */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -123,7 +123,7 @@ const Footer = () => {
           </motion.div>
 
           {/* Column 3: Connect */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -131,13 +131,13 @@ const Footer = () => {
           >
             <h4 className="font-bold text-lg text-white">Connect</h4>
             <div className="space-y-3 text-slate-300">
-              <div className="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-pointer">01140848448</div>
-              <div className="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-pointer">info@nutra-zen.com</div>
+              <a href="tel:+919667766523" className="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-pointer">+91 9667766523</a>
+              <a href="mailto:dr.ritesh@wellnessfuel.in" className="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-pointer">dr.ritesh@wellnessfuel.in</a>
             </div>
           </motion.div>
 
           {/* Column 4: Newsletter */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}

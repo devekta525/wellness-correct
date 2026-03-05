@@ -15,11 +15,13 @@ const protectedRoutes = {
   "/dashboard/leads": ["admin", "super_admin"],
   "/dashboard/reviews": ["admin", "super_admin"],
   "/dashboard/orders": ["admin", "super_admin"],
-  "/dashboard/appointments": ["admin", "super_admin"],
+  "/dashboard/appointments": ["doctor", "admin", "super_admin"],
   "/dashboard/settings": ["admin", "super_admin"],
   "/doctors": ["doctor", "admin", "super_admin"],
   "/influencers": ["influencer", "admin", "super_admin"],
-  "/profile": ["user", "admin", "doctor", "influencer", "super_admin"],
+  "/profile": ["user", "customer", "admin", "doctor", "influencer", "super_admin"],
+  "/checkout": ["user", "customer", "admin", "doctor", "influencer", "super_admin"],
+  "/track-order": ["user", "customer", "admin", "doctor", "influencer", "super_admin"],
 };
 
 // Public routes that don't require authentication
@@ -30,7 +32,11 @@ const publicRoutes = [
   "/about",
   "/contact",
   "/privacy-policy",
+  "/shipping-policy",
+  "/return-refund",
+  "/terms-conditions",
   "/terms",
+  "/faq",
   "/cookie-policy",
   "/products",
   "/product",
@@ -81,15 +87,20 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if the current path is a public route
-  const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith(route + "/"),
-  );
+  const normalizedPath = pathname.toLowerCase().replace(/\/$/, "");
+  const isPublicRoute = publicRoutes.some((route) => {
+    const normalizedRoute = route.toLowerCase().replace(/\/$/, "");
+    return normalizedPath === normalizedRoute || pathname.startsWith(route + "/");
+  });
 
   // If user is not authenticated and trying to access protected route
   if ((!user || !token) && !isPublicRoute) {
     // Only redirect to login if not already on login page to prevent loops
     if (pathname !== "/login") {
-      return NextResponse.redirect(new URL("/login", request.url));
+      const loginUrl = new URL("/login", request.url);
+      // Preserving the intended destination as a redirect parameter
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
     }
     return NextResponse.next();
   }
@@ -118,7 +129,7 @@ export function middleware(request: NextRequest) {
     );
 
     if (routeAccess) {
-      const [route, allowedRoles] = routeAccess;
+      const [_route, allowedRoles] = routeAccess;
 
       if (
         !allowedRoles

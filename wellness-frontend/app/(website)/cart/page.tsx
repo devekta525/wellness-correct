@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
-import { useCart } from "@/lib/context/CartContext";
+import { useDispatch, useSelector } from "react-redux";
+import { removeFromCart, updateQuantity } from "@/lib/redux/features/cartSlice";
 
 const formatPrice = (amount: number) => {
   return new Intl.NumberFormat("en-IN", {
@@ -14,7 +15,8 @@ const formatPrice = (amount: number) => {
 };
 
 const CartPage = () => {
-  const { cartItems, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const dispatch = useDispatch();
+  const { items: cartItems, totalAmount: cartTotal } = useSelector((state: any) => state.cart);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
@@ -23,7 +25,7 @@ const CartPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2">
               <ul className="divide-y divide-border">
-                {cartItems.map((item) => (
+                {cartItems.map((item: any) => (
                   <li
                     key={item.id}
                     className="flex items-center gap-6 py-6 bg-white dark:bg-slate-800/90 rounded-xl px-4 shadow-md border border-blue-200/50 dark:border-blue-700/30"
@@ -49,7 +51,7 @@ const CartPage = () => {
                           size="icon"
                           className="w-8 h-8 rounded-full border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            dispatch(updateQuantity({ id: item.id, quantity: item.quantity - 1 }))
                           }
                         >
                           <Minus className="w-4 h-4" />
@@ -62,7 +64,7 @@ const CartPage = () => {
                           size="icon"
                           className="w-8 h-8 rounded-full border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))
                           }
                         >
                           <Plus className="w-4 h-4" />
@@ -76,7 +78,7 @@ const CartPage = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => dispatch(removeFromCart(item.id))}
                         className="text-slate-600 dark:text-slate-400 hover:text-red-500 mt-2"
                       >
                         Remove
@@ -145,4 +147,5 @@ const CartPage = () => {
     </div>
   );
 };
+
 export default CartPage;

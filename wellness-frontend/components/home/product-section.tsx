@@ -25,14 +25,13 @@ import {
   selectProductsData,
   selectProductsLoading,
 } from "@/lib/redux/features/productSlice";
-import { useCart } from "@/lib/context/CartContext";
+import { useDispatch } from "react-redux";
 
 const ProductSection = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const productsData = useAppSelector(selectProductsData);
   const isLoading = useAppSelector(selectProductsLoading);
-  const { addToCart } = useCart();
 
   const [imageErrors, setImageErrors] = useState<{ [key: string]: boolean }>(
     {}

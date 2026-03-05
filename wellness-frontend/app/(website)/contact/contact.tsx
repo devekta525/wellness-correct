@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { getApiV1Url } from "@/lib/utils/api";
-import { Phone, Mail, MapPin, Send, Loader2 } from "lucide-react";
+import { Phone, Mail, MapPin, Send, Loader2, Globe, Building2, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
@@ -85,33 +85,59 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Hero Section with Parallax-like effect */}
-      <div className="relative h-[40vh] min-h-[300px] w-full overflow-hidden">
-        <Image
-          src="https://www.nutra-zen.com/cdn/shop/files/dwsk.png?v=1731306219&width=2000"
-          alt="Contact banner"
-          fill
-          className="object-cover brightness-[0.85]"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent flex items-center justify-center">
+      {/* Hero Section */}
+      <div className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 w-full h-full">
+          <Image
+            src="https://images.unsplash.com/photo-1556745753-b2904692b3cd?q=80&w=2000&auto=format&fit=crop"
+            alt="Customer support team"
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+
+        {/* Soft Dark Overlay & Smooth Gradient */}
+        <div className="absolute inset-0 bg-slate-900/60 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-900/50 to-blue-900/50 mix-blend-overlay" />
+
+        {/* Soft Fade Bottom Transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent pointer-events-none" />
+
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center text-white px-4"
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              Get in Touch
+            {/* Teal Accent Pill */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="mb-8 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-xl shadow-teal-500/10 text-teal-50 font-semibold tracking-wide uppercase text-sm"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-400"></span>
+              </span>
+              Support Team
+            </motion.div>
+
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 tracking-tight leading-tight">
+              Contact <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400 drop-shadow-sm">Us</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-200 max-w-2xl mx-auto">
-              We&apos;d love to hear from you. Our team is always here to chat.
+
+            <p className="text-xl md:text-2xl text-slate-200 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+              We&apos;re here to help with your wellness journey.
             </p>
           </motion.div>
         </div>
       </div>
 
-      <section className="py-16 md:py-24 relative">
+      <section className="py-16 md:py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
             {/* Contact Info Side */}
@@ -127,72 +153,70 @@ const Contact = () => {
                   Let&apos;s start a conversation
                 </h2>
                 <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Whether you have a question about our products, pricing, need
-                  a demo, or anything else, our team is ready to answer all your
-                  questions.
+                  Whether you have a question about our products, pricing, or wellness goals, our team at <span className="text-blue-600 font-bold">Wellness Fuel</span> is ready to assist you.
                 </p>
               </div>
 
-              <div className="grid gap-8">
-                {/* Info Cards */}
-                <div className="flex items-start gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
-                  <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+              <div className="grid gap-6">
+                {/* Official Info Cards */}
+                <div className="group flex items-start gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                  <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
                     <MapPin className="w-6 h-6" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-2">
-                      Visit Us
+                  <div className="space-y-3">
+                    <h3 className="font-bold text-xl text-slate-900 dark:text-white">
+                      Registered Office
                     </h3>
-                    <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                      <p className="font-medium">
-                        Wellness Nutraceuticals Private Limited
-                      </p>
-                      <p>Wellness | Home-1, Block A1, Tiril,</p>
-                      <p>Vipul World, Sohna Road,</p>
-                      <p>Gurugram, Haryana, 122018, India</p>
+                    <div className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+                      <p className="font-bold text-slate-800 dark:text-slate-200">Wellness Fuel Private Limited</p>
+                      <p>304, 3rd Floor, Procapitus Business Park,</p>
+                      <p>D-247, 4A, D Block, Sector 63,</p>
+                      <p>Noida, Uttar Pradesh – 201309, India</p>
+                    </div>
+                    <div className="pt-2 flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold bg-slate-50 dark:bg-slate-800 p-2 px-3 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 w-fit">
+                      <Ticket className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm">GSTIN: 09AAECW2566L1ZS</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
-                  <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-2">
-                      Email Us
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm mb-1">
-                      Drop us a line anytime at
-                    </p>
-                    <a
-                      href="mailto:info@nutra-zen.com"
-                      className="text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      info@nutra-zen.com
-                    </a>
-                  </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <a
+                    href="mailto:dr.ritesh@wellnessfuel.in"
+                    className="group flex flex-col items-center gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all duration-300 hover:-translate-y-1 text-center"
+                  >
+                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                      <Mail className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white mb-1">Email Us</h3>
+                      <p className="text-blue-600 font-medium group-hover:underline decoration-2 underline-offset-4">dr.ritesh@wellnessfuel.in</p>
+                    </div>
+                  </a>
+
+                  <a
+                    href="tel:+919667766523"
+                    className="group flex flex-col items-center gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all duration-300 hover:-translate-y-1 text-center"
+                  >
+                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                      <Phone className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white mb-1">Call Us</h3>
+                      <p className="text-blue-600 font-medium group-hover:underline decoration-2 underline-offset-4">+91 9667766523</p>
+                    </div>
+                  </a>
                 </div>
 
-                <div className="flex items-start gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow">
-                  <div className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">
-                    <Phone className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-2">
-                      Call Us
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm mb-1">
-                      Mon-Fri from 9am to 6pm
-                    </p>
-                    <a
-                      href="tel:01140848448"
-                      className="text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      011-408-48448
-                    </a>
-                  </div>
-                </div>
+                <a
+                  href="https://www.wellnessfuel.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-center gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                >
+                  <Globe className="w-6 h-6 text-slate-400 group-hover:text-blue-600 transition-all" />
+                  <span className="text-slate-700 dark:text-slate-300 font-bold group-hover:text-blue-700">www.wellnessfuel.in</span>
+                </a>
               </div>
             </motion.div>
 
@@ -202,16 +226,15 @@ const Contact = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8 md:p-10 relative overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-blue-500/5 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8 md:p-10 relative overflow-hidden"
             >
-              {/* Decorative blob */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
               <div className="mb-8">
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                   Send us a message
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400 mt-2">
+                <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
                   We&apos;ll get back to you within 24 hours.
                 </p>
               </div>
@@ -219,7 +242,7 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       Full Name
                     </label>
                     <input
@@ -234,7 +257,7 @@ const Contact = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       Email Address
                     </label>
                     <input
@@ -251,7 +274,7 @@ const Contact = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                     Phone Number
                   </label>
                   <input
@@ -261,12 +284,12 @@ const Contact = () => {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 9667766523"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                     Message
                   </label>
                   <textarea
@@ -276,7 +299,7 @@ const Contact = () => {
                     required
                     disabled={isLoading}
                     rows={5}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none shadow-inner"
                     placeholder="How can we help you?"
                   />
                 </div>
@@ -284,16 +307,16 @@ const Contact = () => {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 hover:-translate-y-0.5"
+                  className="w-full h-14 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white font-bold text-lg shadow-xl shadow-blue-500/20 transition-all hover:shadow-blue-500/40 hover:-translate-y-1"
                 >
                   {isLoading ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                    <span className="inline-flex items-center gap-3">
+                      <Loader2 className="w-6 h-6 animate-spin" />
                       Sending Message...
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-2">
-                      <Send className="w-5 h-5" />
+                    <span className="inline-flex items-center gap-3">
+                      <Send className="w-6 h-6" />
                       Send Message
                     </span>
                   )}

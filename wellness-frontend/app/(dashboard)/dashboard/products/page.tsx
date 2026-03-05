@@ -219,6 +219,32 @@ const ProductsPage = () => {
     with: "",
   });
 
+  const resetAddForm = () => {
+    setNewProduct({
+      name: "",
+      slug: "",
+      category: "",
+      price: { amount: "", currency: "INR", mrp: "" },
+      stockQuantity: "",
+      shortDescription: "",
+      description: "",
+      longDescription: "",
+      weightSize: { value: "", unit: "g" },
+      expiryDate: "",
+      ingredients: "",
+      benefits: "",
+      dosageInstructions: "",
+      manufacturer: "",
+      images: "",
+      metaTitle: "",
+      metaDescription: "",
+      for: "",
+      with: "",
+    });
+    setProductImages([]);
+    setUrlInput("");
+  };
+
   // Fetch data on component mount or filter/pagination change
   useEffect(() => {
     dispatch(fetchProductsData());
@@ -226,6 +252,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     if (searchParams?.get("action") === "add") {
+      resetAddForm();
       setShowAddModal(true);
     }
   }, [searchParams]);
@@ -300,33 +327,29 @@ const ProductsPage = () => {
       )) as unknown as boolean;
       if (success) {
         setShowAddModal(false);
-        setNewProduct({
-          name: "",
-          slug: "",
-          category: "",
-          price: { amount: "", currency: "INR", mrp: "" },
-          stockQuantity: "",
-          shortDescription: "",
-          description: "",
-          longDescription: "",
-          weightSize: { value: "", unit: "g" },
-          expiryDate: "",
-          ingredients: "",
-          benefits: "",
-          dosageInstructions: "",
-          manufacturer: "",
-          images: "",
-          metaTitle: "",
-          metaDescription: "",
-          for: "",
-          with: "",
-        });
-        setProductImages([]);
-        setUrlInput("");
+        resetAddForm();
         dispatch(fetchProductsData());
+        Swal.fire({
+          title: "Success!",
+          text: "Product added successfully",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to add product. Please check the fields and try again.",
+          icon: "error",
+        });
       }
     } catch (error) {
       console.error("Error creating product:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "An unexpected error occurred while adding the product.",
+        icon: "error",
+      });
     }
   };
 
@@ -430,10 +453,10 @@ const ProductsPage = () => {
   const openEditModal = (product: Product) => {
     const productWithImages: ProductWithImages = {
       ...product,
-      productImages: product.images.map((img, index) => ({
+      productImages: (product.images || []).map((img, index) => ({
         id: `img-${index}`,
         url: img,
-        alt: product.name,
+        alt: product.name || "",
         caption: "",
       })),
     };
@@ -441,33 +464,33 @@ const ProductsPage = () => {
     setProductImages(productWithImages.productImages || []);
 
     setNewProduct({
-      name: product.name,
+      name: product.name || "",
       slug: product.slug || "",
-      category: product.category,
+      category: product.category || "",
       price: {
-        amount: product.price.amount.toString(),
-        currency: product.price.currency,
-        mrp: product.price.mrp?.toString() || "",
+        amount: product.price?.amount?.toString() || "",
+        currency: product.price?.currency || "INR",
+        mrp: product.price?.mrp?.toString() || "",
       },
-      stockQuantity: product.stockQuantity.toString(),
-      shortDescription: product.shortDescription,
+      stockQuantity: product.stockQuantity?.toString() || "0",
+      shortDescription: product.shortDescription || "",
       description: product.description || "",
-      longDescription: product.longDescription,
+      longDescription: product.longDescription || "",
       weightSize: {
-        value: product.weightSize.value.toString(),
-        unit: product.weightSize.unit,
+        value: product?.weightSize?.value?.toString() || "",
+        unit: product?.weightSize?.unit || "g",
       },
       // Formatting date safely
       expiryDate: product.expiryDate
         ? new Date(product.expiryDate).toISOString().split("T")[0]
         : "",
-      ingredients: product.ingredients.join(", "),
-      benefits: product.benefits.join("\n"),
-      dosageInstructions: product.dosageInstructions,
-      manufacturer: product.manufacturer,
+      ingredients: Array.isArray(product.ingredients) ? product.ingredients.join(", ") : "",
+      benefits: Array.isArray(product.benefits) ? product.benefits.join("\n") : "",
+      dosageInstructions: product.dosageInstructions || "",
+      manufacturer: product.manufacturer || "",
       images:
         product.imageUrl ||
-        (product.images.length > 0 ? product.images[0] : ""),
+        (Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : ""),
       metaTitle: product.metaTitle || "",
       metaDescription: product.metaDescription || "",
       for: product.for || "",
@@ -496,7 +519,10 @@ const ProductsPage = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      onClick={() => setShowAddModal(true)}
+                      onClick={() => {
+                        resetAddForm();
+                        setShowAddModal(true);
+                      }}
                       className="gap-2"
                     >
                       <Plus className="w-4 h-4" />
@@ -764,9 +790,13 @@ const ProductsPage = () => {
                             </p>
 
                             <div className="flex items-center text-sm font-medium text-slate-600 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl mb-6 border border-slate-100 dark:border-slate-700/50">
-                              <span>Stock: <span className={`font-bold ${Number(product.stockQuantity) < 10 ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'}`}>{product.stockQuantity}</span></span>
-                              <span className="mx-2 text-slate-300">•</span>
-                              <span>{product.weightSize.value} {product.weightSize.unit}</span>
+                              <span>Stock: <span className={`font-bold ${Number(product.stockQuantity) < 10 ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'}`}>{product.stockQuantity || 0}</span></span>
+                              {product?.weightSize?.value && (
+                                <>
+                                  <span className="mx-2 text-slate-300">•</span>
+                                  <span>{product.weightSize.value} {product.weightSize.unit || ""}</span>
+                                </>
+                              )}
                             </div>
                           </div>
 

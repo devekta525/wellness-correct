@@ -46,7 +46,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [wishlistItems]);
 
-  const toggleWishlistItem = (product: WishlistItem) => {
+  const toggleWishlistItem = React.useCallback((product: WishlistItem) => {
     setWishlistItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
@@ -57,18 +57,23 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         return [...prevItems, product];
       }
     });
-  };
+  }, []);
 
-  const isInWishlist = (productId: string) => {
+  const isInWishlist = React.useCallback((productId: string) => {
     return wishlistItems.some((item) => item.id === productId);
-  };
+  }, [wishlistItems]);
 
   const wishlistCount = wishlistItems.length;
 
+  const value = React.useMemo(() => ({
+    wishlistItems,
+    toggleWishlistItem,
+    isInWishlist,
+    wishlistCount,
+  }), [wishlistItems, toggleWishlistItem, isInWishlist, wishlistCount]);
+
   return (
-    <WishlistContext.Provider
-      value={{ wishlistItems, toggleWishlistItem, isInWishlist, wishlistCount }}
-    >
+    <WishlistContext.Provider value={value}>
       {children}
     </WishlistContext.Provider>
   );

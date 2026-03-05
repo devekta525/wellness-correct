@@ -11,10 +11,12 @@ import {
   X,
   ChevronDown,
   LogOut,
+  Heart,
 } from "lucide-react";
 import logo from "../public/logo.jpeg";
 import { useRouter } from "next/navigation";
 import { clearAuthData } from "@/lib/utils/auth";
+import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { logout as reduxLogout } from "@/lib/redux/features/authSlice";
 
@@ -22,6 +24,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   { label: "Shop", href: "/shop" },
+  { label: "Blogs", href: "/blogs" },
   { label: "Science", href: "/science" },
   { label: "Contact", href: "/contact" },
 ];
@@ -29,11 +32,12 @@ const navLinks = [
 export default function Navbar() {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const cartCount = useSelector((state) => state.cart.totalQuantity);
+  const wishlistCount = useSelector((state) => state.wishlist?.totalQuantity || 0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [cartCount] = useState(2);
   const [isClient, setIsClient] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -59,11 +63,10 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "bg-white/96 backdrop-blur-xl shadow-lg shadow-blue-50/60 border-b border-blue-50"
-            : "bg-white/80 backdrop-blur-md"
-        }`}
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${isScrolled
+          ? "bg-white/96 backdrop-blur-xl shadow-lg shadow-blue-50/60 border-b border-blue-50"
+          : "bg-white/80 backdrop-blur-md"
+          }`}
       >
         {/* Top announcement bar */}
         <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-600 text-white text-[11px] font-medium text-center py-2 tracking-wide">
@@ -174,6 +177,20 @@ export default function Navbar() {
                 </div>
               )}
 
+              {/* Wishlist */}
+              <Link
+                href="/wishlist"
+                aria-label="Wishlist"
+                className="relative p-2.5 rounded-xl text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+              >
+                <Heart className="w-[18px] h-[18px]" />
+                {isClient && wishlistCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-br from-red-500 to-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Cart */}
               <Link
                 href="/cart"
@@ -181,7 +198,7 @@ export default function Navbar() {
                 className="relative p-2.5 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
               >
                 <ShoppingCart className="w-[18px] h-[18px]" />
-                {cartCount > 0 && (
+                {isClient && cartCount > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
@@ -214,9 +231,8 @@ export default function Navbar() {
 
         {/* ── Search bar ── */}
         <div
-          className={`overflow-hidden transition-all duration-300 ${
-            isSearchOpen ? "max-h-20 border-b border-blue-50" : "max-h-0"
-          } bg-white`}
+          className={`overflow-hidden transition-all duration-300 ${isSearchOpen ? "max-h-20 border-b border-blue-50" : "max-h-0"
+            } bg-white`}
         >
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
             <div className="flex-1 flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-2.5">
@@ -239,9 +255,8 @@ export default function Navbar() {
 
         {/* ── Mobile menu ── */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ${
-            isMobileOpen ? "max-h-96" : "max-h-0"
-          } bg-white/98 backdrop-blur-xl border-t border-blue-50`}
+          className={`md:hidden overflow-hidden transition-all duration-300 ${isMobileOpen ? "max-h-96" : "max-h-0"
+            } bg-white/98 backdrop-blur-xl border-t border-blue-50`}
         >
           <div className="px-4 py-5 space-y-1">
             {navLinks.map((link) => (

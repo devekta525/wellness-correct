@@ -273,52 +273,53 @@ const AddressTab = () => {
   };
 
   const AddressSkeleton = () => (
-    <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <div className="flex flex-col justify-between rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50 h-64">
       <div className="flex justify-between items-start">
-        <div className="space-y-2 w-full">
-          <div className="h-5 w-1/2 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
+        <div className="space-y-3 w-full">
+          <div className="h-6 w-1/2 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
           <div className="h-4 w-1/4 animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
         </div>
-        <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
+        <div className="h-8 w-20 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
       </div>
-      <div className="space-y-2 py-4">
+      <div className="space-y-3 py-6">
         <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md" />
         <div className="h-4 w-2/3 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md" />
       </div>
-      <div className="mt-auto flex gap-2 pt-2">
-        <div className="h-9 w-full animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
-        <div className="h-9 w-full animate-pulse rounded-md bg-slate-100 dark:bg-slate-800" />
+      <div className="mt-auto flex gap-3 pt-2">
+        <div className="h-10 w-full animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
+        <div className="h-10 w-full animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
       </div>
     </div>
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col items-start justify-between gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center dark:border-slate-800">
+    <div className="space-y-6 md:space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
         <div>
-          <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-            <MapPin className="h-6 w-6 text-primary" />
+          <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+            <MapPin className="h-7 w-7 text-indigo-500" />
             Saved Addresses
           </h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Manage your delivery locations for a faster checkout experience.
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-medium max-w-lg leading-relaxed">
+            Manage your delivery locations for a faster checkout experience. Set a default address to save time during checkout.
           </p>
         </div>
         <Button
           onClick={() => setShowAddDialog(true)}
-          className="gap-2 rounded-full bg-primary px-6 text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/30"
+          className="w-full sm:w-auto mt-4 sm:mt-0 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl shadow-lg shadow-indigo-500/25 px-6 py-5 sm:py-6 text-sm font-bold transition-all hover:scale-105"
           disabled={loading}
         >
-          <Plus className="w-4 h-4" />
-          Add New
+          <Plus className="w-5 h-5 mr-2" />
+          Add New Address
         </Button>
       </div>
 
       {/* Error State */}
       {error && !loading && displayAddresses.length === 0 && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/10">
-          <p className="flex items-center justify-center gap-2 font-medium text-red-600 dark:text-red-400">
-            <X className="h-4 w-4" /> {error}
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center dark:border-red-900/30 dark:bg-red-900/10 shadow-sm">
+          <p className="flex items-center justify-center gap-2 font-semibold text-red-600 dark:text-red-400 text-sm">
+            <X className="h-5 w-5" /> {error}
           </p>
         </div>
       )}
@@ -336,119 +337,129 @@ const AddressTab = () => {
       {!loading && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {displayAddresses.map((address: AddressItem, index: number) => (
-            <Card
+            <div
               key={address._id || index}
-              className={`group relative flex flex-col justify-between overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${address.isDefault
-                  ? "border-primary/40 bg-primary/5 shadow-md"
-                  : "border-slate-200 bg-white hover:border-primary/30 dark:border-slate-800 dark:bg-slate-950"
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${address.isDefault
+                  ? "border-indigo-200/60 bg-white shadow-md dark:border-indigo-500/20 dark:bg-slate-800/80"
+                  : "border-slate-200/60 bg-white shadow-sm dark:border-slate-700/60 dark:bg-slate-800/80"
                 }`}
             >
+              {/* Default Badge absolute positioning */}
               {address.isDefault && (
-                <div className="absolute top-0 right-0 z-20 flex items-center gap-1 rounded-bl-xl bg-primary px-3 py-1 text-[10px] font-bold text-primary-foreground shadow-sm">
-                  <Star className="h-3 w-3 fill-current text-yellow-300" />
+                <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-3.5 py-1.5 text-[10px] font-bold text-white shadow-md shadow-orange-500/20">
+                  <Star className="h-3.5 w-3.5 fill-current text-white" />
                   DEFAULT
                 </div>
               )}
 
-              <CardContent className="flex h-full flex-col p-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-start gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="line-clamp-1 text-lg font-bold text-slate-900 dark:text-slate-100">
-                          {address.name}
-                        </h3>
-                        <Badge
-                          variant="secondary"
-                          className={`h-5 border-0 px-2 py-0 text-[10px] font-medium ${address.addressType === "Home"
-                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                              : address.addressType === "Work"
-                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                                : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                            }`}
-                        >
-                          {getAddressTypeIcon(address.addressType)}
-                          {address.addressType}
-                        </Badge>
-                      </div>
-                      <p className="mt-1 flex items-center gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
-                        <Phone className="h-3 w-3" />
-                        {address.phone}
-                      </p>
+              {/* Card Header Gradient Background */}
+              <div className={`p-6 pb-5 ${address.isDefault ? 'bg-indigo-50/50 dark:bg-indigo-500/5' : 'bg-slate-50/50 dark:bg-slate-900/50'} border-b border-slate-100 dark:border-slate-700/50 relative overflow-hidden`}>
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="flex-1 pr-20">
+                    <div className="flex items-center gap-3 mb-2.5">
+                      <Badge
+                        variant="secondary"
+                        className={`h-7 px-3 py-1 text-[11px] font-bold tracking-wide uppercase shadow-sm border ${address.addressType === "Home"
+                            ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50"
+                            : address.addressType === "Work"
+                              ? "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800/50"
+                              : "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
+                          }`}
+                      >
+                        {getAddressTypeIcon(address.addressType)}
+                        {address.addressType}
+                      </Badge>
                     </div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight truncate">
+                      {address.name}
+                    </h3>
+                    <p className="mt-1.5 flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                      <Phone className="h-3.5 w-3.5 text-indigo-400" />
+                      {address.phone}
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                <div className="mb-6 mt-4 flex-grow">
-                  <p className="line-clamp-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                    {address.address}
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
-                    {address.city}, {address.state} - {address.pinCode}
-                  </p>
-                  {address.landMark && (
-                    <p className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                      <Building2 className="h-3 w-3" />
-                      Near {address.landMark}
+              {/* Address Content */}
+              <div className="flex flex-col flex-1 p-6">
+                <div className="mb-6 flex-grow space-y-3">
+                  <div className="flex items-start gap-3 text-slate-700 dark:text-slate-300">
+                    <MapPin className="h-4 w-4 mt-0.5 text-indigo-400 shrink-0" />
+                    <p className="line-clamp-2 text-sm leading-relaxed font-medium">
+                      {address.address}
                     </p>
+                  </div>
+                  <div className="flex items-start gap-3 text-slate-900 dark:text-slate-100">
+                    <div className="h-4 w-4 shrink-0" />
+                    <p className="text-sm font-bold">
+                      {address.city}, {address.state} - {address.pinCode}
+                    </p>
+                  </div>
+                  {address.landMark && (
+                    <div className="flex items-start gap-3 text-slate-500 dark:text-slate-400 mt-2">
+                      <Building2 className="h-4 w-4 mt-0.5 text-indigo-400/70 shrink-0" />
+                      <p className="text-sm font-medium italic">
+                        Near {address.landMark}
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 {/* Actions */}
-                <div className="mt-auto flex items-center gap-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+                <div className="mt-auto flex flex-col sm:flex-row items-center gap-3 sm:gap-2">
                   {(!address.isDefault && address._id) && (
                     <Button
-                      size="sm"
                       variant="outline"
                       onClick={() => handleSetDefault(address._id)}
-                      className="h-9 flex-1 border-slate-200 text-xs transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
+                      className="w-full sm:w-auto h-12 flex-1 rounded-xl font-bold border-indigo-200 text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white hover:border-transparent dark:border-indigo-800 dark:text-indigo-400 transition-all shadow-sm text-sm"
                     >
+                      <Check className="h-4 w-4 mr-2" />
                       Set Default
                     </Button>
                   )}
 
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditAddress(address)}
-                    className={`h-9 gap-1.5 border-slate-200 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 ${!address.isDefault ? "w-auto px-3" : "flex-1"
-                      }`}
-                  >
-                    <Edit2 className="h-3.5 w-3.5 text-slate-500" />
-                    Edit
-                  </Button>
-
-                  {address._id && (
+                  <div className={`flex items-center gap-2 w-full ${!address.isDefault ? 'sm:w-auto' : ''}`}>
                     <Button
-                      size="sm"
                       variant="outline"
-                      onClick={() => handleDeleteAddress(address._id)}
-                      className="h-9 w-9 border-slate-200 p-0 text-red-500 hover:border-red-200 hover:bg-red-50 dark:hover:border-red-900 dark:hover:bg-red-950/20"
+                      onClick={() => handleEditAddress(address)}
+                      className={`h-12 rounded-xl font-bold border-2 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors ${!address.isDefault ? "flex-1 px-5" : "flex-1 w-full"}`}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Edit
                     </Button>
-                  )}
+
+                    {address._id && (
+                      <Button
+                        variant="outline"
+                        onClick={() => handleDeleteAddress(address._id)}
+                        className="h-12 w-12 shrink-0 rounded-xl border-2 border-red-100 bg-white p-0 text-red-500 hover:border-red-200 hover:bg-red-50 dark:border-red-900/30 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
 
           {displayAddresses.length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 px-4 py-20 text-center dark:border-slate-700 dark:bg-slate-900/20">
-              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-                <MapPin className="h-10 w-10 text-slate-400 dark:text-slate-500" />
+            <div className="col-span-full flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-8 py-24 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900/50">
+              <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-indigo-50 shadow-inner dark:bg-indigo-900/20">
+                <MapPin className="h-10 w-10 text-indigo-500" />
               </div>
-              <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100">
+              <h3 className="mb-3 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
                 No Addresses Saved
               </h3>
-              <p className="max-w-sm text-slate-500 dark:text-slate-400 mb-8">
+              <p className="max-w-sm text-base text-slate-500 dark:text-slate-400 leading-relaxed font-medium mb-8">
                 You haven't added any delivery addresses yet. Add one now to speed up your checkout process.
               </p>
               <Button
                 onClick={() => setShowAddDialog(true)}
-                className="gap-2 rounded-full px-8 shadow-lg shadow-primary/20"
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full px-8 py-6 font-bold shadow-lg shadow-indigo-500/30 transition-all hover:scale-105"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5 mr-2" />
                 Add First Address
               </Button>
             </div>

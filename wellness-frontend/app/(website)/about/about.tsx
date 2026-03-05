@@ -849,7 +849,7 @@ const AboutPage: React.FC = () => {
                       Email Us
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400">
-                      hello@wellnessfuel.com
+                      dr.ritesh@wellnessfuel.in
                     </p>
                   </div>
                 </div>
@@ -863,7 +863,7 @@ const AboutPage: React.FC = () => {
                       Call Us
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400">
-                      +1 (555) 123-4567
+                      +91 9667766523
                     </p>
                   </div>
                 </div>
@@ -877,7 +877,7 @@ const AboutPage: React.FC = () => {
                       Visit Us
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400">
-                      123 Wellness Street, Health City, HC 12345
+                      304, 3rd Floor, Procapitus Business Park, Sector 63, Noida, UP – 201309
                     </p>
                   </div>
                 </div>

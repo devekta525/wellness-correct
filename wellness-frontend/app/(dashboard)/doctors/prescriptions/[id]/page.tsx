@@ -126,7 +126,7 @@ const PrescriptionDetailPage = () => {
             </div>
             <div className="text-sm text-muted-foreground space-y-1">
               <p>123 Medical Street, Health City, HC 12345</p>
-              <p>Phone: +91 98765 43210 | Email: info@wellnessfuel.com</p>
+              <p>Phone: +91 9667766523 | Email: dr.ritesh@wellnessfuel.in</p>
               <p>License No: MH-MED-2024-001</p>
             </div>
           </CardHeader>

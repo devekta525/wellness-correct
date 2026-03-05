@@ -70,6 +70,11 @@ app.use((err, req, res, next) => {
     next(err);
 });
 
+app.use((req, res, next) => {
+    console.log(new Date().toISOString(), ':: Request for :', req.url)
+    next();
+})
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/v1/blogs", blogRoute);

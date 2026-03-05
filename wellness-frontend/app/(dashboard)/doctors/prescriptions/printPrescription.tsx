@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { 
+import {
   Printer,
   ArrowLeft,
   FileText,
@@ -168,7 +168,7 @@ const PrintPrescription = () => {
             </div>
             <div className="text-sm text-muted-foreground space-y-1">
               <p>123 Medical Street, Health City, HC 12345</p>
-              <p>Phone: +91 98765 43210 | Email: info@wellnessfuel.com</p>
+              <p>Phone: +91 9667766523 | Email: dr.ritesh@wellnessfuel.in</p>
               <p>License No: MH-MED-2024-001</p>
             </div>
           </CardHeader>
@@ -320,8 +320,8 @@ const PrintPrescription = () => {
                 {/* Disclaimer */}
                 <div className="text-xs text-muted-foreground text-center border-t border-border pt-4 mt-6">
                   <p>
-                    <strong>Disclaimer:</strong> This prescription is valid for 30 days from the date of issue. 
-                    Please consult your doctor before making any changes to the medication. 
+                    <strong>Disclaimer:</strong> This prescription is valid for 30 days from the date of issue.
+                    Please consult your doctor before making any changes to the medication.
                     In case of any adverse reactions, contact your doctor immediately.
                   </p>
                 </div>

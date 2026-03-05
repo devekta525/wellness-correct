@@ -8,8 +8,10 @@ import { ChevronRight, ShoppingBag, Star, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/formatters";
-import { useCart } from "@/lib/context/CartContext";
-import { useWishlist } from "@/lib/context/wishlistContext";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "@/lib/redux/features/cartSlice";
+import { toggleWishlist } from "@/lib/redux/features/wishlistSlice";
+import { RootState } from "@/lib/redux/store";
 import Swal from "sweetalert2";
 
 interface Product {
@@ -25,8 +27,9 @@ interface Product {
 
 const FeaturedCollectionSection = () => {
   const router = useRouter();
-  const { addToCart } = useCart();
-  const { toggleWishlistItem, isInWishlist } = useWishlist();
+  const dispatch = useDispatch();
+  const wishlistItems = useSelector((state: RootState) => state.wishlist?.items || []);
+  const isInWishlist = (id: string) => wishlistItems.some((item) => item.id === id);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -129,10 +132,10 @@ const FeaturedCollectionSection = () => {
           {products.map((product, index) => {
             const discount = product.price?.mrp
               ? Math.round(
-                  ((product.price.mrp - product.price.amount) /
-                    product.price.mrp) *
-                    100,
-                )
+                ((product.price.mrp - product.price.amount) /
+                  product.price.mrp) *
+                100,
+              )
               : 0;
             return (
               <motion.div
@@ -160,19 +163,17 @@ const FeaturedCollectionSection = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleWishlistItem({
+                        dispatch(toggleWishlist({
                           id: product._id,
                           name: product.name,
                           price: product.price?.amount || 0,
-                          imageUrl:
-                            product.images?.[0] || "/placeholder-product.svg",
-                        });
+                          image: product.images?.[0] || "/placeholder-product.svg",
+                        }));
                       }}
-                      className={`p-2 rounded-full shadow-sm transition-all duration-300 ${
-                        isInWishlist(product._id)
-                          ? "bg-red-50 text-red-500 hover:bg-red-100"
-                          : "bg-white/80 dark:bg-slate-800/80 text-slate-400 hover:text-red-500 hover:bg-white"
-                      }`}
+                      className={`p-2 rounded-full shadow-sm transition-all duration-300 ${isInWishlist(product._id)
+                        ? "bg-red-50 text-red-500 hover:bg-red-100"
+                        : "bg-white/80 dark:bg-slate-800/80 text-slate-400 hover:text-red-500 hover:bg-white"
+                        }`}
                     >
                       <Heart
                         className={`w-5 h-5 ${isInWishlist(product._id) ? "fill-current" : ""}`}
@@ -208,13 +209,15 @@ const FeaturedCollectionSection = () => {
                       <Button
                         onClick={(e) => {
                           e.stopPropagation();
-                          addToCart({
-                            id: product._id,
-                            name: product.name,
-                            price: product.price?.amount || 0,
-                            image:
-                              product.images?.[0] || "/placeholder-product.svg",
-                          });
+                          dispatch(
+                            addToCart({
+                              id: product._id,
+                              name: product.name,
+                              price: product.price?.amount || 0,
+                              image:
+                                product.images?.[0] || "/placeholder-product.svg",
+                            })
+                          );
                           Swal.fire({
                             title: "Added to Cart!",
                             text: `${product.name} has been added to your cart.`,

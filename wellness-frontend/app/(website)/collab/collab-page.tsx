@@ -6,14 +6,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ChevronDown, SlidersHorizontal, ShoppingCart, Filter, X, Star, Sparkles, Heart } from "lucide-react";
+import {
+  ChevronDown,
+  SlidersHorizontal,
+  ShoppingCart,
+  Filter,
+  X,
+  Star,
+  Sparkles,
+  Heart,
+} from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image1 from "../../../public/1.jpg";
 import { formatPrice } from "@/lib/formatters";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
-import { useCart } from "@/lib/context/CartContext";
 
 interface Product {
   _id: string;
@@ -46,13 +54,26 @@ const Hero = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-50/50 via-transparent to-transparent dark:from-indigo-900/20" />
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          animate={{ y: [0, -20, 0], scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3] }}
+          animate={{
+            y: [0, -20, 0],
+            scale: [1, 1.05, 1],
+            opacity: [0.3, 0.4, 0.3],
+          }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -top-[20%] -right-[10%] w-[800px] h-[800px] bg-blue-100/50 dark:bg-blue-900/10 rounded-full blur-3xl"
         />
         <motion.div
-          animate={{ y: [0, 20, 0], scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          animate={{
+            y: [0, 20, 0],
+            scale: [1, 1.1, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
           className="absolute top-[30%] -left-[10%] w-[600px] h-[600px] bg-indigo-100/50 dark:bg-indigo-900/10 rounded-full blur-3xl"
         />
       </div>
@@ -71,15 +92,27 @@ const Hero = () => {
               <span>Premium Wellness Collection</span>
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1] mb-8">
-              Built by <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Science.</span>
+              Built by{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                Science.
+              </span>
               <br />
-              Tested by <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">You.</span>
+              Tested by{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                You.
+              </span>
             </h1>
             <p className="max-w-xl mx-auto lg:mx-0 text-lg text-slate-600 dark:text-slate-300 mb-10">
-              From cellular repair to gut balance. The 4-step foundation of daily longevity, crafted with the purest ingredients and backed by rigorous testing.
+              From cellular repair to gut balance. The 4-step foundation of
+              daily longevity, crafted with the purest ingredients and backed by
+              rigorous testing.
             </p>
             <Button
-              onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() =>
+                document
+                  .getElementById("product-grid")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
               className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-lg px-10 py-7 rounded-full shadow-xl shadow-slate-900/10 dark:shadow-white/5 transition-all hover:-translate-y-1 hover:scale-105"
             >
               Explore Our Products
@@ -119,17 +152,20 @@ const ProductGrid = () => {
   const [inStockOnly, setInStockOnly] = useState(false);
   const ABSOLUTE_MIN_PRICE = 0;
   const ABSOLUTE_MAX_PRICE = 10000;
-  const [priceRange, setPriceRange] = useState({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE });
+  const [priceRange, setPriceRange] = useState({
+    min: ABSOLUTE_MIN_PRICE,
+    max: ABSOLUTE_MAX_PRICE,
+  });
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { addToCart, cartItems } = useCart();
   const router = useRouter(); // Keep for potential future use (e.g., go to cart)
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   const addToWishlist = async (productId: string) => {
     try {
-      const token = localStorage.getItem("authToken") || localStorage.getItem("authToken");
+      const token =
+        localStorage.getItem("authToken") || localStorage.getItem("authToken");
 
       if (!token) {
         Swal.fire("Login Required", "Please login first", "warning");
@@ -231,7 +267,9 @@ const ProductGrid = () => {
 
     // In stock filter
     if (inStockOnly) {
-      filtered = filtered.filter(p => p.inStock !== false && p.stockQuantity !== 0);
+      filtered = filtered.filter(
+        (p) => p.inStock !== false && p.stockQuantity !== 0,
+      );
     }
 
     // Price filter
@@ -267,12 +305,22 @@ const ProductGrid = () => {
       default:
         return filtered;
     }
-  }, [products, categoryFilter, sortBy, inStockOnly, priceRange.min, priceRange.max]);
+  }, [
+    products,
+    categoryFilter,
+    sortBy,
+    inStockOnly,
+    priceRange.min,
+    priceRange.max,
+  ]);
   const currentSortLabel = sortOptions.find((o) => o.value === sortBy)?.label;
 
   if (loading) {
     return (
-      <div id="product-grid" className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16">
+      <div
+        id="product-grid"
+        className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16"
+      >
         <div className="h-10 bg-slate-100 dark:bg-slate-800 rounded-lg w-64 animate-pulse mb-3" />
         <div className="h-1.5 w-24 bg-slate-100 dark:bg-slate-800 rounded-full animate-pulse mb-8" />
         <div className="flex justify-between items-center mb-8 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -285,7 +333,12 @@ const ProductGrid = () => {
               <div key={i} className="space-y-4">
                 <div className="h-6 w-3/4 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
                 <div className="space-y-2">
-                  {[...Array(4)].map((_, j) => <div key={j} className="h-5 w-full bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />)}
+                  {[...Array(4)].map((_, j) => (
+                    <div
+                      key={j}
+                      className="h-5 w-full bg-slate-100 dark:bg-slate-800 rounded animate-pulse"
+                    />
+                  ))}
                 </div>
               </div>
             ))}
@@ -313,7 +366,10 @@ const ProductGrid = () => {
     );
   }
   return (
-    <div id="product-grid" className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16">
+    <div
+      id="product-grid"
+      className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 py-16"
+    >
       {/* Category Title */}
       <div className="mb-8">
         <h2 className="text-3xl md:text-4xl font-extrabold text-[#113A46] dark:text-white tracking-tight mb-4">
@@ -342,26 +398,54 @@ const ProductGrid = () => {
               className="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-slate-900 z-50 lg:hidden shadow-2xl p-6 overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Filters</h3>
-                <button onClick={() => setShowMobileFilters(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Filters
+                </h3>
+                <button
+                  onClick={() => setShowMobileFilters(false)}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="space-y-8">
                 {categoryFilter && (
-                  <Button variant="outline" className="w-full" onClick={() => { handleCategoryChange(null); setShowMobileFilters(false); }}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      handleCategoryChange(null);
+                      setShowMobileFilters(false);
+                    }}
+                  >
                     Clear Filters
                   </Button>
                 )}
                 <div>
-                  <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Categories</h4>
+                  <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
+                    Categories
+                  </h4>
                   <ul className="space-y-2">
                     <li>
-                      <button onClick={() => { handleCategoryChange(null); setShowMobileFilters(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!categoryFilter ? 'bg-blue-50 text-blue-700 font-medium dark:bg-blue-900/30 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>All Products</button>
+                      <button
+                        onClick={() => {
+                          handleCategoryChange(null);
+                          setShowMobileFilters(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!categoryFilter ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-900/30 dark:text-blue-300" : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
+                      >
+                        All Products
+                      </button>
                     </li>
                     {Object.entries(categoryNames).map(([slug, name]) => (
                       <li key={slug}>
-                        <button onClick={() => { handleCategoryChange(slug); setShowMobileFilters(false); }} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${categoryFilter === slug ? 'bg-blue-50 text-blue-700 font-medium dark:bg-blue-900/30 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                        <button
+                          onClick={() => {
+                            handleCategoryChange(slug);
+                            setShowMobileFilters(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${categoryFilter === slug ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-900/30 dark:text-blue-300" : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
+                        >
                           {name}
                         </button>
                       </li>
@@ -370,11 +454,18 @@ const ProductGrid = () => {
                 </div>
                 <div className="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-6">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-slate-700 dark:text-slate-300">In stock only</span>
-                    <Switch checked={inStockOnly} onCheckedChange={setInStockOnly} />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                      In stock only
+                    </span>
+                    <Switch
+                      checked={inStockOnly}
+                      onCheckedChange={setInStockOnly}
+                    />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4">Price Range</h4>
+                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
+                      Price Range
+                    </h4>
 
                     {/* Mobile Price Range Slider */}
                     <div className="space-y-6 pt-2">
@@ -383,48 +474,92 @@ const ProductGrid = () => {
                           className="absolute h-full bg-[#35565c] rounded-full"
                           style={{
                             left: `${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}%`,
-                            right: `${100 - (priceRange.max / ABSOLUTE_MAX_PRICE) * 100}%`
+                            right: `${100 - (priceRange.max / ABSOLUTE_MAX_PRICE) * 100}%`,
                           }}
                         />
 
                         {/* Hidden True Inputs to actuate sliding */}
                         <input
                           type="range"
-                          min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                          min={ABSOLUTE_MIN_PRICE}
+                          max={ABSOLUTE_MAX_PRICE}
+                          step="10"
                           value={priceRange.min}
-                          onChange={(e) => setPriceRange(prev => ({ ...prev, min: Math.min(Number(e.target.value), prev.max - 10) }))}
+                          onChange={(e) =>
+                            setPriceRange((prev) => ({
+                              ...prev,
+                              min: Math.min(
+                                Number(e.target.value),
+                                prev.max - 10,
+                              ),
+                            }))
+                          }
                           className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
                         />
                         <input
                           type="range"
-                          min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                          min={ABSOLUTE_MIN_PRICE}
+                          max={ABSOLUTE_MAX_PRICE}
+                          step="10"
                           value={priceRange.max}
-                          onChange={(e) => setPriceRange(prev => ({ ...prev, max: Math.max(Number(e.target.value), prev.min + 10) }))}
+                          onChange={(e) =>
+                            setPriceRange((prev) => ({
+                              ...prev,
+                              max: Math.max(
+                                Number(e.target.value),
+                                prev.min + 10,
+                              ),
+                            }))
+                          }
                           className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
                         />
 
                         {/* Visual Thumbs */}
-                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
-                        <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.max / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none"
+                          style={{
+                            left: `calc(${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}% - 8px)`,
+                          }}
+                        ></div>
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none"
+                          style={{
+                            left: `calc(${(priceRange.max / ABSOLUTE_MAX_PRICE) * 100}% - 8px)`,
+                          }}
+                        ></div>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <div className="relative flex-1">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                            ₹
+                          </span>
                           <input
                             type="number"
                             value={priceRange.min}
-                            onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) || 0 }))}
+                            onChange={(e) =>
+                              setPriceRange((prev) => ({
+                                ...prev,
+                                min: Number(e.target.value) || 0,
+                              }))
+                            }
                             className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white"
                           />
                         </div>
                         <span className="text-slate-400 text-sm">to</span>
                         <div className="relative flex-1">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                            ₹
+                          </span>
                           <input
                             type="number"
                             value={priceRange.max}
-                            onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) || 0 }))}
+                            onChange={(e) =>
+                              setPriceRange((prev) => ({
+                                ...prev,
+                                max: Number(e.target.value) || 0,
+                              }))
+                            }
                             className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white"
                           />
                         </div>
@@ -448,8 +583,14 @@ const ProductGrid = () => {
 
           <div className="border-t border-slate-200 dark:border-slate-800 py-6">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-slate-800 dark:text-slate-200">In stock only</span>
-              <Switch checked={inStockOnly} onCheckedChange={setInStockOnly} className="data-[state=checked]:bg-[#127a6f]" />
+              <span className="font-bold text-slate-800 dark:text-slate-200">
+                In stock only
+              </span>
+              <Switch
+                checked={inStockOnly}
+                onCheckedChange={setInStockOnly}
+                className="data-[state=checked]:bg-[#127a6f]"
+              />
             </div>
           </div>
 
@@ -466,47 +607,85 @@ const ProductGrid = () => {
                   className="absolute h-full bg-[#35565c] rounded-full"
                   style={{
                     left: `${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}%`,
-                    right: `${100 - (priceRange.max / ABSOLUTE_MAX_PRICE) * 100}%`
+                    right: `${100 - (priceRange.max / ABSOLUTE_MAX_PRICE) * 100}%`,
                   }}
                 />
 
                 {/* Hidden True Inputs to actuate sliding */}
                 <input
                   type="range"
-                  min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                  min={ABSOLUTE_MIN_PRICE}
+                  max={ABSOLUTE_MAX_PRICE}
+                  step="10"
                   value={priceRange.min}
-                  onChange={(e) => setPriceRange(prev => ({ ...prev, min: Math.min(Number(e.target.value), prev.max - 10) }))}
+                  onChange={(e) =>
+                    setPriceRange((prev) => ({
+                      ...prev,
+                      min: Math.min(Number(e.target.value), prev.max - 10),
+                    }))
+                  }
                   className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
                 />
                 <input
                   type="range"
-                  min={ABSOLUTE_MIN_PRICE} max={ABSOLUTE_MAX_PRICE} step="10"
+                  min={ABSOLUTE_MIN_PRICE}
+                  max={ABSOLUTE_MAX_PRICE}
+                  step="10"
                   value={priceRange.max}
-                  onChange={(e) => setPriceRange(prev => ({ ...prev, max: Math.max(Number(e.target.value), prev.min + 10) }))}
+                  onChange={(e) =>
+                    setPriceRange((prev) => ({
+                      ...prev,
+                      max: Math.max(Number(e.target.value), prev.min + 10),
+                    }))
+                  }
                   className="absolute appearance-none w-full -top-2 h-4 opacity-0 cursor-pointer pointer-events-none z-30 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6"
                 />
 
                 {/* Visual Thumbs */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none" style={{ left: `calc(${(priceRange.max / ABSOLUTE_MAX_PRICE) * 100}% - 8px)` }}></div>
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none"
+                  style={{
+                    left: `calc(${(priceRange.min / ABSOLUTE_MAX_PRICE) * 100}% - 8px)`,
+                  }}
+                ></div>
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-[#35565c] rounded-full shadow pointer-events-none"
+                  style={{
+                    left: `calc(${(priceRange.max / ABSOLUTE_MAX_PRICE) * 100}% - 8px)`,
+                  }}
+                ></div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                    ₹
+                  </span>
                   <input
                     type="number"
                     value={priceRange.min}
-                    onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setPriceRange((prev) => ({
+                        ...prev,
+                        min: Number(e.target.value) || 0,
+                      }))
+                    }
                     className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-1 focus:ring-[#35565c]"
                   />
                 </div>
                 <span className="text-slate-500 text-sm">to</span>
                 <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                    ₹
+                  </span>
                   <input
                     type="number"
                     value={priceRange.max}
-                    onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setPriceRange((prev) => ({
+                        ...prev,
+                        max: Number(e.target.value) || 0,
+                      }))
+                    }
                     className="w-full pl-7 pr-2 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-1 focus:ring-[#35565c]"
                   />
                 </div>
@@ -532,27 +711,48 @@ const ProductGrid = () => {
               {inStockOnly && (
                 <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f0f4f4] dark:bg-slate-800 text-sm font-semibold text-[#113A46] dark:text-slate-300 transition-colors border border-transparent hover:border-slate-300">
                   In stock
-                  <button onClick={() => setInStockOnly(false)} className="hover:text-black dark:hover:text-white ml-0.5">
+                  <button
+                    onClick={() => setInStockOnly(false)}
+                    className="hover:text-black dark:hover:text-white ml-0.5"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 </span>
               )}
-              {(priceRange.min > ABSOLUTE_MIN_PRICE || priceRange.max < ABSOLUTE_MAX_PRICE) && (
-                <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f0f4f4] dark:bg-slate-800 text-sm font-semibold text-[#113A46] dark:text-slate-300 transition-colors border border-transparent hover:border-slate-300">
-                  Rs. {priceRange.min.toLocaleString('en-IN')} - Rs. {priceRange.max.toLocaleString('en-IN')}
-                  <button onClick={() => setPriceRange({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE })} className="hover:text-black dark:hover:text-white ml-0.5">
-                    <X className="w-4 h-4" />
+              {(priceRange.min > ABSOLUTE_MIN_PRICE ||
+                priceRange.max < ABSOLUTE_MAX_PRICE) && (
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f0f4f4] dark:bg-slate-800 text-sm font-semibold text-[#113A46] dark:text-slate-300 transition-colors border border-transparent hover:border-slate-300">
+                    Rs. {priceRange.min.toLocaleString("en-IN")} - Rs.{" "}
+                    {priceRange.max.toLocaleString("en-IN")}
+                    <button
+                      onClick={() =>
+                        setPriceRange({
+                          min: ABSOLUTE_MIN_PRICE,
+                          max: ABSOLUTE_MAX_PRICE,
+                        })
+                      }
+                      className="hover:text-black dark:hover:text-white ml-0.5"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </span>
+                )}
+              {(inStockOnly ||
+                priceRange.min > ABSOLUTE_MIN_PRICE ||
+                priceRange.max < ABSOLUTE_MAX_PRICE) && (
+                  <button
+                    onClick={() => {
+                      setInStockOnly(false);
+                      setPriceRange({
+                        min: ABSOLUTE_MIN_PRICE,
+                        max: ABSOLUTE_MAX_PRICE,
+                      });
+                    }}
+                    className="text-sm font-semibold text-[#113A46] dark:text-slate-300 hover:underline underline-offset-4 ml-3"
+                  >
+                    Clear all
                   </button>
-                </span>
-              )}
-              {(inStockOnly || priceRange.min > ABSOLUTE_MIN_PRICE || priceRange.max < ABSOLUTE_MAX_PRICE) && (
-                <button
-                  onClick={() => { setInStockOnly(false); setPriceRange({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE }); }}
-                  className="text-sm font-semibold text-[#113A46] dark:text-slate-300 hover:underline underline-offset-4 ml-3"
-                >
-                  Clear all
-                </button>
-              )}
+                )}
             </div>
 
             <div className="relative shrink-0 z-20 self-end xl:self-auto">
@@ -563,13 +763,18 @@ const ProductGrid = () => {
                   className="flex items-center gap-1 text-sm bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 px-2 py-1.5 rounded transition-colors"
                 >
                   {currentSortLabel}
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
               </div>
               {/* Dropdown Menu */}
               {isSortOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)} />
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsSortOpen(false)}
+                  />
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -579,7 +784,10 @@ const ProductGrid = () => {
                     {sortOptions.map((option) => (
                       <button
                         key={option.value}
-                        onClick={() => { setSortBy(option.value); setIsSortOpen(false); }}
+                        onClick={() => {
+                          setSortBy(option.value);
+                          setIsSortOpen(false);
+                        }}
                         className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800
                                   ${sortBy === option.value ? "font-bold text-[#127a6f]" : "text-slate-600 dark:text-slate-400"}`}
                       >
@@ -602,9 +810,18 @@ const ProductGrid = () => {
                   0
                 </div>
               </div>
-              <h3 className="text-xl md:text-2xl font-extrabold text-[#113A46] dark:text-white mb-8 tracking-tight">No products match those filters.</h3>
+              <h3 className="text-xl md:text-2xl font-extrabold text-[#113A46] dark:text-white mb-8 tracking-tight">
+                No products match those filters.
+              </h3>
               <Button
-                onClick={() => { setInStockOnly(false); setPriceRange({ min: ABSOLUTE_MIN_PRICE, max: ABSOLUTE_MAX_PRICE }); handleCategoryChange(null); }}
+                onClick={() => {
+                  setInStockOnly(false);
+                  setPriceRange({
+                    min: ABSOLUTE_MIN_PRICE,
+                    max: ABSOLUTE_MAX_PRICE,
+                  });
+                  handleCategoryChange(null);
+                }}
                 className="bg-[#127a6f] hover:bg-[#0e635a] text-white rounded-full px-8 py-6 text-base font-bold shadow-md transition-all hover:scale-105"
               >
                 Clear all
@@ -620,9 +837,9 @@ const ProductGrid = () => {
                 show: {
                   opacity: 1,
                   transition: {
-                    staggerChildren: 0.1
-                  }
-                }
+                    staggerChildren: 0.1,
+                  },
+                },
               }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8"
             >
@@ -637,7 +854,8 @@ const ProductGrid = () => {
                     originalPrice: product.price?.mrp,
                     category: product.category,
                     description: product.shortDescription,
-                    inStock: product.inStock !== false && product.stockQuantity !== 0,
+                    inStock:
+                      product.inStock !== false && product.stockQuantity !== 0,
                     for: product.for,
                     with: product.with,
                     badge: product.badge,
@@ -649,14 +867,18 @@ const ProductGrid = () => {
                   return (
                     <motion.div
                       layout
-                      variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        show: { opacity: 1, y: 0 },
+                      }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
                       key={product._id}
+                      className="h-full"
                     >
                       <ProductCard product={formattedProduct} viewMode="grid" />
                     </motion.div>
-                  )
+                  );
                 })}
               </AnimatePresence>
             </motion.div>
@@ -668,11 +890,17 @@ const ProductGrid = () => {
 };
 
 // Main Page Component
-const CollabPage = () => {
+const CollabPage = ({ showHero = true }: { showHero?: boolean }) => {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
-      <Hero />
-      <React.Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center">Loading...</div>}>
+      {showHero && <Hero />}
+      <React.Suspense
+        fallback={
+          <div className="min-h-[50vh] flex items-center justify-center">
+            Loading...
+          </div>
+        }
+      >
         <ProductGrid />
       </React.Suspense>
     </div>
