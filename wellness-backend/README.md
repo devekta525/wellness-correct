@@ -14,7 +14,7 @@ The backend is an Express + MongoDB API that powers authentication, content, eco
 ## Project Structure
 - config/: database, file upload, and S3 helpers
 - controllers/: request handlers for each resource
-- middleWares/: auth/role middleware
+- middleware/: auth/role middleware
 - models/: Mongoose schemas
 - routes/: REST endpoints grouped by domain
 - utils/: shared helpers (tokens, email, etc.)
@@ -29,7 +29,7 @@ The backend is an Express + MongoDB API that powers authentication, content, eco
 
 ## Authentication
 - JWT is issued on login and stored in cookies (token) and can also be passed via Authorization: Bearer.
-- Middleware: `isLogin` in [backend/middleWares/isLogin.js](backend/middleWares/isLogin.js) verifies token and loads user across role collections.
+- Middleware: `isLogin` in [backend/middleware/isLogin.js](backend/middleware/isLogin.js) verifies token and loads user across role collections.
 
 ## File Uploads
 - Multer parses form data.

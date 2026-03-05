@@ -8,8 +8,8 @@ import {
     countInfluencers
 } from '../controllers/influencerController.js';
 import { upload } from '../config/s3Config.js';
-import { isLogin } from '../middleWares/isLogin.js';
-import { isAdmin } from '../middleWares/isAdmin.js';
+import { isLogin } from '../middleware/isLogin.js';
+import { isAdmin } from '../middleware/isAdmin.js';
 
 const router = Router();
 

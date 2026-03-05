@@ -4,7 +4,7 @@ import {
   deleteAllSessionsByUserId,
   deleteOneSessionByUserId
 } from '../controllers/sessionController.js';
-import { isLogin } from '../middleWares/isLogin.js';
+import { isLogin } from '../middleware/isLogin.js';
 
 const router = Router();
 

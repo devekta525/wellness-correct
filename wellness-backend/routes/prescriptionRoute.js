@@ -9,9 +9,9 @@ import {
     exportPrescriptions,
     getMyPrescriptions
 } from '../controllers/prescriptionController.js';
-import { isLogin } from '../middleWares/isLogin.js';
-import { isDoctor } from '../middleWares/isDoctor.js';
-import { isAdmin } from '../middleWares/isAdmin.js';
+import { isLogin } from '../middleware/isLogin.js';
+import { isDoctor } from '../middleware/isDoctor.js';
+import { isAdmin } from '../middleware/isAdmin.js';
 
 const router = Router();
 

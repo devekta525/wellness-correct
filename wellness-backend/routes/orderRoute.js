@@ -12,8 +12,8 @@ import {
     getUserNotifications,
 } from "../controllers/orderController.js";
 import { getAvgOrderValue } from "../controllers/avgOrderValueController.js";
-import { isLogin } from "../middleWares/isLogin.js";
-import { isAdmin } from "../middleWares/isAdmin.js";
+import { isLogin } from "../middleware/isLogin.js";
+import { isAdmin } from "../middleware/isAdmin.js";
 
 const router = Router();
 

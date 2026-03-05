@@ -2,8 +2,8 @@ import { Router } from "express";
 import { countProducts, createProduct, deleteProduct, getAllProducts, getAllProductsForPublic, getProductById, getProductBySlug, getProductsByCategory, updateProduct, updateStock } from "../controllers/productsController.js";
 import { upload } from "../config/s3Config.js";
 import formParser from "../config/formParser.js";
-import { isLogin } from "../middleWares/isLogin.js";
-import { isAdmin } from "../middleWares/isAdmin.js";
+import { isLogin } from "../middleware/isLogin.js";
+import { isAdmin } from "../middleware/isAdmin.js";
 
 const router = Router();
 

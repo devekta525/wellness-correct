@@ -5,7 +5,7 @@ import {
     deletePaymentMethod,
     setDefaultPaymentMethod
 } from '../controllers/paymentMethodController.js';
-import { isLogin } from '../middleWares/isLogin.js';
+import { isLogin } from '../middleware/isLogin.js';
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getTotalSpentAmount } from "../controllers/amountController.js";
-import { isLogin } from "../middleWares/isLogin.js";
+import { isLogin } from "../middleware/isLogin.js";
 
 const router = Router();
 

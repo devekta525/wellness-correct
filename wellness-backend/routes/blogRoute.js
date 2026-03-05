@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { createBlog, deleteBlog, getAllBlogs, getBlogById, updateBlog, getPublishedBlogs, getBlogBySlug } from "../controllers/blogController.js"
-import { isLogin } from "../middleWares/isLogin.js"
-import { isAdmin } from "../middleWares/isAdmin.js"
+import { isLogin } from "../middleware/isLogin.js"
+import { isAdmin } from "../middleware/isAdmin.js"
 
 const router = Router()
 

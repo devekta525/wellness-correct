@@ -5,8 +5,8 @@ import {
     deleteBanner,
 } from "../controllers/bannerController.js";
 import { upload } from "../config/s3Config.js";
-import { isLogin } from "../middlewares/isLogin.js";
-import { isAdmin } from "../middlewares/isAdmin.js";
+import { isLogin } from "../middleware/isLogin.js";
+import { isAdmin } from "../middleware/isAdmin.js";
 
 const router = express.Router();
 

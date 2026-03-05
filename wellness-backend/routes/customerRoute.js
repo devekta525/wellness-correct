@@ -6,9 +6,9 @@ import {
     downloadMyData,
     countCustomers
 } from '../controllers/customerController.js';
-import { isLogin } from '../middleWares/isLogin.js';
-import { isAdmin } from '../middleWares/isAdmin.js';
-import { isCustomer } from '../middleWares/isCustomer.js';
+import { isLogin } from '../middleware/isLogin.js';
+import { isAdmin } from '../middleware/isAdmin.js';
+import { isCustomer } from '../middleware/isCustomer.js';
 
 const router = Router();
 

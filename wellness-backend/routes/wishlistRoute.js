@@ -4,7 +4,7 @@ import {
   removeFromWishlist,
   getMyWishlist,
 } from "../controllers/wishlistController.js";
-import { isLogin } from "../middleWares/isLogin.js";
+import { isLogin } from "../middleware/isLogin.js";
 
 const router = express.Router();
 

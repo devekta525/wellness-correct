@@ -1,7 +1,7 @@
 import express from "express";
-import { isLogin } from "../middleWares/isLogin.js";
-import { isInfluencer } from "../middleWares/isInfluencer.js";
-import { isAdmin } from "../middleWares/isAdmin.js";
+import { isLogin } from "../middleware/isLogin.js";
+import { isInfluencer } from "../middleware/isInfluencer.js";
+import { isAdmin } from "../middleware/isAdmin.js";
 import {
   getDashboardData,
   createActivity
