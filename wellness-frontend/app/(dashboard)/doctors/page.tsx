@@ -9,8 +9,6 @@ import {
   FileText,
   Stethoscope,
   Award,
-  Activity,
-  TrendingUp,
   Plus,
   DollarSign,
   Star,
@@ -18,26 +16,16 @@ import {
   AlertCircle,
   MessageSquare,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
-// Redux Imports
+// Redux
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/lib/redux/store";
 import {
   fetchDoctorDashboard,
   selectDashboardData,
   selectDashboardLoading,
-} from "@/lib/redux/features/dashboardSlice";
-
-import {
   fetchTodaysAppointmentCount,
   selectTodaysAppointmentCount,
 } from "@/lib/redux/features/dashboardSlice";
@@ -50,34 +38,29 @@ const DoctorsDashboard = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
-  // Get Data from Redux
   const dashboardData = useSelector(selectDashboardData);
   const isLoading = useSelector(selectDashboardLoading);
-  const todaysAppointmentCountFromAPI = useSelector(
-    selectTodaysAppointmentCount,
-  );
+  const todaysAppointmentCountFromAPI = useSelector(selectTodaysAppointmentCount);
   const patientStats = useSelector(selectPatientStats);
 
-  // Fetch Data on Mount
   useEffect(() => {
     dispatch(fetchDoctorDashboard());
     dispatch(fetchTodaysAppointmentCount());
     dispatch(fetchPatientStats());
   }, [dispatch]);
 
-  // Show Loader while fetching
   if (isLoading) {
     return (
       <div className="flex h-[80vh] w-full items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          <p className="text-sm text-slate-500 font-medium">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
 
-  type DashboardStats = NonNullable<
-    ReturnType<typeof selectDashboardData>
-  >["stats"];
-
+  type DashboardStats = NonNullable<ReturnType<typeof selectDashboardData>>["stats"];
   const defaultStats: DashboardStats = {
     todayAppointments: 0,
     totalPatients: 0,
@@ -87,162 +70,126 @@ const DoctorsDashboard = () => {
     experience: "0 Years",
   };
 
-  // Handle Default/Empty Data to prevent crashes
-  const statsData: DashboardStats = {
-    ...defaultStats,
-    ...(dashboardData?.stats ?? {}),
-  };
-
-  // Use API data for todayAppointments if available
-  if (todaysAppointmentCountFromAPI !== null) {
-    statsData.todayAppointments = todaysAppointmentCountFromAPI;
-  }
-
+  const statsData: DashboardStats = { ...defaultStats, ...(dashboardData?.stats ?? {}) };
+  if (todaysAppointmentCountFromAPI !== null) statsData.todayAppointments = todaysAppointmentCountFromAPI;
   const totalPatientsFromAPI = patientStats?.totalPatients ?? null;
-  if (totalPatientsFromAPI !== null) {
-    statsData.totalPatients = totalPatientsFromAPI;
-  }
+  if (totalPatientsFromAPI !== null) statsData.totalPatients = totalPatientsFromAPI;
 
   const todaysAppointments = dashboardData?.todaysAppointments || [];
   const recentPrescriptions = dashboardData?.recentPrescriptions || [];
   const doctorName = dashboardData?.doctorName || "Doctor";
 
-  // Dynamic Stats Array based on Backend Data
+  // Stats — first 4 shown in top row (as in screenshot), then 2 below
   const stats = [
     {
       name: "Today's Appointments",
       value: statsData.todayAppointments.toString(),
       icon: Calendar,
-      change: "Today",
-      changeType: "neutral",
-      color: "blue",
+      sub: "Today",
+      subPositive: false,
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-500",
       route: "/doctors/appointments",
     },
     {
       name: "Total Patients",
       value: statsData.totalPatients.toLocaleString(),
       icon: Users,
-      change: "Active",
-      changeType: "positive",
-      color: "emerald",
+      sub: "Active",
+      subPositive: true,
+      iconBg: "bg-teal-50",
+      iconColor: "text-teal-500",
       route: "/doctors/patients",
     },
     {
       name: "Prescriptions Written",
       value: statsData.prescriptionsCount.toString(),
       icon: FileText,
-      change: "Total",
-      changeType: "neutral",
-      color: "purple",
+      sub: "Total",
+      subPositive: false,
+      iconBg: "bg-violet-50",
+      iconColor: "text-violet-500",
       route: "/doctors/prescriptions",
     },
     {
       name: "Consultation Fee",
       value: `₹${statsData.consultationFee}`,
       icon: DollarSign,
-      change: "Standard",
-      changeType: "positive",
-      color: "green",
+      sub: "Standard",
+      subPositive: true,
+      iconBg: "bg-green-50",
+      iconColor: "text-green-500",
       route: "/doctors/settings",
     },
     {
       name: "Rating",
-      value: statsData.rating.toString(),
+      value: statsData.rating ? statsData.rating.toString() : "N/A",
       icon: Star,
-      change: "Average",
-      changeType: "positive",
-      color: "yellow",
+      sub: "Average",
+      subPositive: true,
+      iconBg: "bg-amber-50",
+      iconColor: "text-amber-500",
       route: "/doctors/reviews",
     },
     {
       name: "Experience",
       value: statsData.experience,
       icon: Award,
-      change: "Total",
-      changeType: "neutral",
-      color: "indigo",
+      sub: "Total",
+      subPositive: false,
+      iconBg: "bg-indigo-50",
+      iconColor: "text-indigo-500",
       route: "/doctors/profile",
     },
   ];
 
-  // Helper for Icon Colors
-  const getColorClasses = (color: string) => {
-    const colors: Record<string, string> = {
-      blue: "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400",
-      emerald:
-        "bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400",
-      purple:
-        "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400",
-      green:
-        "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400",
-      indigo:
-        "bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400",
-      yellow:
-        "bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400",
-      red: "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400",
-    };
-    return colors[color] || colors.blue;
-  };
-
-  // Helper for Status Badge Colors
   const getStatusColor = (status: string) => {
     const s = status.toLowerCase();
-    if (s.includes("confirm") || s.includes("active"))
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-    if (s.includes("pending"))
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-    if (s.includes("urgent") || s.includes("emergency"))
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-    if (s.includes("complete"))
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
-    return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    if (s.includes("confirm") || s.includes("active")) return "bg-emerald-100 text-emerald-700";
+    if (s.includes("pending")) return "bg-amber-100 text-amber-700";
+    if (s.includes("urgent") || s.includes("emergency")) return "bg-red-100 text-red-700";
+    if (s.includes("complete")) return "bg-slate-100 text-slate-600";
+    return "bg-blue-100 text-blue-700";
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Doctor Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Welcome back, Dr. {doctorName}! Here&apos;s your medical practice
-            overview.
-          </p>
-        </div>
+
+      {/* Page Title — matches screenshot exactly */}
+      <div>
+        <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Doctor Dashboard</h1>
+        <p className="text-sm text-slate-500 mt-0.5">
+          Welcome back, Dr. {doctorName}!{" "}
+          <span className="text-blue-500 font-medium">Here&apos;s your medical practice overview.</span>
+        </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => {
+      {/* Stats Grid — 4 top + 2 bottom (matches screenshot) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.slice(0, 4).map((stat) => {
           const Icon = stat.icon;
           return (
             <Card
               key={stat.name}
-              className="hover:shadow-lg transition-shadow cursor-pointer"
+              className="border border-slate-200 bg-white shadow-none hover:shadow-sm transition-shadow cursor-pointer"
               onClick={() => router.push(stat.route)}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {stat.name}
-                    </p>
-                    <p className="text-2xl font-bold text-foreground mt-2">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500 font-medium leading-none">{stat.name}</p>
+                    <p className="text-2xl font-bold text-slate-900 mt-2 tracking-tight leading-none">
                       {stat.value}
                     </p>
-                    <div className="flex items-center mt-2">
-                      <TrendingUp className="w-4 h-4 text-green-600 mr-1" />
-                      <span className="text-sm font-medium text-gray-600">
-                        {stat.change}
-                      </span>
+                    <div className="flex items-center gap-1 mt-2">
+                      <svg className="w-3 h-3 text-emerald-500" viewBox="0 0 12 12" fill="none">
+                        <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor" />
+                      </svg>
+                      <span className="text-xs text-slate-400 font-medium">{stat.sub}</span>
                     </div>
                   </div>
-                  <div
-                    className={`p-3 rounded-lg ${getColorClasses(stat.color)}`}
-                  >
-                    <Icon className="w-6 h-6" />
+                  <div className={`w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`w-5 h-5 ${stat.iconColor}`} />
                   </div>
                 </div>
               </CardContent>
@@ -251,273 +198,123 @@ const DoctorsDashboard = () => {
         })}
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Second row — Rating + Experience */}
+      <div className="grid grid-cols-2 gap-4">
+        {stats.slice(4, 6).map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card
+              key={stat.name}
+              className="border border-slate-200 bg-white shadow-none hover:shadow-sm transition-shadow cursor-pointer"
+              onClick={() => router.push(stat.route)}
+            >
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-slate-500 font-medium leading-none">{stat.name}</p>
+                    <p className="text-2xl font-bold text-slate-900 mt-2 tracking-tight leading-none">
+                      {stat.value}
+                    </p>
+                    <div className="flex items-center gap-1 mt-2">
+                      <svg className="w-3 h-3 text-emerald-500" viewBox="0 0 12 12" fill="none">
+                        <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor" />
+                      </svg>
+                      <span className="text-xs text-slate-400 font-medium">{stat.sub}</span>
+                    </div>
+                  </div>
+                  <div className={`w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`w-5 h-5 ${stat.iconColor}`} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Bottom row: Today's Appointments + Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
         {/* Today's Appointments */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
+        <Card className="lg:col-span-2 border border-slate-200 bg-white shadow-none">
+          <CardHeader className="pb-3 border-b border-slate-100">
+            <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+              <Calendar className="w-4 h-4 text-slate-500" />
               Today&apos;s Appointments
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs text-blue-500 font-medium mt-0.5">
               Your scheduled appointments for today
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {todaysAppointments.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground">
-                  No appointments scheduled for today.
-                </div>
-              ) : (
-                todaysAppointments.map((appointment, index) => (
+          <CardContent className="p-0">
+            {todaysAppointments.length === 0 ? (
+              <div className="text-center py-10 px-6">
+                <p className="text-sm text-slate-400 font-medium">No appointments scheduled for today.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {todaysAppointments.map((appointment, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between px-5 py-3 hover:bg-slate-50 transition-colors"
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                        <Clock className="w-6 h-6 text-blue-600" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                        <Clock className="w-4 h-4 text-blue-500" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {appointment.time}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {appointment.patient}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {appointment.type} • {appointment.specialization}
-                        </p>
+                        <p className="text-sm font-semibold text-slate-900">{appointment.time}</p>
+                        <p className="text-xs text-slate-500 font-medium">{appointment.patient}</p>
+                        <p className="text-xs text-slate-400">{appointment.type}</p>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(appointment.status)}>
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${getStatusColor(appointment.status)}`}>
                       {appointment.status}
-                    </Badge>
+                    </span>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="w-5 h-5" />
+        <Card className="border border-slate-200 bg-white shadow-none">
+          <CardHeader className="pb-3 border-b border-slate-100">
+            <CardTitle className="flex items-center gap-2 text-sm font-bold text-slate-800">
+              <Plus className="w-4 h-4 text-slate-500" />
               Quick Actions
             </CardTitle>
-            <CardDescription>Common medical tasks</CardDescription>
+            <CardDescription className="text-xs text-slate-400 font-medium mt-0.5">
+              Common medical tasks
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-950"
-                onClick={() => router.push("/doctors/appointments")}
-              >
-                <Calendar className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium">Schedule</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-green-50 dark:hover:bg-green-950"
-                onClick={() => router.push("/doctors/prescriptions")}
-              >
-                <FileText className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium">Prescribe</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-purple-50 dark:hover:bg-purple-950"
-                onClick={() => router.push("/doctors/patients")}
-              >
-                <Users className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium">Patients</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-orange-50 dark:hover:bg-orange-950"
-                onClick={() => router.push("/doctors/emergency")}
-              >
-                <AlertCircle className="w-5 h-5 text-orange-600" />
-                <span className="text-sm font-medium">Emergency</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-emerald-50 dark:hover:bg-emerald-950"
-                onClick={() => router.push("/doctors/consultation")}
-              >
-                <MessageSquare className="w-5 h-5 text-emerald-600" />
-                <span className="text-sm font-medium">Consult</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-indigo-50 dark:hover:bg-indigo-950"
-                onClick={() => router.push("/doctors/settings")}
-              >
-                <Stethoscope className="w-5 h-5 text-indigo-600" />
-                <span className="text-sm font-medium">Profile</span>
-              </Button>
+              {[
+                { label: "Schedule", icon: Calendar, bg: "bg-blue-50", color: "text-blue-500", route: "/doctors/appointments" },
+                { label: "Prescribe", icon: FileText, bg: "bg-green-50", color: "text-green-500", route: "/doctors/prescriptions" },
+                { label: "Patients", icon: Users, bg: "bg-violet-50", color: "text-violet-500", route: "/doctors/patients" },
+                { label: "Emergency", icon: AlertCircle, bg: "bg-orange-50", color: "text-orange-500", route: "/doctors/emergency" },
+                { label: "Consult", icon: MessageSquare, bg: "bg-teal-50", color: "text-teal-500", route: "/doctors/consultation" },
+                { label: "Profile", icon: Stethoscope, bg: "bg-indigo-50", color: "text-indigo-500", route: "/doctors/settings" },
+              ].map((action) => (
+                <button
+                  key={action.label}
+                  onClick={() => router.push(action.route)}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
+                >
+                  <div className={`w-9 h-9 rounded-xl ${action.bg} flex items-center justify-center`}>
+                    <action.icon className={`w-4 h-4 ${action.color}`} />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-600">{action.label}</span>
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Prescriptions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Recent Prescriptions
-            </CardTitle>
-            <CardDescription>Latest medications prescribed</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentPrescriptions.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  No recent prescriptions.
-                </p>
-              ) : (
-                recentPrescriptions.map((prescription, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                        <FileText className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {prescription.patient}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {prescription.medication}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {prescription.dosage}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(prescription.date).toLocaleDateString()}
-                      </p>
-                      <Badge className={getStatusColor(prescription.status)}>
-                        {prescription.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Medical Practice Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Stethoscope className="w-5 h-5" />
-              Practice Status
-            </CardTitle>
-            <CardDescription>Your medical practice overview</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Practice Active
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      All systems operational
-                    </p>
-                  </div>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                >
-                  Online
-                </Badge>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Patient Records
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {statsData.totalPatients} active patients
-                    </p>
-                  </div>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                >
-                  Updated
-                </Badge>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Pending Appointments
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {
-                        todaysAppointments.filter((a) => a.status === "Pending")
-                          .length
-                      }{" "}
-                      appointments today
-                    </p>
-                  </div>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                >
-                  Scheduled
-                </Badge>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Medical License
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Valid until Dec 2025
-                    </p>
-                  </div>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                >
-                  Valid
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };

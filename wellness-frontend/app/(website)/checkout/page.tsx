@@ -29,7 +29,7 @@ import RazorpayButton from "@/components/RazorpayButton";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart } from "@/lib/redux/features/cartSlice";
-import { useAppSelector } from "@/lib/redux/hooks";
+import { loadUserFromToken } from "@/lib/redux/features/authSlice";
 
 const formatPrice = (amount: number) => {
   return new Intl.NumberFormat("en-IN", {
@@ -52,16 +52,32 @@ interface ShippingAddress {
 const CheckoutPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { items: cartItems, totalAmount: cartTotal } = useSelector((state: any) => state.cart);
+  const { items: cartItems, totalAmount: cartTotal } = useSelector(
+    (state: any) => state.cart,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const user = useAppSelector(selectUser);
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Load user from token if not loaded
+  useEffect(() => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    if (token && !user && !isAuthenticated) {
+      dispatch(loadUserFromToken() as any);
+    }
+  }, [user, isAuthenticated, dispatch]);
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     name: "",
@@ -85,7 +101,8 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     // Only redirect if we're sure the user isn't authenticated
-    const hasToken = typeof window !== 'undefined' && localStorage.getItem("authToken");
+    const hasToken =
+      typeof window !== "undefined" && localStorage.getItem("authToken");
 
     if (!isAuthenticated && !isLoading && !hasToken) {
       toast.error("Please login to place an order");
@@ -219,7 +236,7 @@ const CheckoutPage = () => {
         billingAddress: shippingAddress, // assuming same for now
         items: cartItems.map((item: any) => ({
           product: item.id, // or item.productId
-          quantity: item.quantity
+          quantity: item.quantity,
         })),
         paymentMethod: paymentMethod === "cod" ? "COD" : "Online",
         paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
@@ -227,8 +244,12 @@ const CheckoutPage = () => {
         // Add more fields if needed
       };
 
-      console.log("Sending Order Payload:", JSON.stringify(orderPayload, null, 2));
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      console.log(
+        "Sending Order Payload:",
+        JSON.stringify(orderPayload, null, 2),
+      );
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
       const response = await axios.post(`${API_URL}/v1/orders`, orderPayload, {
         withCredentials: true,
@@ -308,7 +329,7 @@ const CheckoutPage = () => {
         billingAddress: shippingAddress,
         items: cartItems.map((item: any) => ({
           product: item.id,
-          quantity: item.quantity
+          quantity: item.quantity,
         })),
         paymentMethod: "Online",
         paymentStatus: "Paid",
@@ -318,8 +339,12 @@ const CheckoutPage = () => {
         razorpaySignature: paymentData.razorpay_signature,
       };
 
-      console.log("Sending Razorpay Order Payload:", JSON.stringify(orderPayload, null, 2));
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      console.log(
+        "Sending Razorpay Order Payload:",
+        JSON.stringify(orderPayload, null, 2),
+      );
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
       const response = await axios.post(`${API_URL}/v1/orders`, orderPayload, {
         withCredentials: true,
@@ -383,23 +408,31 @@ const CheckoutPage = () => {
     );
   }
 
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
   if (cartItems.length === 0) {
     return null; // Will redirect to cart
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-blue-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+    <div className="min-h-screen bg-[#f8faff] dark:bg-slate-950">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 py-8 md:py-12">
         {/* Back to Cart */}
         <Link
           href="/cart"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Cart
         </Link>
 
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-500 bg-clip-text text-transparent mb-8">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-blue-600 dark:text-blue-500 mb-8">
           Checkout
         </h1>
 
@@ -407,12 +440,12 @@ const CheckoutPage = () => {
           {/* Left: Shipping & Payment Forms */}
           <div className="lg:col-span-2 space-y-8">
             {/* Shipping Address */}
-            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-6 md:p-8 shadow-xl border border-blue-100 dark:border-blue-800/30">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 rounded-full bg-[#f0f4f8] dark:bg-slate-800 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-blue-500" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                   Shipping Address
                 </h2>
               </div>
@@ -421,7 +454,7 @@ const CheckoutPage = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="name"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     Full Name *
                   </Label>
@@ -431,7 +464,7 @@ const CheckoutPage = () => {
                     value={shippingAddress.name}
                     onChange={handleInputChange}
                     placeholder="Enter your full name"
-                    className={`${errors.name ? "border-red-500" : ""}`}
+                    className={`h-12 bg-[#f0f4f8] border-transparent hover:bg-slate-200/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all ${errors.name ? "border-red-500" : ""}`}
                   />
                   {errors.name && (
                     <p className="text-red-500 text-sm">{errors.name}</p>
@@ -441,7 +474,7 @@ const CheckoutPage = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="phone"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     Phone Number *
                   </Label>
@@ -451,7 +484,7 @@ const CheckoutPage = () => {
                     value={shippingAddress.phone}
                     onChange={handleInputChange}
                     placeholder="Enter 10-digit phone number"
-                    className={`${errors.phone ? "border-red-500" : ""}`}
+                    className={`h-12 bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all ${errors.phone ? "border-red-500" : ""}`}
                   />
                   {errors.phone && (
                     <p className="text-red-500 text-sm">{errors.phone}</p>
@@ -461,7 +494,7 @@ const CheckoutPage = () => {
                 <div className="md:col-span-2 space-y-2">
                   <Label
                     htmlFor="email"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     Email Address *
                   </Label>
@@ -472,7 +505,7 @@ const CheckoutPage = () => {
                     value={shippingAddress.email}
                     onChange={handleInputChange}
                     placeholder="Enter your email address"
-                    className={`${errors.email ? "border-red-500" : ""}`}
+                    className={`h-12 bg-[#f0f4f8] border-transparent hover:bg-slate-200/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all ${errors.email ? "border-red-500" : ""}`}
                   />
                   {errors.email && (
                     <p className="text-red-500 text-sm">{errors.email}</p>
@@ -482,7 +515,7 @@ const CheckoutPage = () => {
                 <div className="md:col-span-2 space-y-2">
                   <Label
                     htmlFor="address"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     Street Address *
                   </Label>
@@ -492,7 +525,7 @@ const CheckoutPage = () => {
                     value={shippingAddress.address}
                     onChange={handleInputChange}
                     placeholder="House no., Building, Street, Area"
-                    className={`${errors.address ? "border-red-500" : ""}`}
+                    className={`h-12 bg-[#f0f4f8] border-transparent hover:bg-slate-200/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all ${errors.address ? "border-red-500" : ""}`}
                   />
                   {errors.address && (
                     <p className="text-red-500 text-sm">{errors.address}</p>
@@ -502,7 +535,7 @@ const CheckoutPage = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="city"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     City *
                   </Label>
@@ -512,7 +545,7 @@ const CheckoutPage = () => {
                     value={shippingAddress.city}
                     onChange={handleInputChange}
                     placeholder="Enter your city"
-                    className={`${errors.city ? "border-red-500" : ""}`}
+                    className={`h-12 bg-[#f0f4f8] border-transparent hover:bg-slate-200/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all ${errors.city ? "border-red-500" : ""}`}
                   />
                   {errors.city && (
                     <p className="text-red-500 text-sm">{errors.city}</p>
@@ -522,7 +555,7 @@ const CheckoutPage = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="state"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     State *
                   </Label>
@@ -532,7 +565,7 @@ const CheckoutPage = () => {
                     value={shippingAddress.state}
                     onChange={handleInputChange}
                     placeholder="Enter your state"
-                    className={`${errors.state ? "border-red-500" : ""}`}
+                    className={`h-12 bg-[#f0f4f8] border-transparent hover:bg-slate-200/50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all ${errors.state ? "border-red-500" : ""}`}
                   />
                   {errors.state && (
                     <p className="text-red-500 text-sm">{errors.state}</p>
@@ -542,7 +575,7 @@ const CheckoutPage = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="pinCode"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     PIN Code *
                   </Label>
@@ -552,7 +585,7 @@ const CheckoutPage = () => {
                     value={shippingAddress.pinCode}
                     onChange={handleInputChange}
                     placeholder="Enter 6-digit PIN code"
-                    className={`${errors.pinCode ? "border-red-500" : ""}`}
+                    className={`h-12 bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all ${errors.pinCode ? "border-red-500" : ""}`}
                   />
                   {errors.pinCode && (
                     <p className="text-red-500 text-sm">{errors.pinCode}</p>
@@ -562,7 +595,7 @@ const CheckoutPage = () => {
                 <div className="space-y-2">
                   <Label
                     htmlFor="landmark"
-                    className="text-slate-700 dark:text-slate-300"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
                     Landmark (Optional)
                   </Label>
@@ -572,28 +605,30 @@ const CheckoutPage = () => {
                     value={shippingAddress.landmark}
                     onChange={handleInputChange}
                     placeholder="Nearby landmark"
+                    className="h-12 bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl transition-all"
                   />
                 </div>
               </div>
             </div>
 
             {/* Payment Method */}
-            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-6 md:p-8 shadow-xl border border-blue-100 dark:border-blue-800/30">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 rounded-full bg-[#f0f4f8] dark:bg-slate-800 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-blue-500" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                   Payment Method
                 </h2>
               </div>
 
               <div className="space-y-4">
                 <label
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === "cod"
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                    : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
-                    }`}
+                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === "cod"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                      : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
+                  }`}
                 >
                   <input
                     type="radio"
@@ -615,10 +650,11 @@ const CheckoutPage = () => {
                 </label>
 
                 <label
-                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === "online"
-                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                    : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
-                    }`}
+                  className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === "online"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                      : "border-slate-200 dark:border-slate-700 hover:border-blue-300"
+                  }`}
                 >
                   <input
                     type="radio"
@@ -644,11 +680,13 @@ const CheckoutPage = () => {
 
           {/* Right: Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-6 shadow-xl border border-blue-100 dark:border-blue-800/30 sticky top-32">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                <Package className="w-5 h-5 text-blue-600" />
-                Order Summary
-              </h2>
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800 sticky top-32">
+              <div className="flex items-center gap-3 mb-8">
+                <Package className="w-6 h-6 text-blue-600" strokeWidth={2.5} />
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                  Order Summary
+                </h2>
+              </div>
 
               {/* Cart Items */}
               <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
@@ -701,17 +739,17 @@ const CheckoutPage = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <Input
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                       placeholder="Enter coupon code"
-                      className="flex-1"
+                      className="flex-1 h-11 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
                     <Button
                       onClick={handleApplyCoupon}
                       variant="outline"
-                      className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                      className="border-blue-500 text-blue-600 hover:bg-blue-50 rounded-xl h-11 px-6 font-semibold"
                     >
                       Apply
                     </Button>

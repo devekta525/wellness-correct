@@ -416,7 +416,6 @@ const ProductsPage = () => {
                     <ProductCard
                       key={product.id}
                       product={product}
-                      viewMode={viewMode}
                     />
                   ))}
                 </div>

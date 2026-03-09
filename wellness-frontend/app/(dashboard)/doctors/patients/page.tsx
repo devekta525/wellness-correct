@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import {
@@ -23,7 +23,10 @@ import {
   Grid3X3,
   List,
   AlertCircle,
+  ChevronLeft as ChevronLeftIcon,
+  Upload,
 } from "lucide-react";
+import { FormSteps } from "@/components/ui/form-steps";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -124,6 +127,7 @@ const PatientsPage = () => {
     null,
   );
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addStep, setAddStep] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editTab, setEditTab] = useState<"details" | "medical" | "visits">(
     "details",
@@ -495,8 +499,8 @@ const PatientsPage = () => {
                     <CheckCircle className="w-3 h-3" />
                     {totalPatientsCount > 0
                       ? Math.round(
-                          (activePatientsCount / totalPatientsCount) * 100,
-                        )
+                        (activePatientsCount / totalPatientsCount) * 100,
+                      )
                       : 0}
                     % of total
                   </p>
@@ -591,7 +595,7 @@ const PatientsPage = () => {
                     setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                   }
                 >
-                  {sortOrder === "asc" ? "↑" : "↓"}
+                  {sortOrder === "asc" ? "â†‘" : "â†“"}
                 </Button>
 
                 {/* View Toggle */}
@@ -734,7 +738,7 @@ const PatientsPage = () => {
                               <div>
                                 <p className="font-medium">{patient.name}</p>
                                 <p className="text-sm text-muted-foreground">
-                                  {patient.age}y • {patient.bloodGroup}
+                                  {patient.age}y â€¢ {patient.bloodGroup}
                                 </p>
                               </div>
                             </div>
@@ -868,7 +872,7 @@ const PatientsPage = () => {
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <Heart className="w-4 h-4 text-muted-foreground" />
-                          {patient.age}y • {patient.bloodGroup}
+                          {patient.age}y â€¢ {patient.bloodGroup}
                         </div>
                       </div>
 
@@ -938,242 +942,76 @@ const PatientsPage = () => {
         )}
 
         {/* Add Patient Modal */}
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Patient</DialogTitle>
-              <DialogDescription>
-                Create a new patient record with their medical information
-              </DialogDescription>
-            </DialogHeader>
+        <Dialog open={isAddModalOpen} onOpenChange={(open) => {
+          setIsAddModalOpen(open);
+          if (!open) setAddStep(1);
+        }}>
+          <DialogContent className="max-w-3xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-slate-100 bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight mb-1">Add New Patient</DialogTitle>
+                <DialogDescription className="text-sm text-slate-500">
+                  Register a new patient and set up their medical profile.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <div className="bg-white px-8 pt-8 pb-4">
+              <FormSteps
+                currentStep={addStep}
+                steps={[
+                  { id: 1, name: "Personal Info" },
+                  { id: 2, name: "Physical Details" },
+                  { id: 3, name: "Contact & Type" },
+                ]}
+              />
+            </div>
+
             <form onSubmit={handleAddPatient}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <Label htmlFor="firstName">First Name *</Label>
-                  <Input id="firstName" name="firstName" required />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name *</Label>
-                  <Input id="lastName" name="lastName" required />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email *</Label>
-                  <Input id="email" name="email" type="email" required />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone *</Label>
-                  <Input id="phone" name="phone" required />
-                </div>
-                <div>
-                  <Label htmlFor="password">Password *</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="age">Age *</Label>
-                  <Input id="age" name="age" type="number" required />
-                </div>
-                <div>
-                  <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-                  <Input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="gender">Gender *</Label>
-                  <Select name="gender" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="bloodGroup">Blood Group</Label>
-                  <Select name="bloodGroup">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select blood group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="A+">A+</SelectItem>
-                      <SelectItem value="A-">A-</SelectItem>
-                      <SelectItem value="B+">B+</SelectItem>
-                      <SelectItem value="B-">B-</SelectItem>
-                      <SelectItem value="AB+">AB+</SelectItem>
-                      <SelectItem value="AB-">AB-</SelectItem>
-                      <SelectItem value="O+">O+</SelectItem>
-                      <SelectItem value="O-">O-</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    name="location"
-                    placeholder="City, State"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="emergencyContactName">
-                    Emergency Contact Name
-                  </Label>
-                  <Input
-                    id="emergencyContactName"
-                    name="emergencyContactName"
-                    placeholder="Name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="emergencyContactPhone">
-                    Emergency Contact Phone
-                  </Label>
-                  <Input
-                    id="emergencyContactPhone"
-                    name="emergencyContactPhone"
-                    placeholder="+91 XXXXX XXXXX"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="patientType">Patient Type</Label>
-                  <Select name="patientType" defaultValue="new">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="regular">Regular</SelectItem>
-                      <SelectItem value="vip">VIP</SelectItem>
-                      <SelectItem value="emergency">Emergency</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsAddModalOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    "Add Patient"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+              <div className="px-8 py-6 bg-[#F8FAFC] min-h-[400px]">
+                {addStep === 1 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label className="form-label form-label-required">First Name</label>
+                        <input className="form-input" name="firstName" placeholder="e.g. John" required />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Last Name</label>
+                        <input className="form-input" name="lastName" placeholder="e.g. Doe" required />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Email Address</label>
+                        <input className="form-input" name="email" type="email" placeholder="patient@example.com" required />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Phone Number</label>
+                        <input className="form-input" name="phone" placeholder="+91 98765 43210" required />
+                      </div>
+                      <div className="form-field form-field-full">
+                        <label className="form-label form-label-required">Password</label>
+                        <input className="form-input" name="password" type="password" placeholder="Set account password" required />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-        {/* Edit Patient Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Patient Details</DialogTitle>
-              <DialogDescription>
-                View and edit patient medical information
-              </DialogDescription>
-            </DialogHeader>
-            {selectedPatient && (
-              <Tabs
-                value={editTab}
-                onValueChange={(value) =>
-                  setEditTab(value as "details" | "medical" | "visits")
-                }
-                className="w-full"
-              >
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="medical">Medical</TabsTrigger>
-                  <TabsTrigger value="visits">Visits</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="details" className="space-y-4">
-                  <form onSubmit={handleUpdatePatient} id="editPatientForm">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="editPatientId">Patient ID</Label>
-                        <Input
-                          id="editPatientId"
-                          type="text"
-                          value={selectedPatient.patientId || ""}
-                          disabled
-                          className="bg-muted text-muted-foreground"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Auto-generated and cannot be changed
-                        </p>
+                {addStep === 2 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Age</label>
+                        <input className="form-input" name="age" type="number" placeholder="Enter age" required />
                       </div>
-                      <div>
-                        <Label htmlFor="editName">Full Name</Label>
-                        <Input
-                          id="editName"
-                          name="name"
-                          defaultValue={selectedPatient.name}
-                        />
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Date of Birth</label>
+                        <input className="form-input" name="dateOfBirth" type="date" required />
                       </div>
-                      <div>
-                        <Label htmlFor="editEmail">Email</Label>
-                        <Input
-                          id="editEmail"
-                          name="email"
-                          type="email"
-                          defaultValue={selectedPatient.email}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editPhone">Phone</Label>
-                        <Input
-                          id="editPhone"
-                          name="phone"
-                          defaultValue={selectedPatient.phone}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editAge">Age</Label>
-                        <Input
-                          id="editAge"
-                          name="age"
-                          type="number"
-                          defaultValue={selectedPatient.age}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editDateOfBirth">Date of Birth</Label>
-                        <Input
-                          id="editDateOfBirth"
-                          name="dateOfBirth"
-                          type="date"
-                          defaultValue={selectedPatient.dateOfBirth}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editGender">Gender</Label>
-                        <Select
-                          name="gender"
-                          defaultValue={selectedPatient.gender}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Gender</label>
+                        <Select name="gender" required>
+                          <SelectTrigger className="form-select-trigger">
+                            <SelectValue placeholder="Select gender" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Male">Male</SelectItem>
@@ -1182,61 +1020,34 @@ const PatientsPage = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <Label htmlFor="editBloodGroup">Blood Group</Label>
-                        <Select
-                          name="bloodGroup"
-                          defaultValue={selectedPatient.bloodGroup}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
+                      <div className="form-field">
+                        <label className="form-label">Blood Group</label>
+                        <Select name="bloodGroup">
+                          <SelectTrigger className="form-select-trigger">
+                            <SelectValue placeholder="Select group" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="A+">A+</SelectItem>
-                            <SelectItem value="A-">A-</SelectItem>
-                            <SelectItem value="B+">B+</SelectItem>
-                            <SelectItem value="B-">B-</SelectItem>
-                            <SelectItem value="AB+">AB+</SelectItem>
-                            <SelectItem value="AB-">AB-</SelectItem>
-                            <SelectItem value="O+">O+</SelectItem>
-                            <SelectItem value="O-">O-</SelectItem>
+                            {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(g => (
+                              <SelectItem key={g} value={g}>{g}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <Label htmlFor="editLocation">Location</Label>
-                        <Input
-                          id="editLocation"
-                          name="location"
-                          defaultValue={selectedPatient.location}
-                        />
+                    </div>
+                  </div>
+                )}
+
+                {addStep === 3 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label className="form-label">Location</label>
+                        <input className="form-input" name="location" placeholder="City, State" />
                       </div>
-                      <div>
-                        <Label htmlFor="editStatus">Status</Label>
-                        <Select
-                          name="status"
-                          defaultValue={selectedPatient.status}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="discharged">
-                              Discharged
-                            </SelectItem>
-                            <SelectItem value="emergency">Emergency</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="editType">Patient Type</Label>
-                        <Select
-                          name="patientType"
-                          defaultValue={selectedPatient.patientType}
-                        >
-                          <SelectTrigger>
+                      <div className="form-field">
+                        <label className="form-label">Patient Type</label>
+                        <Select name="patientType" defaultValue="new">
+                          <SelectTrigger className="form-select-trigger">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1247,155 +1058,237 @@ const PatientsPage = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                    </div>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="medical" className="space-y-4">
-                  <form onSubmit={handleUpdatePatient} id="editMedicalForm">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="editEmergencyContactName">
-                          Emergency Contact Name
-                        </Label>
-                        <Input
-                          id="editEmergencyContactName"
-                          name="emergencyContactName"
-                          defaultValue={
-                            typeof selectedPatient.emergencyContact === "string"
-                              ? selectedPatient.emergencyContact
-                              : selectedPatient.emergencyContact?.name || ""
-                          }
-                        />
+                      <div className="form-field">
+                        <label className="form-label">Emergency Contact Name</label>
+                        <input className="form-input" name="emergencyContactName" placeholder="Contact name" />
                       </div>
-                      <div>
-                        <Label htmlFor="editEmergencyContactPhone">
-                          Emergency Contact Phone
-                        </Label>
-                        <Input
-                          id="editEmergencyContactPhone"
-                          name="emergencyContactPhone"
-                          defaultValue={
-                            typeof selectedPatient.emergencyContact === "string"
-                              ? ""
-                              : selectedPatient.emergencyContact?.phone || ""
-                          }
-                        />
+                      <div className="form-field">
+                        <label className="form-label">Emergency Phone</label>
+                        <input className="form-input" name="emergencyContactPhone" placeholder="+91 98765 43210" />
                       </div>
-                      <div>
-                        <Label htmlFor="editInsurance">
-                          Insurance Provider
-                        </Label>
-                        <Input
-                          id="editInsurance"
-                          name="insuranceProvider"
-                          defaultValue={selectedPatient.insuranceProvider}
-                        />
+                      <div className="form-field form-field-full mt-4">
+                        <div className="upload-dropzone">
+                          <div className="flex flex-col items-center gap-2 text-slate-500">
+                            <Upload className="w-8 h-8 text-blue-500 mb-2" />
+                            <p className="text-sm font-medium text-slate-700">Patient Photo (Optional)</p>
+                            <p className="text-xs">Click to upload or drag and drop (Max 5MB)</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="md:col-span-2">
-                        <Label htmlFor="editMedicalHistory">
-                          Medical History (comma separated)
-                        </Label>
-                        <Textarea
-                          id="editMedicalHistory"
-                          name="medicalHistory"
-                          defaultValue={
-                            selectedPatient.medicalHistory?.join(", ") || ""
-                          }
-                          placeholder="Diabetes, Hypertension, etc."
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label htmlFor="editMedications">
-                          Current Medications (comma separated)
-                        </Label>
-                        <Textarea
-                          id="editMedications"
-                          name="currentMedications"
-                          defaultValue={
-                            selectedPatient.currentMedications?.join(", ") || ""
-                          }
-                          placeholder="Metformin 500mg, Aspirin 75mg, etc."
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <Label htmlFor="editAllergies">
-                          Allergies (comma separated)
-                        </Label>
-                        <Textarea
-                          id="editAllergies"
-                          name="allergies"
-                          defaultValue={
-                            selectedPatient.allergies?.join(", ") || ""
-                          }
-                          placeholder="Penicillin, Peanuts, etc."
-                        />
-                      </div>
-                    </div>
-                  </form>
-                </TabsContent>
-
-                <TabsContent value="visits" className="space-y-4">
-                  <div className="text-center py-12">
-                    <Stethoscope className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">
-                      Visit History
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Patient visit records will be displayed here
-                    </p>
-                    <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                      <Card>
-                        <CardContent className="p-4 text-center">
-                          <p className="text-2xl font-bold">
-                            {selectedPatient.totalVisits}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Total Visits
-                          </p>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-4 text-center">
-                          <p className="text-2xl font-bold">
-                            ₹{selectedPatient.totalFees.toLocaleString()}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Total Fees
-                          </p>
-                        </CardContent>
-                      </Card>
                     </div>
                   </div>
-                </TabsContent>
-              </Tabs>
-            )}
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsEditModalOpen(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                form={
-                  editTab === "medical" ? "editMedicalForm" : "editPatientForm"
-                }
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update Patient"
                 )}
-              </Button>
-            </DialogFooter>
+              </div>
+
+              <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-between items-center gap-3">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => addStep > 1 ? setAddStep(addStep - 1) : setIsAddModalOpen(false)}
+                >
+                  {addStep === 1 ? "Cancel" : "Previous"}
+                </button>
+                <div className="flex gap-3">
+                  {addStep < 3 ? (
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() => setAddStep(addStep + 1)}
+                    >
+                      Next Step <ChevronRight className="w-4 h-4 ml-1" />
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Adding...</>
+                      ) : (
+                        <><UserPlus className="w-4 h-4" /> Add Patient</>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Patient Modal */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="max-w-4xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-slate-100 bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight">Patient Profile</DialogTitle>
+                <DialogDescription className="text-sm text-slate-500">
+                  View and manage comprehensive patient information
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            {selectedPatient && (
+              <div className="px-8 py-6 bg-[#F8FAFC]">
+                <Tabs
+                  value={editTab}
+                  onValueChange={(value) =>
+                    setEditTab(value as "details" | "medical" | "visits")
+                  }
+                  className="w-full"
+                >
+                  <TabsList className="flex gap-2 p-1 bg-slate-200/50 rounded-xl mb-6 w-full max-w-[400px]">
+                    <TabsTrigger value="details" className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Details</TabsTrigger>
+                    <TabsTrigger value="medical" className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Medical</TabsTrigger>
+                    <TabsTrigger value="visits" className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Visits</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="details" className="mt-0 animate-in fade-in duration-300">
+                    <form onSubmit={handleUpdatePatient} id="editPatientForm">
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">Patient ID</label>
+                          <input className="form-input opacity-60" type="text" value={selectedPatient.patientId || ""} disabled />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Full Name</label>
+                          <input className="form-input" id="editName" name="name" defaultValue={selectedPatient.name} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Email</label>
+                          <input className="form-input" id="editEmail" name="email" type="email" defaultValue={selectedPatient.email} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Phone</label>
+                          <input className="form-input" id="editPhone" name="phone" defaultValue={selectedPatient.phone} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Age</label>
+                          <input className="form-input" id="editAge" name="age" type="number" defaultValue={selectedPatient.age} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Date of Birth</label>
+                          <input className="form-input" id="editDateOfBirth" name="dateOfBirth" type="date" defaultValue={selectedPatient.dateOfBirth} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Gender</label>
+                          <Select name="gender" defaultValue={selectedPatient.gender}>
+                            <SelectTrigger className="form-select-trigger"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Male">Male</SelectItem>
+                              <SelectItem value="Female">Female</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Blood Group</label>
+                          <Select name="bloodGroup" defaultValue={selectedPatient.bloodGroup}>
+                            <SelectTrigger className="form-select-trigger"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Location</label>
+                          <input className="form-input" id="editLocation" name="location" defaultValue={selectedPatient.location} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Status</label>
+                          <Select name="status" defaultValue={selectedPatient.status}>
+                            <SelectTrigger className="form-select-trigger"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="inactive">Inactive</SelectItem>
+                              <SelectItem value="discharged">Discharged</SelectItem>
+                              <SelectItem value="emergency">Emergency</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Patient Type</label>
+                          <Select name="patientType" defaultValue={selectedPatient.patientType}>
+                            <SelectTrigger className="form-select-trigger"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="new">New</SelectItem>
+                              <SelectItem value="regular">Regular</SelectItem>
+                              <SelectItem value="vip">VIP</SelectItem>
+                              <SelectItem value="emergency">Emergency</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </form>
+                  </TabsContent>
+
+                  <TabsContent value="medical" className="mt-0 animate-in fade-in duration-300">
+                    <form onSubmit={handleUpdatePatient} id="editMedicalForm">
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">Emergency Contact Name</label>
+                          <input className="form-input" id="editEmergencyContactName" name="emergencyContactName"
+                            defaultValue={typeof selectedPatient.emergencyContact === "string" ? selectedPatient.emergencyContact : selectedPatient.emergencyContact?.name || ""} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Emergency Contact Phone</label>
+                          <input className="form-input" id="editEmergencyContactPhone" name="emergencyContactPhone"
+                            defaultValue={typeof selectedPatient.emergencyContact === "string" ? "" : selectedPatient.emergencyContact?.phone || ""} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Insurance Provider</label>
+                          <input className="form-input" id="editInsurance" name="insuranceProvider" defaultValue={selectedPatient.insuranceProvider} />
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Medical History (comma separated)</label>
+                          <textarea className="form-textarea" id="editMedicalHistory" name="medicalHistory"
+                            defaultValue={selectedPatient.medicalHistory?.join(", ") || ""}
+                            placeholder="Diabetes, Hypertension, etc." rows={3} />
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Current Medications (comma separated)</label>
+                          <textarea className="form-textarea" id="editMedications" name="currentMedications"
+                            defaultValue={selectedPatient.currentMedications?.join(", ") || ""}
+                            placeholder="Metformin 500mg, Aspirin 75mg, etc." rows={3} />
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Allergies (comma separated)</label>
+                          <textarea className="form-textarea" id="editAllergies" name="allergies"
+                            defaultValue={selectedPatient.allergies?.join(", ") || ""}
+                            placeholder="Penicillin, Peanuts, etc." rows={3} />
+                        </div>
+                      </div>
+                    </form>
+                  </TabsContent>
+
+                  <TabsContent value="visits" className="mt-0 animate-in fade-in duration-300">
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                        <Stethoscope className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800 mb-1">Visit History</h3>
+                      <p className="text-sm text-slate-400 mb-6">Patient visit records and associated fees</p>
+                      <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                        <div className="rounded-xl bg-white border border-slate-100 p-4 text-center shadow-sm">
+                          <p className="text-2xl font-bold text-slate-900">{selectedPatient.totalVisits}</p>
+                          <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">Total Visits</p>
+                        </div>
+                        <div className="rounded-xl bg-white border border-slate-100 p-4 text-center shadow-sm">
+                          <p className="text-2xl font-bold text-slate-900">₹{selectedPatient.totalFees.toLocaleString()}</p>
+                          <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">Total Fees</p>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
+            <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-end gap-3">
+              <button type="button" className="btn-secondary" onClick={() => setIsEditModalOpen(false)} disabled={isSubmitting}>Cancel</button>
+              <button
+                type="submit"
+                form={editTab === "medical" ? "editMedicalForm" : "editPatientForm"}
+                className="btn-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating...</> : "Update Patient"}
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

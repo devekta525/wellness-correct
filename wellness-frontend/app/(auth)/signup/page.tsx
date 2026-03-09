@@ -207,7 +207,7 @@ const SignupPage = () => {
       setTimeout(() => {
         const role = result.user?.role || formData.userType;
         const dashboardUrl = getDashboardForRole(role);
-        router.replace(safeRedirect || dashboardUrl);
+        window.location.href = safeRedirect || dashboardUrl;
       }, 2000);
     } else {
       Swal.fire({
@@ -365,8 +365,8 @@ const SignupPage = () => {
                   <div className="flex flex-col items-center flex-1">
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= step.number
-                          ? "bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50"
-                          : "bg-gray-200 dark:bg-gray-700"
+                        ? "bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50"
+                        : "bg-gray-200 dark:bg-gray-700"
                         }`}
                     >
                       {currentStep > step.number ? (
@@ -374,16 +374,16 @@ const SignupPage = () => {
                       ) : (
                         <step.icon
                           className={`w-6 h-6 ${currentStep >= step.number
-                              ? "text-white"
-                              : "text-gray-400"
+                            ? "text-white"
+                            : "text-gray-400"
                             }`}
                         />
                       )}
                     </div>
                     <span
                       className={`text-xs mt-2 font-medium hidden sm:block ${currentStep >= step.number
-                          ? "text-purple-600 dark:text-purple-400"
-                          : "text-gray-400"
+                        ? "text-purple-600 dark:text-purple-400"
+                        : "text-gray-400"
                         }`}
                     >
                       {step.title}
@@ -392,8 +392,8 @@ const SignupPage = () => {
                   {index < steps.length - 1 && (
                     <div
                       className={`h-1 flex-1 mx-2 rounded transition-all duration-300 ${currentStep > step.number
-                          ? "bg-gradient-to-r from-purple-600 to-pink-600"
-                          : "bg-gray-200 dark:bg-gray-700"
+                        ? "bg-gradient-to-r from-purple-600 to-pink-600"
+                        : "bg-gray-200 dark:bg-gray-700"
                         }`}
                     />
                   )}
@@ -401,38 +401,37 @@ const SignupPage = () => {
               ))}
             </div>
 
-            {/* Glass Card */}
+            {/* Card */}
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-pink-500 to-blue-600 rounded-2xl blur-lg opacity-10" aria-hidden="true" />
 
-              <div className="relative bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 sm:p-10">
+              <div className="relative bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <button
+                    type="button"
                     onClick={() =>
                       currentStep === 1 ? router.push("/login") : prevStep()
                     }
-                    className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                    className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <ArrowLeft className="w-4 h-4" />
                     Back
-                  </Button>
+                  </button>
                   <div className="text-center flex-1">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                    <h2 className="text-3xl font-bold text-gray-900">
                       Create Account
                     </h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500 mt-1">
                       Step {currentStep} of 3
                     </p>
                   </div>
-                  <div className="w-20"></div>
+                  <div className="w-14" />
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} noValidate className="space-y-5">
                   {error && (
-                    <div className="p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800 animate-shake">
+                    <div className="p-3.5 text-sm text-red-700 bg-red-50 rounded-xl border border-red-200">
                       {error}
                     </div>
                   )}
@@ -441,17 +440,17 @@ const SignupPage = () => {
                   {currentStep === 1 && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right duration-300">
                       {/* User Type Selection */}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <div className="space-y-1.5">
+                        <label className="block text-sm font-medium text-gray-700">
                           I am a
-                        </Label>
+                        </label>
                         <Select
                           value={formData.userType}
                           onValueChange={(value) =>
                             handleInputChange("userType", value)
                           }
                         >
-                          <SelectTrigger className="h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20">
+                          <SelectTrigger className="h-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-gray-900">
                             <SelectValue placeholder="Select your role" />
                           </SelectTrigger>
                           <SelectContent>
@@ -479,15 +478,15 @@ const SignupPage = () => {
 
                       {/* Name Fields */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="firstName"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             First Name
-                          </Label>
-                          <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                          </label>
+                          <div className="relative flex items-center">
+                            <User className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                             <Input
                               id="firstName"
                               type="text"
@@ -496,22 +495,21 @@ const SignupPage = () => {
                                 handleInputChange("firstName", e.target.value)
                               }
                               required
-                              className="relative pl-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                              className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                               placeholder="John"
                             />
-                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="lastName"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             Last Name
-                          </Label>
-                          <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                          </label>
+                          <div className="relative flex items-center">
+                            <User className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                             <Input
                               id="lastName"
                               type="text"
@@ -520,25 +518,24 @@ const SignupPage = () => {
                                 handleInputChange("lastName", e.target.value)
                               }
                               required
-                              className="relative pl-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                              className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                               placeholder="Doe"
                             />
-                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                           </div>
                         </div>
                       </div>
 
                       {/* Phone & DOB */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="phone"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             Phone Number
-                          </Label>
-                          <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                          </label>
+                          <div className="relative flex items-center">
+                            <Phone className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                             <Input
                               id="phone"
                               type="tel"
@@ -547,22 +544,21 @@ const SignupPage = () => {
                                 handleInputChange("phone", e.target.value)
                               }
                               required
-                              className="relative pl-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                              className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                               placeholder="+91 8102904321"
                             />
-                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="dateOfBirth"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             Date of Birth
-                          </Label>
-                          <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                          </label>
+                          <div className="relative flex items-center">
+                            <Calendar className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                             <Input
                               id="dateOfBirth"
                               type="date"
@@ -580,15 +576,14 @@ const SignupPage = () => {
                                   .toISOString()
                                   .split("T")[0]
                               }
-                              className="relative pl-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                              className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-4 py-3 h-12 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                             />
-                            <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-                        <p className="text-xs text-blue-800 dark:text-blue-300">
+                      <div className="bg-indigo-50 rounded-xl p-3.5 border border-indigo-100">
+                        <p className="text-xs text-indigo-700">
                           <strong>Note:</strong> Phone number must have at least
                           10 digits. You must be at least 13 years old to
                           register.
@@ -601,15 +596,15 @@ const SignupPage = () => {
                   {currentStep === 2 && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right duration-300">
                       {/* Email */}
-                      <div className="space-y-2">
-                        <Label
+                      <div className="space-y-1.5">
+                        <label
                           htmlFor="email"
-                          className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                          className="block text-sm font-medium text-gray-700"
                         >
                           Email Address
-                        </Label>
-                        <div className="relative group">
-                          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                        </label>
+                        <div className="relative flex items-center">
+                          <Mail className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                           <Input
                             id="email"
                             type="email"
@@ -618,24 +613,23 @@ const SignupPage = () => {
                               handleInputChange("email", e.target.value)
                             }
                             required
-                            className="relative pl-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                             placeholder="you@example.com"
                           />
-                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                         </div>
                       </div>
 
                       {/* Password Fields */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="password"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             Password
-                          </Label>
-                          <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                          </label>
+                          <div className="relative flex items-center">
+                            <Lock className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                             <Input
                               id="password"
                               type={showPassword ? "text" : "password"}
@@ -644,15 +638,15 @@ const SignupPage = () => {
                                 handleInputChange("password", e.target.value)
                               }
                               required
-                              className="relative pl-11 pr-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                              className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-11 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                               placeholder="••••••••"
                             />
-                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                             <button
                               type="button"
                               tabIndex={-1}
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 focus:outline-none transition-colors"
+                              aria-label={showPassword ? "Hide password" : "Show password"}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors"
                             >
                               {showPassword ? (
                                 <EyeOff className="w-5 h-5" />
@@ -663,32 +657,32 @@ const SignupPage = () => {
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="confirmPassword"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             Confirm Password
-                          </Label>
-                          <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                          </label>
+                          <div className="relative flex items-center">
+                            <Lock className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                             <Input
                               id="confirmPassword"
                               type={showConfirmPassword ? "text" : "password"}
                               value={cpass}
                               onChange={handlePassword}
                               required
-                              className="relative pl-11 pr-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                              className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-11 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                               placeholder="••••••••"
                             />
-                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                             <button
                               type="button"
                               tabIndex={-1}
                               onClick={() =>
                                 setShowConfirmPassword(!showConfirmPassword)
                               }
-                              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 focus:outline-none transition-colors"
+                              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors"
                             >
                               {showConfirmPassword ? (
                                 <EyeOff className="w-5 h-5" />
@@ -700,8 +694,8 @@ const SignupPage = () => {
                         </div>
                       </div>
 
-                      <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
-                        <p className="text-xs text-purple-800 dark:text-purple-300">
+                      <div className="bg-indigo-50 rounded-xl p-3.5 border border-indigo-100">
+                        <p className="text-xs text-indigo-700">
                           <strong>Password requirements:</strong> At least 6
                           characters long
                         </p>
@@ -713,15 +707,15 @@ const SignupPage = () => {
                   {currentStep === 3 && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right duration-300">
                       {/* Address */}
-                      <div className="space-y-2">
-                        <Label
+                      <div className="space-y-1.5">
+                        <label
                           htmlFor="address"
-                          className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                          className="block text-sm font-medium text-gray-700"
                         >
                           Address
-                        </Label>
-                        <div className="relative group">
-                          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                        </label>
+                        <div className="relative flex items-center">
+                          <MapPin className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" aria-hidden="true" />
                           <Input
                             id="address"
                             type="text"
@@ -730,22 +724,21 @@ const SignupPage = () => {
                               handleInputChange("address", e.target.value)
                             }
                             required
-                            className="relative pl-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-9 pr-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                             placeholder="123 Main Street"
                           />
-                          <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                         </div>
                       </div>
 
                       {/* City, State, ZIP */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="city"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             City
-                          </Label>
+                          </label>
                           <Input
                             id="city"
                             type="text"
@@ -753,18 +746,18 @@ const SignupPage = () => {
                             onChange={(e) =>
                               handleInputChange("city", e.target.value)
                             }
-                            className="h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                             placeholder="City"
                           />
                         </div>
 
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="state"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             State
-                          </Label>
+                          </label>
                           <Input
                             id="state"
                             type="text"
@@ -772,18 +765,18 @@ const SignupPage = () => {
                             onChange={(e) =>
                               handleInputChange("state", e.target.value)
                             }
-                            className="h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                             placeholder="State"
                           />
                         </div>
 
-                        <div className="space-y-2">
-                          <Label
+                        <div className="space-y-1.5">
+                          <label
                             htmlFor="zipCode"
-                            className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            className="block text-sm font-medium text-gray-700"
                           >
                             ZIP Code
-                          </Label>
+                          </label>
                           <Input
                             id="zipCode"
                             type="text"
@@ -791,14 +784,14 @@ const SignupPage = () => {
                             onChange={(e) =>
                               handleInputChange("zipCode", e.target.value)
                             }
-                            className="h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                             placeholder="ZIP"
                           />
                         </div>
                       </div>
 
-                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-                        <p className="text-xs text-blue-800 dark:text-blue-300">
+                      <div className="bg-indigo-50 rounded-xl p-3.5 border border-indigo-100">
+                        <p className="text-xs text-indigo-700">
                           These details help us provide better personalized
                           recommendations.
                         </p>
@@ -807,50 +800,49 @@ const SignupPage = () => {
                   )}
 
                   {/* Navigation Buttons */}
-                  <div className="flex gap-4 pt-4">
+                  <div className="pt-2">
                     {currentStep < 3 ? (
-                      <Button
+                      <button
                         type="button"
                         onClick={nextStep}
-                        className="w-full h-12 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 hover:scale-[1.02]"
+                        className="w-full h-12 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:scale-[1.02] hover:shadow-lg shadow-indigo-300/50 transition-all duration-200 flex items-center justify-center gap-2"
                       >
                         Continue
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
+                        <ArrowRight className="w-5 h-5" />
+                      </button>
                     ) : (
-                      <Button
+                      <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full h-12 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        className="w-full h-12 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:scale-[1.02] hover:shadow-lg shadow-indigo-300/50 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
                         {isLoading ? (
                           <>
-                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" />
                             Creating Account...
                           </>
                         ) : (
                           <>
-                            <UserCheck className="w-5 h-5 mr-2" />
+                            <UserCheck className="w-5 h-5" />
                             Create Account
                           </>
                         )}
-                      </Button>
+                      </button>
                     )}
                   </div>
                 </form>
 
                 {/* Footer */}
-                <div className="text-center mt-8">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Already have an account?{" "}
-                    <button
-                      onClick={() => router.push("/login")}
-                      className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-semibold hover:underline transition-colors"
-                    >
-                      Sign in here
-                    </button>
-                  </p>
-                </div>
+                <p className="text-sm text-gray-500 text-center mt-6">
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => router.push("/login")}
+                    className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors"
+                  >
+                    Sign in here
+                  </button>
+                </p>
               </div>
             </div>
           </div>

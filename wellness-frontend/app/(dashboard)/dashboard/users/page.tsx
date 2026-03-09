@@ -12,17 +12,29 @@ import {
   UserPlus,
   User,
   Eye,
+  ShieldCheck,
+  AlertCircle,
+  Activity,
+  History,
+  Lock,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Camera,
+  Upload,
   Loader2,
   ChevronLeft,
   ChevronRight,
-  CheckCircle,
-  Clock,
+  UserCheck,
+  UserMinus,
+  Settings,
   Crown,
   Stethoscope,
   Megaphone,
   ShoppingBag,
-  Upload,
-  Camera,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -293,15 +305,15 @@ const UsersPageContent = () => {
   const getRoleBadgeStyles = (role: string) => {
     switch (role) {
       case "Admin":
-        return "bg-violet-100 text-violet-700 border-violet-200 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800";
+        return "bg-violet-50 text-violet-700 border-violet-100 hover:bg-violet-100";
       case "Doctor":
-        return "bg-sky-100 text-sky-700 border-sky-200 hover:bg-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:border-sky-800";
+        return "bg-sky-50 text-sky-700 border-sky-100 hover:bg-sky-100";
       case "Influencer":
-        return "bg-pink-100 text-pink-700 border-pink-200 hover:bg-pink-200 dark:bg-pink-900/30 dark:text-pink-300 dark:border-pink-800";
+        return "bg-pink-50 text-pink-700 border-pink-100 hover:bg-pink-100";
       case "Customer":
-        return "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
+        return "bg-slate-50 text-slate-700 border-slate-100 hover:bg-slate-100";
       default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
+        return "bg-gray-50 text-gray-700 border-gray-100";
     }
   };
 
@@ -319,11 +331,11 @@ const UsersPageContent = () => {
   const getStatusBadgeStyles = (status: string) => {
     switch (status) {
       case "Active":
-        return "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800";
+        return "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100";
       case "Inactive":
-        return "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800";
+        return "bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-50 text-gray-700 border-gray-100";
     }
   };
 
@@ -543,51 +555,51 @@ const UsersPageContent = () => {
         ) : (
           <>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 border border-slate-200 rounded-xl shadow-sm">
               <div>
-                <h1 className="text-4xl font-bold text-foreground tracking-tight">
-                  Users
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                  Users Management
                 </h1>
-                <p className="text-muted-foreground mt-1">
-                  Manage user accounts, roles, and permissions
+                <p className="text-slate-500 mt-1 font-medium">
+                  Manage user accounts, roles, and platform permissions
                 </p>
               </div>
               <Button
                 onClick={() => setShowAddModal(true)}
-                className="gap-2 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white border-0"
+                className="gap-2 shadow-md hover:shadow-lg transition-all bg-primary text-white border-0"
               >
                 <UserPlus className="w-4 h-4" />
-                Add User
+                Create New User
               </Button>
             </div>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="border-l-4 border-l-violet-500 shadow-sm hover:shadow-md transition-all bg-white dark:bg-slate-950">
+              <Card className="border border-slate-200 shadow-sm hover:shadow-md transition-all bg-white group overflow-hidden">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Total Users
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
+                        Total Registry
                       </p>
-                      <p className="text-3xl font-bold text-foreground mt-1">
+                      <p className="text-2xl font-bold text-slate-900">
                         {pagination.total}
                       </p>
                     </div>
-                    <div className="p-3 bg-violet-100 dark:bg-violet-900/20 rounded-full">
-                      <User className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+                    <div className="p-3 bg-violet-50 border border-violet-100 rounded-xl transition-transform duration-500 group-hover:scale-110">
+                      <User className="w-6 h-6 text-violet-600" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-emerald-500 shadow-sm hover:shadow-md transition-all bg-white dark:bg-slate-950">
+              <Card className="border border-slate-200 shadow-sm hover:shadow-md transition-all bg-white group overflow-hidden">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Active Users
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
+                        Active Nodes
                       </p>
-                      <p className="text-3xl font-bold text-foreground mt-1">
+                      <p className="text-2xl font-bold text-slate-900">
                         {
                           (users || []).filter(
                             (u) =>
@@ -598,46 +610,46 @@ const UsersPageContent = () => {
                         }
                       </p>
                     </div>
-                    <div className="p-3 bg-emerald-100 dark:bg-emerald-900/20 rounded-full">
-                      <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                    <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl transition-transform duration-500 group-hover:scale-110">
+                      <CheckCircle className="w-6 h-6 text-emerald-600" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-sky-500 shadow-sm hover:shadow-md transition-all bg-white dark:bg-slate-950">
+              <Card className="border border-slate-200 shadow-sm hover:shadow-md transition-all bg-white group overflow-hidden">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Doctors</p>
-                      <p className="text-3xl font-bold text-foreground mt-1">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Medical Professionals</p>
+                      <p className="text-2xl font-bold text-slate-900">
                         {
                           (users || []).filter((u) => u.role === "Doctor")
                             .length
                         }
                       </p>
                     </div>
-                    <div className="p-3 bg-sky-100 dark:bg-sky-900/20 rounded-full">
-                      <Stethoscope className="w-6 h-6 text-sky-600 dark:text-sky-400" />
+                    <div className="p-3 bg-sky-50 border border-sky-100 rounded-xl transition-transform duration-500 group-hover:scale-110">
+                      <Stethoscope className="w-6 h-6 text-sky-600" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-pink-500 shadow-sm hover:shadow-md transition-all bg-white dark:bg-slate-950">
+              <Card className="border border-slate-200 shadow-sm hover:shadow-md transition-all bg-white group overflow-hidden">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Influencers
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
+                        Influencer Index
                       </p>
-                      <p className="text-3xl font-bold text-foreground mt-1">
+                      <p className="text-2xl font-bold text-slate-900">
                         {
                           (users || []).filter((u) => u.role === "Influencer")
                             .length
                         }
                       </p>
                     </div>
-                    <div className="p-3 bg-pink-100 dark:bg-pink-900/20 rounded-full">
-                      <Megaphone className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+                    <div className="p-3 bg-pink-50 border border-pink-100 rounded-xl transition-transform duration-500 group-hover:scale-110">
+                      <Megaphone className="w-6 h-6 text-pink-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -645,88 +657,71 @@ const UsersPageContent = () => {
             </div>
 
             {/* Filters and Search */}
-            <Card className="border-none shadow-sm bg-muted/30">
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row gap-4">
+            {/* Filters and Search */}
+            <Card className="border border-slate-200 shadow-sm bg-white rounded-xl overflow-hidden">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col lg:flex-row gap-4 items-center">
                   {/* Search */}
-                  <div className="relative flex-1 group">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <div className="relative flex-1 group w-full">
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                     <Input
                       type="text"
-                      placeholder="Search users..."
+                      placeholder="Search entity registry..."
                       value={filters.search}
                       onChange={(e) => handleSearchChange(e.target.value)}
-                      className="pl-10 bg-background border-muted-foreground/20 focus:border-primary transition-all"
+                      className="h-14 pl-14 pr-6 rounded-xl bg-slate-50 border-transparent focus:border-primary/20 focus:bg-white shadow-sm transition-all text-sm font-bold placeholder:font-medium w-full"
                     />
                   </div>
 
-                  {/* Role Filter */}
-                  <Select value={filters.role} onValueChange={handleRoleChange}>
-                    <SelectTrigger className="w-full lg:w-[180px] bg-background border-muted-foreground/20">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userRoles.map((role) => (
-                        <SelectItem key={role} value={role}>
-                          {role === "All"
-                            ? "All Roles"
-                            : role.charAt(0).toUpperCase() + role.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+                    {/* Role Filter */}
+                    <Select value={filters.role} onValueChange={handleRoleChange}>
+                      <SelectTrigger className="w-full sm:w-[180px] h-14 rounded-xl bg-slate-50 border-transparent text-xs font-black uppercase tracking-widest text-slate-600 transition-all">
+                        <SelectValue placeholder="System Role" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-slate-100 shadow-2xl p-2">
+                        {userRoles.map((role) => (
+                          <SelectItem key={role} value={role} className="rounded-xl mb-1 focus:bg-primary/5 focus:text-primary font-bold uppercase tracking-tighter text-[11px]">
+                            {role === "All" ? "Complete Matrix" : role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                  {/* Status Filter */}
-                  <Select
-                    value={filters.status}
-                    onValueChange={handleStatusChange}
-                  >
-                    <SelectTrigger className="w-full lg:w-[180px] bg-background border-muted-foreground/20">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userStatuses.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status === "All"
-                            ? "All Statuses"
-                            : status.charAt(0).toUpperCase() + status.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {/* Status Filter */}
+                    <Select value={filters.status} onValueChange={handleStatusChange}>
+                      <SelectTrigger className="w-full sm:w-[180px] h-14 rounded-xl bg-slate-50 border-transparent text-xs font-black uppercase tracking-widest text-slate-600 transition-all">
+                        <SelectValue placeholder="Node Status" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-slate-100 shadow-2xl p-2">
+                        {userStatuses.map((status) => (
+                          <SelectItem key={status} value={status} className="rounded-xl mb-1 focus:bg-primary/5 focus:text-primary font-bold uppercase tracking-tighter text-[11px]">
+                            {status === "All" ? "All States" : status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                  {/* View Toggle */}
-                  <div className="flex bg-background border border-muted-foreground/20 rounded-lg overflow-hidden p-1 gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
+                    {/* View Toggle */}
+                    <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
+                      {[
+                        { mode: 'grid', icon: Grid3X3 },
+                        { mode: 'list', icon: List },
+                      ].map((item) => (
                         <Button
-                          variant={viewMode === "grid" ? "secondary" : "ghost"}
+                          key={item.mode}
+                          variant={viewMode === (item.mode as any) ? 'default' : 'ghost'}
                           size="icon"
-                          onClick={() => setViewMode("grid")}
-                          className="rounded-md h-8 w-8"
+                          onClick={() => setViewMode(item.mode as any)}
+                          className={`h-12 w-12 rounded-lg transition-all ${viewMode === item.mode
+                            ? 'bg-white text-primary shadow-sm'
+                            : 'text-slate-400 hover:text-slate-600'
+                            }`}
                         >
-                          <Grid3X3 className="w-4 h-4" />
+                          <item.icon className="w-4 h-4" />
                         </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Grid view</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant={viewMode === "list" ? "secondary" : "ghost"}
-                          size="icon"
-                          onClick={() => setViewMode("list")}
-                          className="rounded-md h-8 w-8"
-                        >
-                          <List className="w-4 h-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>List view</p>
-                      </TooltipContent>
-                    </Tooltip>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -767,16 +762,16 @@ const UsersPageContent = () => {
                   <motion.div
                     key={user._id}
                     variants={{
-                      hidden: { opacity: 0, y: 20 },
+                      hidden: { opacity: 0, y: 10 },
                       show: { opacity: 1, y: 0 },
                     }}
                   >
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full group border-muted/60">
+                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full group border-slate-200 bg-white rounded-2xl">
                       <CardHeader className="pb-4 relative">
-                        <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-violet-50 via-fuchsia-50 to-indigo-50 dark:from-violet-950/20 dark:via-fuchsia-950/20 dark:to-indigo-950/20 z-0" />
+                        <div className="absolute top-0 left-0 w-full h-16 bg-slate-50 border-b border-slate-100 z-0" />
                         <div className="flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3 min-w-0">
-                            <Avatar className="w-16 h-16 border-4 border-white dark:border-slate-950 shadow-md group-hover:scale-105 transition-transform duration-300 flex-shrink-0 ring-2 ring-violet-100 dark:ring-violet-900/20">
+                            <Avatar className="w-14 h-14 border-2 border-white shadow-sm group-hover:scale-105 transition-transform duration-300 flex-shrink-0 ring-4 ring-slate-100">
                               <AvatarImage
                                 src={getUserImage(user)}
                                 alt={`${user.firstName} ${user.lastName}`}
@@ -893,25 +888,38 @@ const UsersPageContent = () => {
                             </div>
                           )}
                         </div>
-                        <div className="flex gap-2 pt-2 mt-auto">
-                          <Button
-                            onClick={() => openViewModal(user)}
-                            className="flex-1 gap-2 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/20 dark:hover:text-violet-400 border-violet-200 dark:border-violet-800"
-                            size="sm"
-                            variant="outline"
-                          >
-                            <Eye className="w-4 h-4" />
-                            View
-                          </Button>
-                          <Button
-                            onClick={() => openEditModal(user)}
-                            className="flex-1 gap-2 bg-violet-50 text-violet-600 hover:bg-violet-100 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/40"
-                            size="sm"
-                            variant="ghost"
-                          >
-                            <Edit className="w-4 h-4" />
-                            Edit
-                          </Button>
+                        <div className="pt-3 mt-auto border-t border-slate-100">
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => openViewModal(user)}
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 h-9 gap-1.5 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 font-semibold text-xs transition-all"
+                            >
+                              <Eye className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">View</span>
+                            </Button>
+                            <Button
+                              onClick={() => openEditModal(user)}
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 h-9 gap-1.5 rounded-xl border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 font-semibold text-xs transition-all"
+                            >
+                              <Edit className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">Edit</span>
+                            </Button>
+                            {user.role !== "Admin" && (
+                              <Button
+                                onClick={() => openDeleteModal(user)}
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-9 gap-1.5 rounded-xl border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:border-rose-300 font-semibold text-xs transition-all"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                                <span className="truncate">Delete</span>
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -919,34 +927,34 @@ const UsersPageContent = () => {
                 ))}
               </motion.div>
             ) : (
-              <Card>
+              <Card className="border border-slate-200 shadow-sm overflow-hidden rounded-xl bg-white">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="hidden md:table-cell">
-                        Phone
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="hover:bg-transparent border-slate-100">
+                      <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Registry Entity</TableHead>
+                      <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Permission Tier</TableHead>
+                      <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Operational State</TableHead>
+                      <TableHead className="hidden md:table-cell font-bold text-slate-500 uppercase tracking-widest text-[10px]">
+                        Communication
                       </TableHead>
-                      <TableHead className="hidden lg:table-cell">
-                        Join Date
+                      <TableHead className="hidden lg:table-cell font-bold text-slate-500 uppercase tracking-widest text-[10px]">
+                        Entry Vector
                       </TableHead>
-                      <TableHead className="hidden xl:table-cell">
-                        Last Login
+                      <TableHead className="hidden xl:table-cell font-bold text-slate-500 uppercase tracking-widest text-[10px]">
+                        Last Signal
                       </TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Protocol</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {users.map((user) => (
                       <TableRow
                         key={user._id}
-                        className="hover:bg-violet-50/50 dark:hover:bg-violet-900/10 transition-colors"
+                        className="transition-colors"
                       >
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="w-10 h-10">
+                            <Avatar className="w-10 h-10 border-2 border-white dark:border-slate-950 shadow-sm">
                               <AvatarImage
                                 src={getUserImage(user)}
                                 alt={`${user.firstName} ${user.lastName}`}
@@ -1003,20 +1011,20 @@ const UsersPageContent = () => {
                           {new Date(user.updatedAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
                                   onClick={() => openViewModal(user)}
                                   variant="ghost"
                                   size="icon"
-                                  className="hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                                  className="h-9 w-9 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-xl transition-all"
                                 >
                                   <Eye className="w-4 h-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>View user</p>
+                                <p>Access intelligence</p>
                               </TooltipContent>
                             </Tooltip>
                             <Tooltip>
@@ -1025,13 +1033,13 @@ const UsersPageContent = () => {
                                   onClick={() => openEditModal(user)}
                                   variant="ghost"
                                   size="icon"
-                                  className="hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20"
+                                  className="h-9 w-9 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Edit user</p>
+                                <p>Calibrate entity</p>
                               </TooltipContent>
                             </Tooltip>
                             {user.role !== "Admin" && (
@@ -1041,13 +1049,13 @@ const UsersPageContent = () => {
                                     onClick={() => openDeleteModal(user)}
                                     variant="ghost"
                                     size="icon"
-                                    className="text-destructive hover:bg-destructive/10"
+                                    className="h-9 w-9 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>Delete user</p>
+                                  <p>Decommission node</p>
                                 </TooltipContent>
                               </Tooltip>
                             )}
@@ -1062,27 +1070,28 @@ const UsersPageContent = () => {
 
             {/* Pagination */}
             {!isLoading && users.length > 0 && totalPages > 1 && (
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                      Showing {startIndex + 1} to{" "}
+              <Card className="border border-slate-200 bg-white rounded-xl shadow-sm overflow-hidden">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      Mapping index {startIndex + 1} &mdash;{" "}
                       {Math.min(endIndex, pagination.total)} of{" "}
-                      {pagination.total} users
+                      {pagination.total} entities
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() =>
                           handlePageChange(Math.max(pagination.page - 1, 1))
                         }
                         disabled={pagination.page === 1}
+                        className="rounded-xl h-10 px-4 font-bold text-xs uppercase tracking-widest hover:bg-slate-100"
                       >
-                        <ChevronLeft className="w-4 h-4" />
-                        Previous
+                        <ChevronLeft className="w-4 h-4 mr-2" />
+                        Back
                       </Button>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 mx-2">
                         {Array.from(
                           { length: totalPages },
                           (_, i) => i + 1,
@@ -1090,18 +1099,21 @@ const UsersPageContent = () => {
                           <Button
                             key={page}
                             variant={
-                              pagination.page === page ? "default" : "outline"
+                              pagination.page === page ? "default" : "ghost"
                             }
                             size="sm"
                             onClick={() => handlePageChange(page)}
-                            className="w-8 h-8 p-0"
+                            className={`w-10 h-10 rounded-xl font-black text-xs transition-all ${pagination.page === page
+                              ? 'shadow-lg shadow-primary/20 scale-110'
+                              : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
+                              }`}
                           >
                             {page}
                           </Button>
                         ))}
                       </div>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() =>
                           handlePageChange(
@@ -1109,9 +1121,10 @@ const UsersPageContent = () => {
                           )
                         }
                         disabled={pagination.page === totalPages}
+                        className="rounded-xl h-10 px-4 font-bold text-xs uppercase tracking-widest hover:bg-slate-100"
                       >
                         Next
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
                     </div>
                   </div>
@@ -1123,251 +1136,177 @@ const UsersPageContent = () => {
 
         {/* View User Modal */}
         <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                User Profile - {selectedUser?.firstName}{" "}
-                {selectedUser?.lastName}
-              </DialogTitle>
-              <DialogDescription>
-                Complete user information and account details.
-              </DialogDescription>
-            </DialogHeader>
-            {selectedUser && (
-              <div className="space-y-6">
-                {/* User Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Personal Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Name:</span>
-                        <span className="font-medium">
-                          {selectedUser.firstName} {selectedUser.lastName}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Email:</span>
-                        <span className="font-medium">
-                          {selectedUser.email}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Phone:</span>
-                        <span className="font-medium">
-                          {selectedUser.phone}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Date of Birth:
-                        </span>
-                        <span className="font-medium">
-                          {selectedUser.dateOfBirth
-                            ? new Date(
-                              selectedUser.dateOfBirth,
-                            ).toLocaleDateString()
-                            : "Not provided"}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Address:</span>
-                        <span className="font-medium text-right max-w-[200px]">
-                          {selectedUser.address}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Account Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Role:</span>
-                        <Badge
-                          variant="outline"
-                          className={getRoleBadgeStyles(selectedUser.role)}
-                        >
-                          {getRoleIcon(selectedUser.role)}
-                          <span className="ml-1">
-                            {selectedUser.role.charAt(0).toUpperCase() +
-                              selectedUser.role.slice(1)}
-                          </span>
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status:</span>
-                        <Badge
-                          variant="outline"
-                          className={getStatusBadgeStyles(selectedUser.status)}
-                        >
-                          {getStatusIcon(selectedUser.status)}
-                          <span className="ml-1">
-                            {selectedUser.status.charAt(0).toUpperCase() +
-                              selectedUser.status.slice(1)}
-                          </span>
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Verified:</span>
-                        <Badge
-                          variant={
-                            selectedUser.verified ? "default" : "secondary"
-                          }
-                          className={
-                            selectedUser.verified
-                              ? "bg-emerald-500 text-white border-0"
-                              : ""
-                          }
-                        >
-                          {selectedUser.verified ? "Yes" : "No"}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Join Date:
-                        </span>
-                        <span className="font-medium">
-                          {new Date(
-                            selectedUser.createdAt,
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Last Updated:
-                        </span>
-                        <span className="font-medium">
-                          {new Date(
-                            selectedUser.updatedAt,
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
+          <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white">
+            <DialogHeader className="p-8 pb-6 border-b sticky top-0 z-10 bg-white">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <DialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-3">
+                    <div className="p-2 bg-slate-100 rounded-xl">
+                      <UserCheck className="w-6 h-6 text-primary" />
+                    </div>
+                    Entity Intelligence Registry
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-500 font-medium">
+                    Comprehensive profile breakdown and account metadata for the selected node.
+                  </DialogDescription>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={getRoleBadgeStyles(selectedUser?.role || "")}>
+                    {selectedUser && getRoleIcon(selectedUser.role)}
+                    <span className="ml-1 uppercase font-black text-[10px] tracking-widest">{selectedUser?.role}</span>
+                  </Badge>
+                  <Badge variant="outline" className={getStatusBadgeStyles(selectedUser?.status || "")}>
+                    <span className="uppercase font-black text-[10px] tracking-widest">{selectedUser?.status}</span>
+                  </Badge>
+                </div>
+              </div>
+            </DialogHeader>
 
-                {/* Bio */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Bio</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {selectedUser.bio}
-                    </p>
-                  </CardContent>
-                </Card>
+            {selectedUser && (
+              <div className="p-8 overflow-y-auto max-h-[calc(90vh-200px)]">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  {/* Sidebar Info */}
+                  <div className="lg:col-span-4 space-y-6">
+                    <Card className="bg-slate-50 rounded-3xl p-6 border-slate-100 shadow-sm text-center">
+                      <Avatar className="w-24 h-24 mx-auto border-4 border-white shadow-xl mb-4 ring-8 ring-slate-100/50">
+                        <AvatarImage src={getUserImage(selectedUser)} />
+                        <AvatarFallback className="text-2xl font-black">{selectedUser.firstName[0]}{selectedUser.lastName[0]}</AvatarFallback>
+                      </Avatar>
+                      <h3 className="text-xl font-black text-slate-900">{selectedUser.firstName} {selectedUser.lastName}</h3>
+                      <p className="text-sm text-slate-500 font-medium mb-4">{selectedUser.email}</p>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {selectedUser.verified && (
+                          <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider">Verified Entity</Badge>
+                        )}
+                        <Badge className="bg-slate-100 text-slate-600 border-slate-200 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider">ID: {selectedUser._id.slice(-6)}</Badge>
+                      </div>
+                    </Card>
 
-                {/* Role-specific Information */}
-                {selectedUser.role === "Customer" && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Customer Statistics</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            Contact Info
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedUser.phone}
-                          </p>
+                    <Card className="bg-white rounded-3xl p-6 border-slate-100 shadow-sm space-y-4">
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                        <Activity className="w-3 h-3" /> System Logs
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-slate-500 font-medium">Join Protocol</span>
+                          <span className="font-bold text-slate-900">{new Date(selectedUser.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            Status
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedUser.isActive ? "Active" : "Inactive"}
-                          </p>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-slate-500 font-medium">Last Modulation</span>
+                          <span className="font-bold text-slate-900">{new Date(selectedUser.updatedAt).toLocaleDateString()}</span>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </Card>
+                  </div>
 
-                {selectedUser.role === "Influencer" && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Influencer Statistics</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            {selectedUser.followers?.toLocaleString() || 0}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Followers
-                          </p>
+                  {/* Main Content */}
+                  <div className="lg:col-span-8 space-y-8">
+                    {/* Identity Section */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                        <div className="p-2 bg-slate-50 rounded-xl text-primary">
+                          <User className="w-5 h-5" />
                         </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            {selectedUser.platform || "Unknown"}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Platform
-                          </p>
+                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Identity Context</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Communication Uplink</p>
+                          <div className="flex items-center gap-2 text-slate-900 font-bold">
+                            <Phone className="w-4 h-4 text-slate-400" /> {selectedUser.phone || "No signal"}
+                          </div>
                         </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            {selectedUser.commissionRate || 0}%
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Commission Rate
-                          </p>
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Temporal Origin (DOB)</p>
+                          <div className="flex items-center gap-2 text-slate-900 font-bold">
+                            <Calendar className="w-4 h-4 text-slate-400" /> {selectedUser.dateOfBirth ? new Date(selectedUser.dateOfBirth).toLocaleDateString() : "Not disclosed"}
+                          </div>
+                        </div>
+                        <div className="md:col-span-2 space-y-1.5">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Geographic Base (Address)</p>
+                          <div className="flex items-start gap-2 text-slate-900 font-bold">
+                            <MapPin className="w-4 h-4 text-slate-400 mt-1" /> {selectedUser.address || "Legacy address not found"}
+                          </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
 
-                {selectedUser.role === "Doctor" && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Doctor Statistics</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            {selectedUser.experience || 0}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Years Experience
-                          </p>
+                    {/* Meta Section */}
+                    <div className="space-y-6 pt-4">
+                      <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                        <div className="p-2 bg-slate-50 rounded-xl text-primary">
+                          <Settings className="w-5 h-5" />
                         </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            {selectedUser.hospital || "Not specified"}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Hospital
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-foreground">
-                            {selectedUser.consultationFee || 0}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Consultation Fee
-                          </p>
+                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Entity Intel</h3>
+                      </div>
+                      <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Biographical Fragment</p>
+                        <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
+                          "{selectedUser.bio || "No biographical intelligence provided for this entity."}"
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Role-specific Parameters */}
+                    {selectedUser.role === "Customer" && (
+                      <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-3xl border border-blue-100/50 dark:border-blue-900/20">
+                        <h4 className="text-sm font-black text-blue-600 uppercase tracking-widest mb-4">Consumer Analytics</h4>
+                        <div className="grid grid-cols-2 gap-8">
+                          <div>
+                            <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">Activity State</p>
+                            <span className="text-lg font-black">{selectedUser.isActive ? "OPERATIONAL" : "IDLE"}</span>
+                          </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    )}
+
+                    {selectedUser.role === "Influencer" && (
+                      <div className="bg-fuchsia-50/50 dark:bg-fuchsia-900/10 p-6 rounded-3xl border border-fuchsia-100/50 dark:border-fuchsia-900/20">
+                        <h4 className="text-sm font-black text-fuchsia-600 uppercase tracking-widest mb-4">Influencer Intelligence</h4>
+                        <div className="grid grid-cols-3 gap-6">
+                          <div>
+                            <p className="text-[10px] text-fuchsia-400 font-bold uppercase mb-1">Follower Scale</p>
+                            <span className="text-lg font-black">{selectedUser.followers?.toLocaleString() || 0}</span>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-fuchsia-400 font-bold uppercase mb-1">Primary Grid</p>
+                            <span className="text-lg font-black">{selectedUser.platform || "N/A"}</span>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-fuchsia-400 font-bold uppercase mb-1">Margin Rate</p>
+                            <span className="text-lg font-black">{selectedUser.commissionRate || 0}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedUser.role === "Doctor" && (
+                      <div className="bg-emerald-50/50 dark:bg-emerald-900/10 p-6 rounded-3xl border border-emerald-100/50 dark:border-emerald-900/20">
+                        <h4 className="text-sm font-black text-emerald-600 uppercase tracking-widest mb-4">Medical Metadata</h4>
+                        <div className="grid grid-cols-3 gap-6">
+                          <div>
+                            <p className="text-[10px] text-emerald-400 font-bold uppercase mb-1">Clinical Age</p>
+                            <span className="text-lg font-black">{selectedUser.experience || 0}y</span>
+                          </div>
+                          <div className="col-span-2">
+                            <p className="text-[10px] text-emerald-400 font-bold uppercase mb-1">Assigned Facility</p>
+                            <span className="text-lg font-black truncate block">{selectedUser.hospital || "Independent Agent"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowViewModal(false)}>
-                Close
+
+            <DialogFooter className="p-8 bg-white border-t sticky bottom-0 z-10">
+              <Button
+                variant="outline"
+                onClick={() => setShowViewModal(false)}
+                className="h-11 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] border-slate-200 hover:bg-slate-50"
+              >
+                Close Registry
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1375,435 +1314,182 @@ const UsersPageContent = () => {
 
         {/* Edit User Modal */}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                Edit User - {selectedUser?.firstName} {selectedUser?.lastName}
-              </DialogTitle>
-              <DialogDescription>
-                Update user information and account settings.
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+            <div className="modal-header">
+              <DialogHeader>
+                <DialogTitle>Edit User Profile</DialogTitle>
+                <DialogDescription>Update user account details and permissions</DialogDescription>
+              </DialogHeader>
+            </div>
 
             {selectedUser && (
-              <div className="space-y-6">
-                {/* Avatar Section - Top Center */}
-                <div className="flex flex-col items-center space-y-4 py-4">
-                  <Label htmlFor="avatar" className="text-lg font-medium">
-                    Profile Picture
-                  </Label>
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage
-                      src={selectedUser.imageUrl || "/placeholder-user.svg"}
-                      alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
-                    />
-                    <AvatarFallback className="text-xl">
-                      {selectedUser.firstName[0]}
-                      {selectedUser.lastName[0]}
-                    </AvatarFallback>
+              <div className="modal-container space-y-8">
+                {/* Avatar Section */}
+                <div className="flex flex-col items-center gap-4 py-8 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  <Avatar className="w-24 h-24 shadow-xl ring-4 ring-white">
+                    <AvatarImage src={selectedUser.imageUrl || "/placeholder-user.svg"} />
+                    <AvatarFallback className="text-2xl font-bold">{selectedUser.firstName[0]}{selectedUser.lastName[0]}</AvatarFallback>
                   </Avatar>
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={handleAvatarUpload}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Photo
-                    </Button>
-                    <Button onClick={removeAvatar} variant="outline" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
+                  <div className="flex gap-2">
+                    <button onClick={handleAvatarUpload} className="btn-secondary h-10 px-4 text-sm font-semibold">
+                      <Upload className="w-4 h-4 mr-2" /> Upload Photo
+                    </button>
+                    <button onClick={removeAvatar} className="btn-secondary h-10 px-4 text-sm font-semibold text-rose-500 hover:text-rose-600">
                       Remove
-                    </Button>
+                    </button>
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      value={selectedUser.firstName}
-                      onChange={(e) =>
-                        setSelectedUser({
-                          ...selectedUser,
-                          firstName: e.target.value,
-                        })
-                      }
-                    />
+
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label className="form-label form-label-required">First Name</label>
+                    <input className="form-input" value={selectedUser.firstName}
+                      onChange={(e) => setSelectedUser({ ...selectedUser, firstName: e.target.value })} />
                   </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      value={selectedUser.lastName}
-                      onChange={(e) =>
-                        setSelectedUser({
-                          ...selectedUser,
-                          lastName: e.target.value,
-                        })
-                      }
-                    />
+                  <div className="form-field">
+                    <label className="form-label form-label-required">Last Name</label>
+                    <input className="form-input" value={selectedUser.lastName}
+                      onChange={(e) => setSelectedUser({ ...selectedUser, lastName: e.target.value })} />
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={selectedUser.email}
-                      onChange={(e) =>
-                        setSelectedUser({
-                          ...selectedUser,
-                          email: e.target.value,
-                        })
-                      }
-                    />
+                  <div className="form-field">
+                    <label className="form-label form-label-required">Email Address</label>
+                    <input className="form-input" type="email" value={selectedUser.email}
+                      onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })} />
                   </div>
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={selectedUser.phone}
-                      onChange={(e) =>
-                        setSelectedUser({
-                          ...selectedUser,
-                          phone: e.target.value,
-                        })
-                      }
-                    />
+                  <div className="form-field">
+                    <label className="form-label">Phone Number</label>
+                    <input className="form-input" value={selectedUser.phone}
+                      onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })} />
                   </div>
-                  <div>
-                    <Label htmlFor="role">Role</Label>
-                    <Select
-                      value={selectedUser.role}
-                      onValueChange={(
-                        value: "Admin" | "Doctor" | "Influencer" | "Customer",
-                      ) => setSelectedUser({ ...selectedUser, role: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
+                  <div className="form-field">
+                    <label className="form-label form-label-required">Role</label>
+                    <Select value={selectedUser.role} onValueChange={(value: "Admin" | "Doctor" | "Influencer" | "Customer") => setSelectedUser({ ...selectedUser, role: value })}>
+                      <SelectTrigger className="form-select-trigger"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                        <SelectItem value="Doctor">Doctor</SelectItem>
+                        <SelectItem value="Admin">Administrator</SelectItem>
+                        <SelectItem value="Doctor">Medical Professional</SelectItem>
                         <SelectItem value="Influencer">Influencer</SelectItem>
                         <SelectItem value="Customer">Customer</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={selectedUser.status}
-                      onValueChange={(value: "Active" | "Inactive") =>
-                        setSelectedUser({ ...selectedUser, status: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
+                  <div className="form-field">
+                    <label className="form-label form-label-required">Status</label>
+                    <Select value={selectedUser.status} onValueChange={(value: "Active" | "Inactive") => setSelectedUser({ ...selectedUser, status: value })}>
+                      <SelectTrigger className="form-select-trigger"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
+                        <SelectItem value="Active">Active (Live)</SelectItem>
+                        <SelectItem value="Inactive">Inactive (Disabled)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                    <Input
-                      id="dateOfBirth"
-                      type="date"
-                      value={selectedUser.dateOfBirth}
-                      onChange={(e) =>
-                        setSelectedUser({
-                          ...selectedUser,
-                          dateOfBirth: e.target.value,
-                        })
-                      }
-                    />
+                  <div className="form-field form-field-full">
+                    <label className="form-label">Bio / Professional Notes</label>
+                    <textarea className="form-textarea" rows={3}
+                      value={selectedUser.bio || ''}
+                      onChange={(e) => setSelectedUser({ ...selectedUser, bio: e.target.value })}
+                      placeholder="Enter a brief background or notes..." />
                   </div>
-                  <div>
-                    <Label htmlFor="verified">Verified</Label>
-                    <Select
-                      value={selectedUser.verified ? "true" : "false"}
-                      onValueChange={(value) =>
-                        setSelectedUser({
-                          ...selectedUser,
-                          verified: value === "true",
-                        })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select verification" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Verified</SelectItem>
-                        <SelectItem value="false">Not Verified</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Textarea
-                    id="address"
-                    value={selectedUser.address}
-                    onChange={(e) =>
-                      setSelectedUser({
-                        ...selectedUser,
-                        address: e.target.value,
-                      })
-                    }
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    id="bio"
-                    value={selectedUser.bio}
-                    onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, bio: e.target.value })
-                    }
-                    rows={3}
-                  />
                 </div>
               </div>
             )}
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowEditModal(false)}
-                disabled={modalLoading}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleUpdateUser} disabled={modalLoading}>
-                {modalLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update User"
-                )}
-              </Button>
-            </DialogFooter>
+
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowEditModal(false)} disabled={modalLoading}>Cancel</button>
+              <button className="btn-primary" onClick={handleUpdateUser} disabled={modalLoading}>
+                {modalLoading ? <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Saving...</> : <><Edit className="w-5 h-5 mr-2" /> Save Changes</>}
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
 
         {/* Add User Modal */}
         <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>
-                Create a new user account with the required information.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6">
-              {/* Avatar Section - Top Center */}
-              <div className="flex flex-col items-center space-y-4 py-4">
-                <Label htmlFor="newAvatar" className="text-lg font-medium">
-                  Profile Picture
-                </Label>
-                <Avatar className="w-24 h-24">
-                  <AvatarImage
-                    src={newUser.imageUrl || "/placeholder-user.svg"}
-                    alt={`${newUser.firstName} ${newUser.lastName}`}
-                  />
-                  <AvatarFallback className="text-xl">
-                    {newUser.firstName ? newUser.firstName[0] : "?"}
-                    {newUser.lastName ? newUser.lastName[0] : "?"}
-                  </AvatarFallback>
+          <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+            <div className="modal-header">
+              <DialogHeader>
+                <DialogTitle>Onboard New User</DialogTitle>
+                <DialogDescription>Create a new account with role-based access control</DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <div className="modal-container space-y-8">
+              {/* Photo Upload */}
+              <div className="flex flex-col items-center gap-4 py-8 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                <Avatar className="w-24 h-24 shadow-xl bg-white ring-4 ring-white">
+                  <AvatarImage src={newUser.imageUrl || "/placeholder-user.svg"} />
+                  <AvatarFallback className="text-2xl font-bold">?</AvatarFallback>
                 </Avatar>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleNewUserAvatarUpload}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Photo
-                  </Button>
-                  <Button
-                    onClick={removeNewUserAvatar}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Camera className="w-4 h-4 mr-2" />
+                <div className="flex gap-2">
+                  <button onClick={handleNewUserAvatarUpload} className="btn-secondary h-10 px-4 text-sm font-semibold">
+                    <Upload className="w-4 h-4 mr-2" /> Upload Photo
+                  </button>
+                  <button onClick={removeNewUserAvatar} className="btn-secondary h-10 px-4 text-sm font-semibold text-rose-500 hover:text-rose-600">
                     Remove
-                  </Button>
+                  </button>
                 </div>
-                <input
-                  ref={newUserFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleNewUserFileSelect}
-                  className="hidden"
-                />
+                <input ref={newUserFileInputRef} type="file" accept="image/*" onChange={handleNewUserFileSelect} className="hidden" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="newFirstName">First Name</Label>
-                  <Input
-                    id="newFirstName"
-                    placeholder="Enter first name"
-                    value={newUser.firstName}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, firstName: e.target.value })
-                    }
-                  />
+
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="form-label form-label-required">First Name</label>
+                  <input className="form-input" placeholder="e.g. John"
+                    value={newUser.firstName} onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })} />
                 </div>
-                <div>
-                  <Label htmlFor="newLastName">Last Name</Label>
-                  <Input
-                    id="newLastName"
-                    placeholder="Enter last name"
-                    value={newUser.lastName}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, lastName: e.target.value })
-                    }
-                  />
+                <div className="form-field">
+                  <label className="form-label form-label-required">Last Name</label>
+                  <input className="form-input" placeholder="e.g. Doe"
+                    value={newUser.lastName} onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })} />
                 </div>
-                <div>
-                  <Label htmlFor="newEmail">Email</Label>
-                  <Input
-                    id="newEmail"
-                    type="email"
-                    placeholder="Enter email address"
-                    value={newUser.email}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, email: e.target.value })
-                    }
-                  />
+                <div className="form-field">
+                  <label className="form-label form-label-required">Email Address</label>
+                  <input className="form-input" type="email" placeholder="john.doe@company.com"
+                    value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} />
                 </div>
-                <div>
-                  <Label htmlFor="newPhone">Phone</Label>
-                  <Input
-                    id="newPhone"
-                    placeholder="Enter phone number"
-                    value={newUser.phone}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, phone: e.target.value })
-                    }
-                  />
+                <div className="form-field">
+                  <label className="form-label">Phone Number</label>
+                  <input className="form-input" placeholder="+1 (555) 000-0000"
+                    value={newUser.phone} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} />
                 </div>
-                <div>
-                  <Label htmlFor="newRole">Role</Label>
-                  <Select
-                    value={newUser.role}
-                    onValueChange={(
-                      value: "Admin" | "Doctor" | "Influencer" | "Customer",
-                    ) => setNewUser({ ...newUser, role: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
+                <div className="form-field">
+                  <label className="form-label form-label-required">Role Assignment</label>
+                  <Select value={newUser.role} onValueChange={(value: "Admin" | "Doctor" | "Influencer" | "Customer") => setNewUser({ ...newUser, role: value })}>
+                    <SelectTrigger className="form-select-trigger"><SelectValue placeholder="Select access level" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="Doctor">Doctor</SelectItem>
+                      <SelectItem value="Admin">Administrator</SelectItem>
+                      <SelectItem value="Doctor">Medical Professional</SelectItem>
                       <SelectItem value="Influencer">Influencer</SelectItem>
-                      <SelectItem value="Customer">Customer</SelectItem>
+                      <SelectItem value="Customer">Standard User</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="newStatus">Status</Label>
-                  <Select
-                    value={newUser.status}
-                    onValueChange={(value: "Active" | "Inactive") =>
-                      setNewUser({ ...newUser, status: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
+                <div className="form-field">
+                  <label className="form-label form-label-required">Account Status</label>
+                  <Select value={newUser.status} onValueChange={(value: "Active" | "Inactive") => setNewUser({ ...newUser, status: value })}>
+                    <SelectTrigger className="form-select-trigger"><SelectValue placeholder="Select initial state" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="Active">Active (Instant Access)</SelectItem>
+                      <SelectItem value="Inactive">Inactive (Hold Access)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="newDateOfBirth">Date of Birth</Label>
-                  <Input
-                    id="newDateOfBirth"
-                    type="date"
-                    value={newUser.dateOfBirth}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, dateOfBirth: e.target.value })
-                    }
-                  />
+                <div className="form-field form-field-full">
+                  <label className="form-label">Internal Biography / Notes</label>
+                  <textarea className="form-textarea" rows={3}
+                    placeholder="Brief professional summary or internal notes..."
+                    value={newUser.bio} onChange={(e) => setNewUser({ ...newUser, bio: e.target.value })} />
                 </div>
-                <div>
-                  <Label htmlFor="newVerified">Verified</Label>
-                  <Select
-                    value={newUser.verified ? "true" : "false"}
-                    onValueChange={(value) =>
-                      setNewUser({ ...newUser, verified: value === "true" })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select verification" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">Verified</SelectItem>
-                      <SelectItem value="false">Not Verified</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="newAddress">Address</Label>
-                <Textarea
-                  id="newAddress"
-                  placeholder="Enter address"
-                  value={newUser.address}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, address: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label htmlFor="newBio">Bio</Label>
-                <Textarea
-                  id="newBio"
-                  placeholder="Enter bio"
-                  value={newUser.bio}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, bio: e.target.value })
-                  }
-                  rows={3}
-                />
               </div>
             </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowAddModal(false)}
-                disabled={modalLoading}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleAddUser} disabled={modalLoading}>
-                {modalLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create User"
-                )}
-              </Button>
-            </DialogFooter>
+
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowAddModal(false)} disabled={modalLoading}>Cancel</button>
+              <button className="btn-primary" onClick={handleAddUser} disabled={modalLoading}>
+                {modalLoading ? <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Creating...</> : <><UserPlus className="w-5 h-5 mr-2" /> Create Account</>}
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
 

@@ -1,9 +1,12 @@
-import dotenv from 'dotenv';
+// Load environment variables as early as possible. the side‑effect import is
+// evaluated before any other module in this file, so dotenv runs before
+// `app.js` (which imports controllers that read process.env).
+import 'dotenv/config';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Backwards compatibility: map legacy env names to canonical MONGO_URI
 if (!process.env.MONGO_URI) {

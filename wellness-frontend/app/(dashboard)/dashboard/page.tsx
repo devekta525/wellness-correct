@@ -274,19 +274,13 @@ const DashboardPage = () => {
 
   const getColorClasses = (color: string) => {
     const colors = {
-      blue: "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400",
-      emerald:
-        "bg-emerald-100 text-emerald-600 dark:bg-emerald-900 dark:text-emerald-400",
-      purple:
-        "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400",
-      green:
-        "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400",
-      orange:
-        "bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-400",
-      indigo:
-        "bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400",
-      yellow:
-        "bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400",
+      blue: "bg-blue-50 text-blue-600 border border-blue-100",
+      emerald: "bg-emerald-50 text-emerald-600 border border-emerald-100",
+      purple: "bg-purple-50 text-purple-600 border border-purple-100",
+      green: "bg-green-50 text-green-600 border border-green-100",
+      orange: "bg-orange-50 text-orange-600 border border-orange-100",
+      indigo: "bg-indigo-50 text-indigo-600 border border-indigo-100",
+      yellow: "bg-yellow-50 text-yellow-600 border border-yellow-100",
     };
     return colors[color as keyof typeof colors] || colors.blue;
   };
@@ -294,12 +288,11 @@ const DashboardPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            Welcome back! Here&apos;s what&apos;s happening with your wellness
-            platform.
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
+          <p className="text-sm text-slate-500 mt-1 font-medium">
+            Welcome back! Here&apos;s what&apos;s happening with your wellness platform.
           </p>
         </div>
       </div>
@@ -311,42 +304,39 @@ const DashboardPage = () => {
           return (
             <Card
               key={stat.name}
-              className="hover:shadow-lg transition-shadow cursor-pointer"
+              className="group hover:shadow-md transition-all duration-300 cursor-pointer border-slate-200 bg-white"
               onClick={() => router.push(stat.route)}
             >
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
                       {stat.name}
                     </p>
-                    <p className="text-2xl font-bold text-foreground mt-2">
+                    <p className="text-2xl font-bold text-slate-900 mt-2 tracking-tight">
                       {stat.value}
                     </p>
-                    <div className="flex items-center mt-2">
-                      {stat.changeType === "positive" ? (
-                        <ArrowUpRight className="w-4 h-4 text-green-600 mr-1" />
-                      ) : (
-                        <ArrowDownRight className="w-4 h-4 text-red-600 mr-1" />
-                      )}
-                      <span
-                        className={`text-sm font-medium ${
-                          stat.changeType === "positive"
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
+                    <div className="flex items-center mt-3">
+                      <div className={`flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold mr-2
+                        ${stat.changeType === "positive"
+                          ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                          : "bg-rose-50 text-rose-600 border border-rose-100"}`}>
+                        {stat.changeType === "positive" ? (
+                          <ArrowUpRight className="w-3 h-3 mr-0.5" />
+                        ) : (
+                          <ArrowDownRight className="w-3 h-3 mr-0.5" />
+                        )}
                         {stat.change}
-                      </span>
-                      <span className="text-sm text-muted-foreground ml-1">
-                        from last month
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                        vs last month
                       </span>
                     </div>
                   </div>
                   <div
-                    className={`p-3 rounded-lg ${getColorClasses(stat.color)}`}
+                    className={`p-3 rounded-xl transition-all duration-500 group-hover:scale-110 ${getColorClasses(stat.color)}`}
                   >
-                    <Icon className="w-6 h-6" />
+                    <Icon className="w-5 h-5" />
                   </div>
                 </div>
               </CardContent>
@@ -358,37 +348,37 @@ const DashboardPage = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5" />
+        <Card className="lg:col-span-2 border-slate-200 bg-white shadow-sm overflow-hidden">
+          <CardHeader className="border-b bg-slate-50/50">
+            <CardTitle className="flex items-center gap-2 text-lg font-bold">
+              <Activity className="w-5 h-5 text-primary" />
               Recent Activity
             </CardTitle>
-            <CardDescription>Latest updates from your platform</CardDescription>
+            <CardDescription className="font-medium">Latest updates from your platform</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-0">
+            <div className="divide-y divide-slate-100">
               {recentActivities.map((activity) => {
                 const Icon = activity.icon;
                 return (
                   <div
                     key={activity.id}
-                    className="flex items-center space-x-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    className="flex items-center space-x-4 p-4 hover:bg-slate-50 transition-colors group"
                   >
                     <div
-                      className={`w-10 h-10 rounded-full ${getColorClasses(activity.color)} flex items-center justify-center`}
+                      className={`w-10 h-10 rounded-xl ${getColorClasses(activity.color)} flex items-center justify-center transition-transform group-hover:scale-105`}
                     >
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-sm font-bold text-slate-900">
                         {activity.title}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed">
                         {activity.description}
                       </p>
                     </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1.5 whitespace-nowrap">
                       <Clock className="w-3 h-3" />
                       {activity.time}
                     </div>
@@ -400,63 +390,75 @@ const DashboardPage = () => {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="w-5 h-5" />
+        <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
+          <CardHeader className="border-b bg-slate-50/50">
+            <CardTitle className="flex items-center gap-2 text-lg font-bold">
+              <Plus className="w-5 h-5 text-primary" />
               Quick Actions
             </CardTitle>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
+            <CardDescription className="font-medium">Common tasks and shortcuts</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <Button
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-950"
+                className="h-auto p-4 flex flex-col items-center gap-3 rounded-xl border-slate-200 hover:bg-blue-50 hover:border-blue-100 transition-all hover:shadow-sm"
                 onClick={() => router.push("/dashboard/users?action=add")}
               >
-                <Users className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium">Add User</span>
+                <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                  <Users className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-600">Add User</span>
               </Button>
               <Button
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-green-50 dark:hover:bg-green-950"
+                className="h-auto p-4 flex flex-col items-center gap-3 rounded-xl border-slate-200 hover:bg-green-50 hover:border-green-100 transition-all hover:shadow-sm"
                 onClick={() => router.push("/dashboard/products?action=add")}
               >
-                <Package className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium">Add Product</span>
+                <div className="p-2.5 rounded-lg bg-green-50 text-green-600 border border-green-100">
+                  <Package className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-600">Add Product</span>
               </Button>
               <Button
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-purple-50 dark:hover:bg-purple-950"
+                className="h-auto p-4 flex flex-col items-center gap-3 rounded-xl border-slate-200 hover:bg-purple-50 hover:border-purple-100 transition-all hover:shadow-sm"
                 onClick={() => router.push("/dashboard/leads")}
               >
-                <TrendingUp className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium">View Leads</span>
+                <div className="p-2.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-600">View Leads</span>
               </Button>
               <Button
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-orange-50 dark:hover:bg-orange-950"
+                className="h-auto p-4 flex flex-col items-center gap-3 rounded-xl border-slate-200 hover:bg-orange-50 hover:border-orange-100 transition-all hover:shadow-sm"
                 onClick={() => router.push("/dashboard/orders")}
               >
-                <ShoppingCart className="w-5 h-5 text-orange-600" />
-                <span className="text-sm font-medium">View Orders</span>
+                <div className="p-2.5 rounded-lg bg-orange-50 text-orange-600 border border-orange-100">
+                  <ShoppingCart className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-600">View Orders</span>
               </Button>
               <Button
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                className="h-auto p-4 flex flex-col items-center gap-3 rounded-xl border-slate-200 hover:bg-emerald-50 hover:border-emerald-100 transition-all hover:shadow-sm"
                 onClick={() => router.push("/dashboard/doctors")}
               >
-                <Stethoscope className="w-5 h-5 text-emerald-600" />
-                <span className="text-sm font-medium">Add Doctor</span>
+                <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+                  <Stethoscope className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-600">Add Doctor</span>
               </Button>
               <Button
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                className="h-auto p-4 flex flex-col items-center gap-3 rounded-xl border-slate-200 hover:bg-indigo-50 hover:border-indigo-100 transition-all hover:shadow-sm"
                 onClick={() => router.push("/dashboard/influencers")}
               >
-                <Megaphone className="w-5 h-5 text-indigo-600" />
-                <span className="text-sm font-medium">Add Influencer</span>
+                <div className="p-2.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100">
+                  <Megaphone className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-600">Add Influencer</span>
               </Button>
             </div>
           </CardContent>
@@ -466,13 +468,13 @@ const DashboardPage = () => {
       {/* Bottom Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Performing Products */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
+        <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
+          <CardHeader className="border-b bg-slate-50/50">
+            <CardTitle className="flex items-center gap-2 text-lg font-bold">
+              <BarChart3 className="w-5 h-5 text-primary" />
               Top Performing Products
             </CardTitle>
-            <CardDescription>Best selling products this month</CardDescription>
+            <CardDescription className="font-medium">Best selling products this month</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -511,13 +513,13 @@ const DashboardPage = () => {
         </Card>
 
         {/* System Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
+        <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
+          <CardHeader className="border-b bg-slate-50/50">
+            <CardTitle className="flex items-center gap-2 text-lg font-bold">
+              <Bell className="w-5 h-5 text-primary" />
               System Status
             </CardTitle>
-            <CardDescription>Platform health and notifications</CardDescription>
+            <CardDescription className="font-medium">Platform health and notifications</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

@@ -23,7 +23,10 @@ import {
   TrendingUp,
   Users,
   DollarSign,
+  ChevronLeft as ChevronLeftIcon,
+  Upload,
 } from "lucide-react";
+import { FormSteps } from "@/components/ui/form-steps";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -101,6 +104,7 @@ const AppointmentsPage = () => {
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addStep, setAddStep] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0],
@@ -789,257 +793,287 @@ const AppointmentsPage = () => {
           </div>
         )}
 
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Schedule New Appointment</DialogTitle>
-              <DialogDescription>
-                Create a new appointment with patient details
-              </DialogDescription>
-            </DialogHeader>
+        <Dialog open={isAddModalOpen} onOpenChange={(open) => {
+          setIsAddModalOpen(open);
+          if (!open) setAddStep(1);
+        }}>
+          <DialogContent className="max-w-3xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-slate-100 bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight mb-1">Schedule New Appointment</DialogTitle>
+                <DialogDescription className="text-sm text-slate-500">
+                  Fill in the details to schedule a new patient appointment.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <div className="bg-white px-8 pt-8 pb-4">
+              <FormSteps
+                currentStep={addStep}
+                steps={[
+                  { id: 1, name: "Patient Details" },
+                  { id: 2, name: "Appointment Details" },
+                  { id: 3, name: "Confirmation" },
+                ]}
+              />
+            </div>
+
             <form onSubmit={handleAddSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                <div>
-                  <Label>Patient Name</Label>
-                  <Input
-                    name="patientName"
-                    placeholder="Enter patient name"
-                    value={formData.patientName}
-                    onChange={(e) =>
-                      handleFormChange("patientName", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Patient Email</Label>
-                  <Input
-                    name="patientEmail"
-                    type="email"
-                    placeholder="Enter email"
-                    value={formData.patientEmail}
-                    onChange={(e) =>
-                      handleFormChange("patientEmail", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Patient Phone</Label>
-                  <Input
-                    name="patientPhone"
-                    placeholder="Enter phone"
-                    value={formData.patientPhone}
-                    onChange={(e) =>
-                      handleFormChange("patientPhone", e.target.value)
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Date</Label>
-                  <Input
-                    name="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => handleFormChange("date", e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Time</Label>
-                  <Input
-                    name="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => handleFormChange("time", e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Duration (min)</Label>
-                  <Select
-                    value={formData.duration}
-                    onValueChange={(value) =>
-                      handleFormChange("duration", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15">15 min</SelectItem>
-                      <SelectItem value="30">30 min</SelectItem>
-                      <SelectItem value="45">45 min</SelectItem>
-                      <SelectItem value="60">60 min</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Type</Label>
-                  <Select
-                    value={formData.type}
-                    onValueChange={(value) => handleFormChange("type", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="consultation">Consultation</SelectItem>
-                      <SelectItem value="follow-up">Follow-up</SelectItem>
-                      <SelectItem value="emergency">Emergency</SelectItem>
-                      <SelectItem value="checkup">Checkup</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Fee</Label>
-                  <Input
-                    name="fee"
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.fee}
-                    onChange={(e) => handleFormChange("fee", e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Location</Label>
-                  <Input
-                    name="location"
-                    placeholder="Clinic/Hospital location"
-                    value={formData.location}
-                    onChange={(e) =>
-                      handleFormChange("location", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Reason</Label>
-                  <Input
-                    name="reason"
-                    placeholder="Main reason for visit"
-                    value={formData.reason}
-                    onChange={(e) => handleFormChange("reason", e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Notes</Label>
-                  <Textarea
-                    name="notes"
-                    placeholder="Additional notes"
-                    value={formData.notes}
-                    onChange={(e) => handleFormChange("notes", e.target.value)}
-                  />
+              <div className="px-8 py-6 bg-[#F8FAFC] min-h-[350px]">
+                {addStep === 1 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Patient Name</label>
+                        <input
+                          className="form-input"
+                          name="patientName"
+                          placeholder="e.g. John Doe"
+                          value={formData.patientName}
+                          onChange={(e) => handleFormChange("patientName", e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Patient Email</label>
+                        <input
+                          className="form-input"
+                          name="patientEmail"
+                          type="email"
+                          placeholder="john@example.com"
+                          value={formData.patientEmail}
+                          onChange={(e) => handleFormChange("patientEmail", e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-field form-field-full">
+                        <label className="form-label">Patient Phone</label>
+                        <input
+                          className="form-input"
+                          name="patientPhone"
+                          placeholder="+91 98765 43210"
+                          value={formData.patientPhone}
+                          onChange={(e) => handleFormChange("patientPhone", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {addStep === 2 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Date</label>
+                        <input
+                          className="form-input"
+                          name="date"
+                          type="date"
+                          value={formData.date}
+                          onChange={(e) => handleFormChange("date", e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Time</label>
+                        <input
+                          className="form-input"
+                          name="time"
+                          type="time"
+                          value={formData.time}
+                          onChange={(e) => handleFormChange("time", e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">Duration</label>
+                        <Select value={formData.duration} onValueChange={(value) => handleFormChange("duration", value)}>
+                          <SelectTrigger className="form-select-trigger">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="15">15 min</SelectItem>
+                            <SelectItem value="30">30 min</SelectItem>
+                            <SelectItem value="45">45 min</SelectItem>
+                            <SelectItem value="60">60 min</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">Appointment Type</label>
+                        <Select value={formData.type} onValueChange={(value) => handleFormChange("type", value)}>
+                          <SelectTrigger className="form-select-trigger">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="consultation">Consultation</SelectItem>
+                            <SelectItem value="follow-up">Follow-up</SelectItem>
+                            <SelectItem value="emergency">Emergency</SelectItem>
+                            <SelectItem value="checkup">Checkup</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Consultation Fee (₹)</label>
+                        <input
+                          className="form-input"
+                          name="fee"
+                          type="number"
+                          placeholder="500"
+                          value={formData.fee}
+                          onChange={(e) => handleFormChange("fee", e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">Location</label>
+                        <input
+                          className="form-input"
+                          name="location"
+                          placeholder="Clinic/Hospital name"
+                          value={formData.location}
+                          onChange={(e) => handleFormChange("location", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {addStep === 3 && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="space-y-6">
+                      <div className="form-field">
+                        <label className="form-label form-label-required">Reason for Visit</label>
+                        <input
+                          className="form-input"
+                          name="reason"
+                          placeholder="Main reason for this appointment"
+                          value={formData.reason}
+                          onChange={(e) => handleFormChange("reason", e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="form-field">
+                        <label className="form-label">Notes</label>
+                        <textarea
+                          className="form-textarea"
+                          name="notes"
+                          placeholder="Additional notes or special instructions..."
+                          value={formData.notes}
+                          onChange={(e) => handleFormChange("notes", e.target.value)}
+                          rows={4}
+                        />
+                      </div>
+                      <div className="upload-dropzone">
+                        <div className="flex flex-col items-center gap-2 text-slate-500">
+                          <Upload className="w-8 h-8 text-blue-500 mb-2" />
+                          <p className="text-sm font-medium text-slate-700">Click to upload or drag and drop</p>
+                          <p className="text-xs">Medical reports or prescriptions (PDF, JPG up to 10MB)</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-between items-center gap-3">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => addStep > 1 ? setAddStep(addStep - 1) : setIsAddModalOpen(false)}
+                >
+                  {addStep === 1 ? "Cancel" : "Previous"}
+                </button>
+                <div className="flex gap-3">
+                  {addStep < 3 ? (
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() => setAddStep(addStep + 1)}
+                    >
+                      Next Step <ChevronRight className="w-4 h-4 ml-1" />
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn-primary" disabled={isLoading}>
+                      {isLoading ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Scheduling...</>
+                      ) : (
+                        <><Plus className="w-4 h-4" /> Schedule Appointment</>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsAddModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    "Schedule Appointment"
-                  )}
-                </Button>
-              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
 
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Edit Appointment</DialogTitle>
-            </DialogHeader>
+          <DialogContent className="max-w-3xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-slate-100 bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight">Edit Appointment</DialogTitle>
+                <DialogDescription className="text-sm text-slate-500">
+                  Modify the details of the existing appointment.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
             {selectedAppointment && (
               <form onSubmit={handleUpdateSubmit}>
-                <Tabs defaultValue="details" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="details">Details</TabsTrigger>
-                    <TabsTrigger value="notes">Notes</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="details" className="space-y-4 py-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label>Date</Label>
-                        <Input
-                          name="date"
-                          type="date"
-                          defaultValue={selectedAppointment.date}
-                        />
+                <div className="px-8 py-6 bg-[#F8FAFC]">
+                  <Tabs defaultValue="details" className="w-full">
+                    <TabsList className="flex gap-2 p-1 bg-slate-200/50 rounded-xl mb-6 w-full max-w-[300px]">
+                      <TabsTrigger value="details" className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Details</TabsTrigger>
+                      <TabsTrigger value="notes" className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Notes</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="details" className="mt-0 animate-in fade-in duration-300">
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">Date</label>
+                          <input className="form-input" name="date" type="date" defaultValue={selectedAppointment.date} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Time</label>
+                          <input className="form-input" name="time" type="time" defaultValue={selectedAppointment.time} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Fee (₹)</label>
+                          <input className="form-input" name="fee" type="number" defaultValue={selectedAppointment.fee} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Status</label>
+                          <Select name="status" defaultValue={selectedAppointment.status}>
+                            <SelectTrigger className="form-select-trigger">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="confirmed">Confirmed</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Reason for Visit</label>
+                          <input className="form-input" name="reason" defaultValue={selectedAppointment.reason} />
+                        </div>
                       </div>
-                      <div>
-                        <Label>Time</Label>
-                        <Input
-                          name="time"
-                          type="time"
-                          defaultValue={selectedAppointment.time}
-                        />
+                    </TabsContent>
+                    <TabsContent value="notes" className="mt-0 animate-in fade-in duration-300">
+                      <div className="form-field">
+                        <label className="form-label">Notes</label>
+                        <textarea className="form-textarea" name="notes" defaultValue={selectedAppointment.notes} rows={5} />
                       </div>
-                      <div>
-                        <Label>Fee</Label>
-                        <Input
-                          name="fee"
-                          type="number"
-                          defaultValue={selectedAppointment.fee}
-                        />
-                      </div>
-                      <div>
-                        <Label>Status</Label>
-                        <Select
-                          name="status"
-                          defaultValue={selectedAppointment.status}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="col-span-2">
-                        <Label>Reason</Label>
-                        <Input
-                          name="reason"
-                          defaultValue={selectedAppointment.reason}
-                        />
-                      </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="notes" className="space-y-4 py-4">
-                    <div>
-                      <Label>Notes</Label>
-                      <Textarea
-                        name="notes"
-                        defaultValue={selectedAppointment.notes}
-                        rows={5}
-                      />
-                    </div>
-                  </TabsContent>
-                </Tabs>
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsEditModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Saving..." : "Save Changes"}
-                  </Button>
-                </DialogFooter>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+                <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-end gap-3">
+                  <button type="button" className="btn-secondary" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
+                  <button type="submit" className="btn-primary" disabled={isLoading}>
+                    {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : "Save Changes"}
+                  </button>
+                </div>
               </form>
             )}
           </DialogContent>

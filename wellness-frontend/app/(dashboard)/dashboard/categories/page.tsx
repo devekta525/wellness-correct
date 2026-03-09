@@ -12,6 +12,14 @@ import {
   Package,
   Loader2,
   CheckCircle,
+  Image as ImageIcon,
+  Upload,
+  X,
+  FileText,
+  Globe,
+  Settings,
+  Activity,
+  Link,
 } from "lucide-react";
 import Loader from "@/components/common/dashboard/Loader";
 import Error from "@/components/common/dashboard/Error";
@@ -451,10 +459,10 @@ const CategoriesPage = () => {
                         <Badge
                           variant={
                             getStatusColor(category.status) as
-                              | "default"
-                              | "secondary"
-                              | "destructive"
-                              | "outline"
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
                           }
                         >
                           {category.status.charAt(0).toUpperCase() +
@@ -562,10 +570,10 @@ const CategoriesPage = () => {
                           <Badge
                             variant={
                               getStatusColor(category.status) as
-                                | "default"
-                                | "secondary"
-                                | "destructive"
-                                | "outline"
+                              | "default"
+                              | "secondary"
+                              | "destructive"
+                              | "outline"
                             }
                           >
                             {category.status.charAt(0).toUpperCase() +
@@ -619,259 +627,270 @@ const CategoriesPage = () => {
 
         {/* Add Category Modal */}
         <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Category</DialogTitle>
-              <DialogDescription>
-                Create a new product category with all necessary details.
-              </DialogDescription>
+          <DialogContent className="max-w-[1000px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+            <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+              <div className="space-y-1">
+                <DialogTitle className="text-2xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2.5">
+                  <div className="p-2 bg-primary/10 rounded-xl">
+                    <Plus className="w-6 h-6 text-primary" />
+                  </div>
+                  Taxonomy Definition
+                </DialogTitle>
+                <DialogDescription className="text-slate-500 dark:text-slate-400">
+                  Initialize a new product classification node with optimized routing mapping.
+                </DialogDescription>
+              </div>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                  Basic Information
-                </h3>
-                <div>
-                  <Label htmlFor="add-category-name" className="mb-2 block">
-                    Category Name
-                  </Label>
-                  <Input
-                    id="add-category-name"
-                    type="text"
-                    placeholder="Enter category name"
-                    value={newCategory.name}
-                    onChange={(e) =>
-                      setNewCategory({ ...newCategory, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="add-category-slug" className="mb-2 block">
-                    Slug
-                  </Label>
-                  <Input
-                    id="add-category-slug"
-                    type="text"
-                    placeholder="category-slug"
-                    value={newCategory.slug}
-                    onChange={(e) =>
-                      setNewCategory({ ...newCategory, slug: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="add-category-description"
-                    className="mb-2 block"
-                  >
-                    Description
-                  </Label>
-                  <Textarea
-                    id="add-category-description"
-                    placeholder="Enter category description"
-                    value={newCategory.description}
-                    onChange={(e) =>
-                      setNewCategory({
-                        ...newCategory,
-                        description: e.target.value,
-                      })
-                    }
-                    rows={4}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="add-category-image" className="mb-2 block">
-                    Category Image
-                  </Label>
-                  {newCategory.imageUrl ? (
-                    <div className="space-y-3">
-                      <div className="relative w-full h-48 overflow-hidden rounded-lg border">
-                        <Image
-                          src={newCategory.imageUrl}
-                          alt={newCategory.name || "New category"}
-                          fill
-                          className="object-cover"
-                        />
+
+            <div className="overflow-y-auto max-h-[75vh]">
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  {/* Left Column: Core Info */}
+                  <div className="space-y-12">
+                    {/* Section 1: Basic Information */}
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div className="p-2 bg-blue-500/10 rounded-xl text-blue-600">
+                          <Package className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Identity Context</h3>
                       </div>
-                      <div className="flex gap-2">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              // Convert file to URL for preview
-                              const imageUrl = URL.createObjectURL(file);
-                              setNewCategory({ ...newCategory, imageUrl });
-                            }
-                          }}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            const newUrl = prompt(
-                              "Enter new image URL:",
-                              newCategory.imageUrl,
-                            );
-                            if (
-                              newUrl !== null &&
-                              newUrl !== newCategory.imageUrl
-                            ) {
-                              setNewCategory({
-                                ...newCategory,
-                                imageUrl: newUrl,
-                              });
-                              setNewCategoryImageFile(null);
-                            }
-                          }}
-                        >
-                          Edit URL
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setNewCategory({ ...newCategory, imageUrl: "" });
-                            setNewCategoryImageFile(null);
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500">
-                        <div className="text-center">
-                          <div className="mb-2">No image selected</div>
-                          <div className="text-sm">
-                            Choose a file or enter a URL
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <Label htmlFor="add-category-name" className="text-xs font-black text-slate-400 uppercase tracking-widest">Classification Label</Label>
+                          <Input
+                            id="add-category-name"
+                            className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                            placeholder="e.g. Wellness Supplements"
+                            value={newCategory.name}
+                            onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <Label htmlFor="add-category-slug" className="text-xs font-black text-slate-400 uppercase tracking-widest">Routing Identifier (Slug)</Label>
+                          <div className="relative">
+                            <Link className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Input
+                              id="add-category-slug"
+                              className="h-12 pl-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                              placeholder="wellness-supplements"
+                              value={newCategory.slug}
+                              onChange={(e) => setNewCategory({ ...newCategory, slug: e.target.value })}
+                            />
                           </div>
                         </div>
+                        <div className="space-y-3">
+                          <Label htmlFor="add-category-description" className="text-xs font-black text-slate-400 uppercase tracking-widest">Abstract Summary</Label>
+                          <Textarea
+                            id="add-category-description"
+                            className="min-h-[120px] rounded-2xl border-slate-200 bg-slate-50/50 dark:bg-slate-900/50 shadow-inner focus:ring-primary/20 resize-none p-5 text-sm leading-relaxed"
+                            placeholder="Briefly describe what products belong in this category..."
+                            value={newCategory.description}
+                            onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                          />
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              // Store the actual file
-                              setNewCategoryImageFile(file);
-                              // Convert file to URL for preview
-                              const imageUrl = URL.createObjectURL(file);
-                              setNewCategory({ ...newCategory, imageUrl });
-                            }
-                          }}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            const newUrl = prompt("Enter image URL:", "");
-                            if (newUrl !== null && newUrl.trim()) {
-                              setNewCategory({
-                                ...newCategory,
-                                imageUrl: newUrl.trim(),
-                              });
-                              setNewCategoryImageFile(null);
-                            }
-                          }}
-                        >
-                          Enter URL
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+                    </section>
 
-              {/* Category Settings */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                  Category Settings
-                </h3>
-                <div>
-                  <Label htmlFor="add-category-status" className="mb-2 block">
-                    Status
-                  </Label>
-                  <Select
-                    value={newCategory.status || "Active"}
-                    onValueChange={(value) =>
-                      setNewCategory({ ...newCategory, status: value })
-                    }
-                  >
-                    <SelectTrigger id="add-category-status">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label
-                    htmlFor="add-category-meta-title"
-                    className="mb-2 block"
-                  >
-                    Meta Title
-                  </Label>
-                  <Input
-                    id="add-category-meta-title"
-                    type="text"
-                    placeholder="SEO meta title"
-                    value={newCategory.metaTitle}
-                    onChange={(e) =>
-                      setNewCategory({
-                        ...newCategory,
-                        metaTitle: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="add-category-meta-description"
-                    className="mb-2 block"
-                  >
-                    Meta Description
-                  </Label>
-                  <Textarea
-                    id="add-category-meta-description"
-                    placeholder="SEO meta description"
-                    value={newCategory.metaDescription}
-                    onChange={(e) =>
-                      setNewCategory({
-                        ...newCategory,
-                        metaDescription: e.target.value,
-                      })
-                    }
-                    rows={3}
-                  />
+                    {/* Section 2: Media */}
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div className="p-2 bg-rose-500/10 rounded-xl text-rose-600">
+                          <ImageIcon className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Visual Correlation</h3>
+                      </div>
+                      <div className="space-y-4">
+                        {newCategory.imageUrl ? (
+                          <div className="space-y-4">
+                            <div className="relative group aspect-video rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 shadow-lg">
+                              <Image
+                                src={newCategory.imageUrl}
+                                alt="Preview"
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="rounded-xl px-5 h-10 font-black uppercase tracking-widest text-[10px]"
+                                  onClick={() => {
+                                    setNewCategory({ ...newCategory, imageUrl: "" });
+                                    setNewCategoryImageFile(null);
+                                  }}
+                                >
+                                  <X className="w-4 h-4 mr-2" /> De-Link Asset
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 gap-4">
+                            <div className="flex flex-col items-center justify-center p-14 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group">
+                              <div className="w-14 h-14 bg-white dark:bg-slate-800 rounded-2xl shadow-sm flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <Upload className="w-7 h-7 text-slate-400 group-hover:text-primary transition-colors" />
+                              </div>
+                              <p className="text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest mb-2">Ingest Visual Asset</p>
+                              <p className="text-[10px] text-slate-500 text-center mb-8 uppercase tracking-tighter">High-Resolution taxonomy illustration required</p>
+                              <div className="flex gap-4">
+                                <Button
+                                  variant="outline"
+                                  className="h-11 px-6 rounded-xl bg-white dark:bg-slate-950 font-black uppercase tracking-widest text-[10px] hover:bg-primary hover:text-white transition-all"
+                                  onClick={() => document.getElementById('category-upload-add')?.click()}
+                                >
+                                  Local File
+                                </Button>
+                                <Button
+                                  variant="secondary"
+                                  className="h-11 px-6 rounded-xl font-black uppercase tracking-widest text-[10px]"
+                                  onClick={() => {
+                                    const url = prompt("Enter category image URL:");
+                                    if (url?.trim()) setNewCategory({ ...newCategory, imageUrl: url.trim() });
+                                  }}
+                                >
+                                  Cloud URL
+                                </Button>
+                              </div>
+                              <input
+                                id="category-upload-add"
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setNewCategoryImageFile(file);
+                                    setNewCategory({ ...newCategory, imageUrl: URL.createObjectURL(file) });
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Right Column: Settings & SEO */}
+                  <div className="space-y-12">
+                    {/* Section 3: Status & Hierarchy */}
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-600">
+                          <Settings className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Operational Logic</h3>
+                      </div>
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <Label htmlFor="add-category-status" className="text-xs font-black text-slate-400 uppercase tracking-widest">Visibility Lifecycle</Label>
+                          <Select
+                            value={newCategory.status || "Active"}
+                            onValueChange={(val) => setNewCategory({ ...newCategory, status: val })}
+                          >
+                            <SelectTrigger id="add-category-status" className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Active">
+                                <div className="flex items-center gap-2 font-bold text-emerald-600">
+                                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Deployment
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="Inactive">
+                                <div className="flex items-center gap-2 font-bold text-slate-400">
+                                  <div className="w-2 h-2 rounded-full bg-slate-300" /> Statically Halted
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Section 4: SEO Optimizations */}
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div className="p-2 bg-amber-500/10 rounded-xl text-amber-600">
+                          <Globe className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">SEO Calibration</h3>
+                      </div>
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <Label htmlFor="add-category-meta-title" className="text-xs font-black text-slate-400 uppercase tracking-widest">Meta Descriptor Title</Label>
+                          <Input
+                            id="add-category-meta-title"
+                            className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                            placeholder="Highly relevant SEO title..."
+                            value={newCategory.metaTitle}
+                            onChange={(e) => setNewCategory({ ...newCategory, metaTitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <Label htmlFor="add-category-meta-description" className="text-xs font-black text-slate-400 uppercase tracking-widest">Indexable Crawler Context</Label>
+                          <Textarea
+                            id="add-category-meta-description"
+                            className="min-h-[100px] rounded-2xl border-slate-200 bg-slate-50/50 dark:bg-slate-900/50 shadow-inner focus:ring-primary/20 resize-none p-5 text-sm"
+                            placeholder="The description users see on search engines..."
+                            value={newCategory.metaDescription}
+                            onChange={(e) => setNewCategory({ ...newCategory, metaDescription: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Audit Trail Preview */}
+                    <section className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-6 opacity-5">
+                        <Activity className="w-20 h-20 text-primary" />
+                      </div>
+
+                      <div className="flex items-center gap-3 text-slate-900 dark:text-slate-100 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
+                        <Activity className="w-5 h-5 text-primary" />
+                        System Validation
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                        <div className="p-4 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                          <p className="text-[10px] uppercase font-black text-slate-400 mb-2 tracking-widest">Uniform Resource String</p>
+                          <p className="text-xs font-mono font-bold text-primary truncate">
+                            /{newCategory.slug || 'awaiting-input'}
+                          </p>
+                        </div>
+                        <div className="p-4 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                          <p className="text-[10px] uppercase font-black text-slate-400 mb-2 tracking-widest">Protocol Sync</p>
+                          <p className="text-xs font-bold text-slate-600 dark:text-slate-400 truncate">
+                            DRAFT_INITIALIZING
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
                 </div>
               </div>
             </div>
-            <DialogFooter>
+
+            <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 gap-3">
               <Button
                 variant="outline"
+                className="h-11 px-8 rounded-xl font-bold uppercase tracking-widest text-[11px] border-slate-200 dark:border-slate-800"
                 onClick={() => setShowAddModal(false)}
-                disabled={modalLoading}
               >
-                Cancel
+                Discard Proposal
               </Button>
-              <Button onClick={handleAddCategory} disabled={modalLoading}>
+              <Button
+                onClick={handleAddCategory}
+                disabled={modalLoading}
+                className="h-11 px-10 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
                 {modalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Adding...
+                    Committing...
                   </>
                 ) : (
-                  "Add Category"
+                  "Authorize Deployment"
                 )}
               </Button>
             </DialogFooter>
@@ -880,277 +899,267 @@ const CategoriesPage = () => {
 
         {/* Edit Category Modal */}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Category</DialogTitle>
-              <DialogDescription>
-                Update category information and settings.
-              </DialogDescription>
+          <DialogContent className="max-w-[1000px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+            <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+              <div className="space-y-1">
+                <DialogTitle className="text-2xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2.5">
+                  <div className="p-2 bg-primary/10 rounded-xl">
+                    <Edit className="w-6 h-6 text-primary" />
+                  </div>
+                  Taxonomy Calibration
+                </DialogTitle>
+                <DialogDescription className="text-slate-500 dark:text-slate-400">
+                  Refine classification parameters, visibility protocols, and indexing metadata.
+                </DialogDescription>
+              </div>
             </DialogHeader>
-            {selectedCategory && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Basic Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                    Basic Information
-                  </h3>
-                  <div>
-                    <Label htmlFor="edit-category-name" className="mb-2 block">
-                      Category Name
-                    </Label>
-                    <Input
-                      id="edit-category-name"
-                      type="text"
-                      placeholder="Enter category name"
-                      value={selectedCategory.name}
-                      onChange={(e) =>
-                        setSelectedCategory({
-                          ...selectedCategory,
-                          name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-category-slug" className="mb-2 block">
-                      Slug
-                    </Label>
-                    <Input
-                      id="edit-category-slug"
-                      type="text"
-                      placeholder="category-slug"
-                      value={selectedCategory.slug}
-                      onChange={(e) =>
-                        setSelectedCategory({
-                          ...selectedCategory,
-                          slug: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="edit-category-description"
-                      className="mb-2 block"
-                    >
-                      Description
-                    </Label>
-                    <Textarea
-                      id="edit-category-description"
-                      placeholder="Enter category description"
-                      value={selectedCategory.description}
-                      onChange={(e) =>
-                        setSelectedCategory({
-                          ...selectedCategory,
-                          description: e.target.value,
-                        })
-                      }
-                      rows={4}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-category-image" className="mb-2 block">
-                      Category Image
-                    </Label>
-                    {selectedCategory.imageUrl ? (
-                      <div className="space-y-3">
-                        <div className="relative w-full h-48 overflow-hidden rounded-lg border">
-                          <Image
-                            src={selectedCategory.imageUrl}
-                            alt={selectedCategory.name}
-                            fill
-                            className="object-cover"
-                          />
+
+            <div className="overflow-y-auto max-h-[75vh]">
+              {selectedCategory && (
+                <div className="p-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    {/* Left Column: Core Info */}
+                    <div className="space-y-12">
+                      {/* Section 1: Basic Information */}
+                      <section className="space-y-8">
+                        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                          <div className="p-2 bg-blue-500/10 rounded-xl text-blue-600">
+                            <Package className="w-5 h-5" />
+                          </div>
+                          <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Identity Context</h3>
                         </div>
-                        <div className="flex gap-2">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                // Store the actual file
-                                setEditCategoryImageFile(file);
-                                // Convert file to URL for preview
-                                const imageUrl = URL.createObjectURL(file);
-                                setSelectedCategory({
-                                  ...selectedCategory,
-                                  imageUrl,
-                                });
-                              }
-                            }}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              const input = document.createElement("input");
-                              input.type = "text";
-                              input.value = selectedCategory.imageUrl;
-                              input.placeholder = "Enter image URL";
-                              input.className =
-                                "w-full px-3 py-2 border rounded-md";
-                              const newUrl = prompt(
-                                "Enter new image URL:",
-                                selectedCategory.imageUrl,
-                              );
-                              if (
-                                newUrl !== null &&
-                                newUrl !== selectedCategory.imageUrl
-                              ) {
-                                setSelectedCategory({
-                                  ...selectedCategory,
-                                  imageUrl: newUrl,
-                                });
-                                setEditCategoryImageFile(null);
-                              }
-                            }}
-                          >
-                            Edit URL
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500">
-                          <div className="text-center">
-                            <div className="mb-2">No image selected</div>
-                            <div className="text-sm">
-                              Choose a file or enter a URL
+                        <div className="space-y-6">
+                          <div className="space-y-3">
+                            <Label htmlFor="edit-category-name" className="text-xs font-black text-slate-400 uppercase tracking-widest">Classification Label</Label>
+                            <Input
+                              id="edit-category-name"
+                              className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                              value={selectedCategory.name}
+                              onChange={(e) => setSelectedCategory({ ...selectedCategory, name: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-3">
+                            <Label htmlFor="edit-category-slug" className="text-xs font-black text-slate-400 uppercase tracking-widest">Routing Identifier (Slug)</Label>
+                            <div className="relative">
+                              <Link className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                              <Input
+                                id="edit-category-slug"
+                                className="h-12 pl-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                value={selectedCategory.slug}
+                                onChange={(e) => setSelectedCategory({ ...selectedCategory, slug: e.target.value })}
+                              />
                             </div>
                           </div>
+                          <div className="space-y-3">
+                            <Label htmlFor="edit-category-description" className="text-xs font-black text-slate-400 uppercase tracking-widest">Abstract Summary</Label>
+                            <Textarea
+                              id="edit-category-description"
+                              className="min-h-[120px] rounded-2xl border-slate-200 bg-slate-50/50 dark:bg-slate-900/50 shadow-inner focus:ring-primary/20 resize-none p-5 text-sm leading-relaxed"
+                              value={selectedCategory.description}
+                              onChange={(e) => setSelectedCategory({ ...selectedCategory, description: e.target.value })}
+                            />
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                // Store the actual file
-                                setEditCategoryImageFile(file);
-                                // Convert file to URL for preview
-                                const imageUrl = URL.createObjectURL(file);
-                                setSelectedCategory({
-                                  ...selectedCategory,
-                                  imageUrl,
-                                });
-                              }
-                            }}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              const newUrl = prompt("Enter image URL:", "");
-                              if (newUrl !== null && newUrl.trim()) {
-                                setSelectedCategory({
-                                  ...selectedCategory,
-                                  imageUrl: newUrl.trim(),
-                                });
-                                setEditCategoryImageFile(null);
-                              }
-                            }}
-                          >
-                            Enter URL
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                      </section>
 
-                {/* Category Settings */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                    Category Settings
-                  </h3>
-                  <div>
-                    <Label
-                      htmlFor="edit-category-status"
-                      className="mb-2 block"
-                    >
-                      Status
-                    </Label>
-                    <Select
-                      value={selectedCategory.status}
-                      onValueChange={(value) =>
-                        setSelectedCategory({
-                          ...selectedCategory,
-                          status: value,
-                        })
-                      }
-                    >
-                      <SelectTrigger id="edit-category-status">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="edit-category-meta-title"
-                      className="mb-2 block"
-                    >
-                      Meta Title
-                    </Label>
-                    <Input
-                      id="edit-category-meta-title"
-                      type="text"
-                      placeholder="SEO meta title"
-                      value={selectedCategory.metaTitle}
-                      onChange={(e) =>
-                        setSelectedCategory({
-                          ...selectedCategory,
-                          metaTitle: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="edit-category-meta-description"
-                      className="mb-2 block"
-                    >
-                      Meta Description
-                    </Label>
-                    <Textarea
-                      id="edit-category-meta-description"
-                      placeholder="SEO meta description"
-                      value={selectedCategory.metaDescription}
-                      onChange={(e) =>
-                        setSelectedCategory({
-                          ...selectedCategory,
-                          metaDescription: e.target.value,
-                        })
-                      }
-                      rows={3}
-                    />
+                      {/* Section 2: Media */}
+                      <section className="space-y-8">
+                        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                          <div className="p-2 bg-rose-500/10 rounded-xl text-rose-600">
+                            <ImageIcon className="w-5 h-5" />
+                          </div>
+                          <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Visual Correlation</h3>
+                        </div>
+                        <div className="space-y-4">
+                          {selectedCategory.imageUrl ? (
+                            <div className="space-y-4">
+                              <div className="relative group aspect-video rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 shadow-lg">
+                                <Image
+                                  src={selectedCategory.imageUrl}
+                                  alt="Preview"
+                                  fill
+                                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    className="rounded-xl px-5 h-10 font-black uppercase tracking-widest text-[10px]"
+                                    onClick={() => {
+                                      setSelectedCategory({ ...selectedCategory, imageUrl: "" });
+                                      setEditCategoryImageFile(null);
+                                    }}
+                                  >
+                                    <X className="w-4 h-4 mr-2" /> De-Link Asset
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 gap-4">
+                              <div className="flex flex-col items-center justify-center p-14 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all group">
+                                <div className="w-14 h-14 bg-white dark:bg-slate-800 rounded-2xl shadow-sm flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                  <Upload className="w-7 h-7 text-slate-400 group-hover:text-primary transition-colors" />
+                                </div>
+                                <p className="text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest mb-2">Refine Visual Asset</p>
+                                <p className="text-[10px] text-slate-500 text-center mb-8 uppercase tracking-tighter">Taxonomy asset re-assignment protocols</p>
+                                <div className="flex gap-4">
+                                  <Button
+                                    variant="outline"
+                                    className="h-11 px-6 rounded-xl bg-white dark:bg-slate-950 font-black uppercase tracking-widest text-[10px]"
+                                    onClick={() => document.getElementById('category-upload-edit')?.click()}
+                                  >
+                                    Replace File
+                                  </Button>
+                                  <Button
+                                    variant="secondary"
+                                    className="h-11 px-6 rounded-xl font-black uppercase tracking-widest text-[10px]"
+                                    onClick={() => {
+                                      const url = prompt("Enter category image URL:", selectedCategory.imageUrl);
+                                      if (url?.trim()) setSelectedCategory({ ...selectedCategory, imageUrl: url.trim() });
+                                    }}
+                                  >
+                                    External URL
+                                  </Button>
+                                </div>
+                                <input
+                                  id="category-upload-edit"
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      setEditCategoryImageFile(file);
+                                      setSelectedCategory({ ...selectedCategory, imageUrl: URL.createObjectURL(file) });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </section>
+                    </div>
+
+                    {/* Right Column: Settings & SEO */}
+                    <div className="space-y-12">
+                      {/* Section 3: Status & Hierarchy */}
+                      <section className="space-y-8">
+                        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                          <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-600">
+                            <Settings className="w-5 h-5" />
+                          </div>
+                          <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Operational Logic</h3>
+                        </div>
+                        <div className="space-y-6">
+                          <div className="space-y-3">
+                            <Label htmlFor="edit-category-status" className="text-xs font-black text-slate-400 uppercase tracking-widest">Visibility Lifecycle</Label>
+                            <Select
+                              value={selectedCategory.status || "Active"}
+                              onValueChange={(val) => setSelectedCategory({ ...selectedCategory, status: val })}
+                            >
+                              <SelectTrigger id="edit-category-status" className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Active">
+                                  <div className="flex items-center gap-2 font-bold text-emerald-600">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Deployment
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="Inactive">
+                                  <div className="flex items-center gap-2 font-bold text-slate-400">
+                                    <div className="w-2 h-2 rounded-full bg-slate-300" /> Statically Halted
+                                  </div>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Section 4: SEO Optimizations */}
+                      <section className="space-y-8">
+                        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                          <div className="p-2 bg-amber-500/10 rounded-xl text-amber-600">
+                            <Globe className="w-5 h-5" />
+                          </div>
+                          <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">SEO Calibration</h3>
+                        </div>
+                        <div className="space-y-6">
+                          <div className="space-y-3">
+                            <Label htmlFor="edit-category-meta-title" className="text-xs font-black text-slate-400 uppercase tracking-widest">Meta Descriptor Title</Label>
+                            <Input
+                              id="edit-category-meta-title"
+                              className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                              value={selectedCategory.metaTitle}
+                              onChange={(e) => setSelectedCategory({ ...selectedCategory, metaTitle: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-3">
+                            <Label htmlFor="edit-category-meta-description" className="text-xs font-black text-slate-400 uppercase tracking-widest">Indexable Crawler Context</Label>
+                            <Textarea
+                              id="edit-category-meta-description"
+                              className="min-h-[100px] rounded-2xl border-slate-200 bg-slate-50/50 dark:bg-slate-900/50 shadow-inner focus:ring-primary/20 resize-none p-5 text-sm"
+                              value={selectedCategory.metaDescription}
+                              onChange={(e) => setSelectedCategory({ ...selectedCategory, metaDescription: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Audit Trail Preview */}
+                      <section className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-6 opacity-5">
+                          <Activity className="w-20 h-20 text-primary" />
+                        </div>
+
+                        <div className="flex items-center gap-3 text-slate-900 dark:text-slate-100 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
+                          <Activity className="w-5 h-5 text-primary" />
+                          Historical Intelligence
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                          <div className="p-4 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <p className="text-[10px] uppercase font-black text-slate-400 mb-2 tracking-widest">Uniform Resource String</p>
+                            <p className="text-xs font-mono font-bold text-primary truncate">
+                              /{selectedCategory.slug}
+                            </p>
+                          </div>
+                          <div className="p-4 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <p className="text-[10px] uppercase font-black text-slate-400 mb-2 tracking-widest">Temporal Sync</p>
+                            <p className="text-xs font-bold text-slate-600 dark:text-slate-400 truncate">
+                              {new Date(selectedCategory.updatedAt || Date.now()).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            <DialogFooter>
+              )}
+            </div>
+
+            <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 gap-3">
               <Button
                 variant="outline"
+                className="h-11 px-8 rounded-xl font-bold uppercase tracking-widest text-[11px] border-slate-200 dark:border-slate-800"
                 onClick={() => setShowEditModal(false)}
-                disabled={modalLoading}
               >
-                Cancel
+                Discard Revisions
               </Button>
-              <Button onClick={handleEditCategory} disabled={modalLoading}>
+              <Button
+                onClick={handleEditCategory}
+                disabled={modalLoading}
+                className="h-11 px-10 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
                 {modalLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
+                    Calibrating...
                   </>
                 ) : (
-                  "Update Category"
+                  "Commit Updates"
                 )}
               </Button>
             </DialogFooter>
@@ -1159,39 +1168,47 @@ const CategoriesPage = () => {
 
         {/* Delete Confirmation Modal */}
         <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Delete Category</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete category &quot;
-                {selectedCategory?.name}&quot;? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteModal(false)}
-                disabled={modalLoading}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDeleteCategory}
-                disabled={modalLoading}
-              >
-                {modalLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  "Delete Category"
-                )}
-              </Button>
-            </DialogFooter>
+          <DialogContent className="max-w-md p-0 overflow-hidden border-none shadow-2xl rounded-3xl bg-white dark:bg-slate-950">
+            <div className="p-8 text-center space-y-6">
+              <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-10 h-10 text-rose-500 animate-bounce" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Purge Taxonomy?</h2>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed px-4">
+                  You are about to permanently delete the <span className="font-bold text-slate-900 dark:text-slate-100">&quot;{selectedCategory?.name}&quot;</span> classification. This action is irreversible within the current architecture.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 pt-4">
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteCategory}
+                  disabled={modalLoading}
+                  className="h-12 rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-rose-500/20"
+                >
+                  {modalLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Purging...
+                    </>
+                  ) : (
+                    "Confirm Permanent Deletion"
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={modalLoading}
+                  className="h-12 rounded-2xl font-bold uppercase tracking-widest text-xs border-slate-100 dark:border-slate-800"
+                >
+                  Retain Entity
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
+
       </div>
     </TooltipProvider>
   );

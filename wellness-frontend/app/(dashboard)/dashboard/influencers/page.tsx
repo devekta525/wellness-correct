@@ -364,7 +364,7 @@ const InfluencersPage = () => {
                           (influencers.filter((i) => i.status === "active")
                             .length /
                             influencers.length) *
-                            100,
+                          100,
                         ) || 0}
                         % of total
                       </p>
@@ -400,11 +400,11 @@ const InfluencersPage = () => {
                       <p className="text-2xl font-bold text-foreground">
                         {influencers.length > 0
                           ? (
-                              influencers.reduce(
-                                (sum, i) => sum + i.commissionRate,
-                                0,
-                              ) / influencers.length
-                            ).toFixed(1)
+                            influencers.reduce(
+                              (sum, i) => sum + i.commissionRate,
+                              0,
+                            ) / influencers.length
+                          ).toFixed(1)
                           : "0"}
                         %
                       </p>
@@ -812,104 +812,127 @@ const InfluencersPage = () => {
 
             {/* Add Influencer Modal */}
             <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add New Influencer</DialogTitle>
-                  <DialogDescription>
-                    Register a new social media influencer
-                  </DialogDescription>
+              <DialogContent className="max-w-2xl p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <Megaphone className="w-6 h-6 text-primary" />
+                      </div>
+                      Influencer Procurement
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Onboard new social capital nodes into the Wellness Fuel growth network.
+                    </DialogDescription>
+                  </div>
                 </DialogHeader>
-                {/* Avatar Section - Top Center */}
-                <div className="flex flex-col items-center space-y-4 py-4">
-                  <Label className="text-lg font-medium">Profile Picture</Label>
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage src="/placeholder-influencer.svg" />
-                    <AvatarFallback className="text-xl">INF</AvatarFallback>
-                  </Avatar>
-                  <div className="flex gap-3">
-                    <Button variant="outline" size="sm">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Photo
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Remove
-                    </Button>
+
+                <div className="p-8 space-y-8 overflow-y-auto max-h-[calc(90vh-180px)]">
+                  {/* Avatar Section - Top Center */}
+                  <div className="flex flex-col items-center space-y-4 py-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Identity Visualizer</Label>
+                    <div className="relative group">
+                      <Avatar className="w-32 h-32 border-4 border-white dark:border-slate-800 shadow-2xl transition-all duration-500 group-hover:scale-105">
+                        <AvatarImage src="/placeholder-influencer.svg" />
+                        <AvatarFallback className="text-3xl font-black bg-primary/10 text-primary">INF</AvatarFallback>
+                      </Avatar>
+                      <button className="absolute bottom-1 right-1 p-2.5 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110">
+                        <Camera className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="flex gap-3 mt-4">
+                      <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-[10px] bg-white dark:bg-slate-900 shadow-sm">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload Identity
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-9 px-4 rounded-xl font-bold uppercase tracking-widest text-[10px] text-destructive hover:bg-red-50 dark:hover:bg-red-950/30">
+                        Purge
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <Label htmlFor="addName" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Legal Designation</Label>
+                      <Input id="addName" placeholder="Full Name" className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20" />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="addEmail" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Secure Email Node</Label>
+                      <div className="relative">
+                        <Input
+                          id="addEmail"
+                          type="email"
+                          placeholder="influencer@wellness.com"
+                          className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="addPhone" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Direct Contact Vector</Label>
+                      <Input id="addPhone" placeholder="+91 XXXXX XXXXX" className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20" />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="addPlatform" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Primary Network Focus</Label>
+                      <Select>
+                        <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-sm font-bold">
+                          <SelectValue placeholder="Select platform" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="Instagram" className="rounded-lg font-bold">Instagram</SelectItem>
+                          <SelectItem value="Youtube" className="rounded-lg font-bold">YouTube</SelectItem>
+                          <SelectItem value="Twitter" className="rounded-lg font-bold">Twitter</SelectItem>
+                          <SelectItem value="Facebook" className="rounded-lg font-bold">Facebook</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="addFollowers" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Relative Reach Index</Label>
+                      <Input
+                        id="addFollowers"
+                        type="number"
+                        placeholder="Total Followers"
+                        className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="addCommission" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Remuneration Rate (%)</Label>
+                      <Input id="addCommission" type="number" placeholder="Percentage" className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20" />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="addCategory" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Niche Classification</Label>
+                      <Input id="addCategory" placeholder="e.g. Health & Wellness" className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20" />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="addSocialLinks" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Platform Identity Link</Label>
+                      <Input
+                        id="addSocialLinks"
+                        placeholder="URL Handle"
+                        className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="addName">Full Name</Label>
-                    <Input id="addName" placeholder="Influencer Name" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addEmail">Email</Label>
-                    <Input
-                      id="addEmail"
-                      type="email"
-                      placeholder="influencer@email.com"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="addPhone">Phone</Label>
-                    <Input id="addPhone" placeholder="+91 98765 43210" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addPlatform">Platform</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select platform" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Instagram">Instagram</SelectItem>
-                        <SelectItem value="Youtube">YouTube</SelectItem>
-                        <SelectItem value="Twitter">Twitter</SelectItem>
-                        <SelectItem value="Facebook">Facebook</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="addFollowers">Followers</Label>
-                    <Input
-                      id="addFollowers"
-                      type="number"
-                      placeholder="100000"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="addCommission">Commission Rate (%)</Label>
-                    <Input id="addCommission" type="number" placeholder="10" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addCategory">Category</Label>
-                    <Input id="addCategory" placeholder="Health & Wellness" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addSocialLinks">Social Media Links</Label>
-                    <Input
-                      id="addSocialLinks"
-                      placeholder="https://instagram.com/username"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 sticky bottom-0 z-10 backdrop-blur-sm">
                   <Button
                     variant="outline"
+                    className="h-12 px-6 rounded-xl font-black uppercase tracking-widest text-[11px] border-slate-200 hover:bg-slate-100 dark:border-slate-800"
                     onClick={() => setIsAddModalOpen(false)}
                   >
-                    Cancel
+                    Abort Onboarding
                   </Button>
                   <Button
                     onClick={() => handleAddInfluencer({})}
                     disabled={modalLoading}
+                    className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {modalLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Adding...
+                        Processing...
                       </>
                     ) : (
-                      "Add Influencer"
+                      "Finalize Procurement"
                     )}
                   </Button>
                 </DialogFooter>
@@ -918,188 +941,234 @@ const InfluencersPage = () => {
 
             {/* Edit Influencer Modal */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Influencer Details</DialogTitle>
-                  <DialogDescription>
-                    View and edit influencer information
-                  </DialogDescription>
-                </DialogHeader>
-                {selectedInfluencer && (
-                  <>
-                    {/* Avatar Section - Top Center */}
-                    <div className="flex flex-col items-center space-y-4 py-4">
-                      <Label className="text-lg font-medium">
-                        Profile Picture
-                      </Label>
-                      <Avatar className="w-24 h-24">
-                        <AvatarImage
-                          src={
-                            selectedInfluencer.imageUrl ||
-                            "/placeholder-influencer.svg"
-                          }
-                        />
-                        <AvatarFallback className="text-xl">
-                          {selectedInfluencer.firstName[0]}
-                          {selectedInfluencer.lastName[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex gap-3">
-                        <Button variant="outline" size="sm">
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Photo
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Camera className="w-4 h-4 mr-2" />
-                          Remove
-                        </Button>
+              <DialogContent className="max-w-[1000px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <Users className="w-6 h-6 text-primary" />
                       </div>
+                      Influence Matrix Intelligence
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Calibrate social engagement parameters and monitor conversion trajectory.
+                    </DialogDescription>
+                  </div>
+                </DialogHeader>
+
+                {selectedInfluencer && (
+                  <div className="overflow-y-auto max-h-[70vh]">
+                    <div className="p-8">
+                      {/* Identity Header */}
+                      <div className="mb-8 flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-8 opacity-5">
+                          <Megaphone className="w-32 h-32 text-primary" />
+                        </div>
+
+                        <div className="relative group z-10">
+                          <Avatar className="w-32 h-32 border-4 border-white dark:border-slate-800 shadow-2xl transition-all duration-500 group-hover:scale-105">
+                            <AvatarImage
+                              src={selectedInfluencer.imageUrl || "/placeholder-influencer.svg"}
+                              className="object-cover"
+                            />
+                            <AvatarFallback className="text-3xl font-black bg-primary/10 text-primary">
+                              {selectedInfluencer.firstName[0]}{selectedInfluencer.lastName[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <button className="absolute bottom-1 right-1 p-2.5 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110">
+                            <Camera className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="flex-1 text-center md:text-left space-y-2 z-10">
+                          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-slate-50">
+                              {selectedInfluencer.firstName} {selectedInfluencer.lastName}
+                            </h3>
+                            <Badge variant="outline" className="w-fit mx-auto md:mx-0 font-black uppercase tracking-widest text-[10px] px-3 py-1 bg-white dark:bg-slate-900 shadow-sm border-slate-200 text-primary">
+                              {selectedInfluencer.platform}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-500 font-bold uppercase tracking-[0.1em]">{selectedInfluencer.category}</p>
+
+                          <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                            <Button variant="outline" size="sm" className="h-9 text-[10px] font-bold uppercase tracking-widest rounded-xl bg-white dark:bg-slate-900 shadow-sm transition-all hover:shadow-md border-slate-200">
+                              <Upload className="w-3.5 h-3.5 mr-2" />
+                              Update Identity
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-9 text-[10px] font-bold uppercase tracking-widest text-destructive hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl">
+                              Purge Avatar
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-8 px-8 py-2 border-l border-slate-200 dark:border-slate-800 hidden lg:grid z-10">
+                          <div className="text-center space-y-1">
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Followers</p>
+                            <p className="text-2xl font-black text-slate-900 dark:text-slate-50">{((selectedInfluencer.followers ?? 0) / 1000).toFixed(1)}K</p>
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Commission</p>
+                            <div className="flex items-center justify-center gap-1.5">
+                              <p className="text-2xl font-black text-slate-900 dark:text-slate-50">{selectedInfluencer.commissionRate}%</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Tabs defaultValue="details" className="w-full">
+                        <TabsList className="flex w-full overflow-x-auto h-auto p-1.5 bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl mb-8 no-scrollbar border shadow-inner">
+                          <TabsTrigger value="details" className="flex-1 py-3 px-4 rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-lg data-[state=active]:text-primary transition-all font-bold gap-2 text-xs uppercase tracking-widest">
+                            Identity Analytics
+                          </TabsTrigger>
+                          <TabsTrigger value="performance" className="flex-1 py-3 px-4 rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-lg data-[state=active]:text-primary transition-all font-bold gap-2 text-xs uppercase tracking-widest">
+                            Reach Data
+                          </TabsTrigger>
+                          <TabsTrigger value="campaigns" className="flex-1 py-3 px-4 rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-lg data-[state=active]:text-primary transition-all font-bold gap-2 text-xs uppercase tracking-widest">
+                            Collab Log
+                          </TabsTrigger>
+                          <TabsTrigger value="notes" className="flex-1 py-3 px-4 rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-lg data-[state=active]:text-primary transition-all font-bold gap-2 text-xs uppercase tracking-widest">
+                            Internal Intel
+                          </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="details" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Legal Designation</Label>
+                              <Input
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                defaultValue={`${selectedInfluencer.firstName} ${selectedInfluencer.lastName}`}
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Secure Email Node</Label>
+                              <Input
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                defaultValue={selectedInfluencer.email}
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Direct Contact Vector</Label>
+                              <Input
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                defaultValue={selectedInfluencer.phone}
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Primary Network Focus</Label>
+                              <Select defaultValue={selectedInfluencer.platform}>
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-sm font-bold">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  <SelectItem value="Instagram" className="rounded-lg font-bold">Instagram</SelectItem>
+                                  <SelectItem value="Youtube" className="rounded-lg font-bold">YouTube</SelectItem>
+                                  <SelectItem value="Twitter" className="rounded-lg font-bold">Twitter</SelectItem>
+                                  <SelectItem value="Facebook" className="rounded-lg font-bold">Facebook</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Relative Reach Index</Label>
+                              <Input
+                                type="number"
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                defaultValue={selectedInfluencer.followers}
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Remuneration Rate (%)</Label>
+                              <Input
+                                type="number"
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                defaultValue={selectedInfluencer.commissionRate}
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Niche Classification</Label>
+                              <Input
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                defaultValue={selectedInfluencer.category}
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Platform Identity Link</Label>
+                              <Input
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                defaultValue={selectedInfluencer.socialMediaLinks}
+                              />
+                            </div>
+                          </div>
+                        </TabsContent>
+
+                        <TabsContent value="performance" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                          <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 dark:bg-slate-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-inner">
+                            <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-xl mb-6 transform transition-transform hover:rotate-12 border border-slate-100">
+                              <TrendingUp className="w-10 h-10 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-black text-slate-900 dark:text-slate-50 mb-3 tracking-tight">
+                              Performance Analytics Matrix
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-center max-w-sm px-8 text-sm leading-relaxed font-bold">
+                              Comprehensive metrics across engagement depth, conversion rates, and ROI trajectory for this node.
+                            </p>
+                            <Button className="mt-8 h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20">
+                              Access Deep Analytics
+                            </Button>
+                          </div>
+                        </TabsContent>
+
+                        <TabsContent value="campaigns" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                          <div className="flex flex-col items-center justify-center py-16 bg-slate-50/50 dark:bg-slate-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-inner">
+                            <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-xl mb-6 transform transition-transform hover:-rotate-12 border border-slate-100">
+                              <Calendar className="w-10 h-10 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-black text-slate-900 dark:text-slate-50 mb-3 tracking-tight">
+                              Collaboration Registry
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-center max-w-sm px-8 text-sm leading-relaxed font-bold">
+                              Historical campaign interactions, active project protocols, and future activation schedules.
+                            </p>
+                            <Button variant="outline" className="mt-8 h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] border-slate-200">
+                              Sync Registry
+                            </Button>
+                          </div>
+                        </TabsContent>
+
+                        <TabsContent value="notes" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                          <div className="space-y-4">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Internal Intelligence Node</Label>
+                            <Textarea
+                              placeholder="Document private performance metrics, affiliation observations, or restrictive negotiation parameters..."
+                              className="min-h-[200px] rounded-3xl border-slate-200 p-8 focus:ring-primary/20 bg-slate-50/50 dark:bg-slate-900/50 shadow-inner resize-none text-sm font-bold leading-relaxed"
+                            />
+                          </div>
+                        </TabsContent>
+                      </Tabs>
                     </div>
-                    <Tabs defaultValue="details" className="w-full">
-                      <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="details">Details</TabsTrigger>
-                        <TabsTrigger value="performance">
-                          Performance
-                        </TabsTrigger>
-                        <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-                        <TabsTrigger value="notes">Notes</TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="details" className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="editName">Full Name</Label>
-                            <Input
-                              id="editName"
-                              defaultValue={`${selectedInfluencer.firstName} ${selectedInfluencer.lastName}`}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="editEmail">Email</Label>
-                            <Input
-                              id="editEmail"
-                              type="email"
-                              defaultValue={selectedInfluencer.email}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="editPhone">Phone</Label>
-                            <Input
-                              id="editPhone"
-                              defaultValue={selectedInfluencer.phone}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="editPlatform">Platform</Label>
-                            <Select defaultValue={selectedInfluencer.platform}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Instagram">
-                                  Instagram
-                                </SelectItem>
-                                <SelectItem value="Youtube">YouTube</SelectItem>
-                                <SelectItem value="Twitter">Twitter</SelectItem>
-                                <SelectItem value="Facebook">
-                                  Facebook
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label htmlFor="editFollowers">Followers</Label>
-                            <Input
-                              id="editFollowers"
-                              type="number"
-                              defaultValue={selectedInfluencer.followers}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="editCommission">
-                              Commission Rate
-                            </Label>
-                            <Input
-                              id="editCommission"
-                              type="number"
-                              defaultValue={selectedInfluencer.commissionRate}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="editCategory">Category</Label>
-                            <Input
-                              id="editCategory"
-                              defaultValue={selectedInfluencer.category}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="editLinks">
-                              Social Media Links
-                            </Label>
-                            <Input
-                              id="editLinks"
-                              defaultValue={selectedInfluencer.socialMediaLinks}
-                            />
-                          </div>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="performance" className="space-y-4">
-                        <div className="text-center py-8">
-                          <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">
-                            Performance Analytics
-                          </h3>
-                          <p className="text-muted-foreground">
-                            Performance metrics and analytics will be displayed
-                            here
-                          </p>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="campaigns" className="space-y-4">
-                        <div className="text-center py-8">
-                          <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">
-                            Campaign History
-                          </h3>
-                          <p className="text-muted-foreground">
-                            Campaign history and collaborations will be
-                            displayed here
-                          </p>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="notes" className="space-y-4">
-                        <div>
-                          <Label htmlFor="editNotes">Notes</Label>
-                          <Textarea
-                            id="editNotes"
-                            placeholder="Add notes about this influencer"
-                          />
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </>
+                  </div>
                 )}
-                <DialogFooter>
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 sticky bottom-0 z-10 backdrop-blur-sm">
                   <Button
                     variant="outline"
+                    className="h-12 px-6 rounded-xl font-black uppercase tracking-widest text-[11px] border-slate-200 hover:bg-slate-100 dark:border-slate-800"
                     onClick={() => setIsEditModalOpen(false)}
                   >
-                    Cancel
+                    Abort Interaction
                   </Button>
                   <Button
                     onClick={handleUpdateInfluencer}
                     disabled={modalLoading}
+                    className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {modalLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Updating...
+                        Synchronizing...
                       </>
                     ) : (
-                      "Update Influencer"
+                      "Commit Updates"
                     )}
                   </Button>
                 </DialogFooter>

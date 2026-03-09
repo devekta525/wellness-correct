@@ -948,126 +948,135 @@ const NotesPage = () => {
 
         {/* Add Note Modal */}
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create New Note</DialogTitle>
-              <DialogDescription>
-                Create a new note with rich text formatting
-              </DialogDescription>
-            </DialogHeader>
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="details">Note Details</TabsTrigger>
-                <TabsTrigger value="content">Content</TabsTrigger>
-              </TabsList>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0 border-none shadow-2xl modal-content">
+            <div className="modal-header">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-slate-900">Create New Note</DialogTitle>
+                <DialogDescription className="text-sm text-slate-500 mt-1">
+                  Create a new note with rich text formatting
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="modal-container">
+              <Tabs defaultValue="details" className="w-full">
+                <TabsList className="form-tabs-list mb-6 w-full">
+                  <TabsTrigger value="details" className="form-tabs-trigger flex-1">Note Details</TabsTrigger>
+                  <TabsTrigger value="content" className="form-tabs-trigger flex-1">Content</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="details" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="noteTitle">Note Title</Label>
-                    <Input
-                      id="noteTitle"
-                      placeholder="Enter note title"
-                      value={formData.title}
-                      onChange={(e) =>
-                        setFormData({ ...formData, title: e.target.value })
-                      }
-                    />
+                <TabsContent value="details" className="mt-0 space-y-4">
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <Label htmlFor="noteTitle" className="form-label">Note Title</Label>
+                      <Input
+                        id="noteTitle"
+                        className="form-input"
+                        placeholder="Enter note title"
+                        value={formData.title}
+                        onChange={(e) =>
+                          setFormData({ ...formData, title: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <Label htmlFor="noteCategory" className="form-label">Category</Label>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, category: value })
+                        }
+                      >
+                        <SelectTrigger className="form-select-trigger">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Work">Work</SelectItem>
+                          <SelectItem value="Learning">Learning</SelectItem>
+                          <SelectItem value="Personal">Personal</SelectItem>
+                          <SelectItem value="Ideas">Ideas</SelectItem>
+                          <SelectItem value="Meeting">Meeting</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="form-field">
+                      <Label htmlFor="notePriority" className="form-label">Priority</Label>
+                      <Select
+                        value={formData.priority}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, priority: value })
+                        }
+                      >
+                        <SelectTrigger className="form-select-trigger">
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="form-field">
+                      <Label htmlFor="noteStatus" className="form-label">Status</Label>
+                      <Select
+                        value={formData.status}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, status: value })
+                        }
+                      >
+                        <SelectTrigger className="form-select-trigger">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="published">Published</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="form-field form-field-full">
+                      <Label htmlFor="noteTags" className="form-label">Tags (comma separated)</Label>
+                      <Input
+                        id="noteTags"
+                        className="form-input"
+                        placeholder="work, project, important"
+                        value={formData.tags}
+                        onChange={(e) =>
+                          setFormData({ ...formData, tags: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="noteCategory">Category</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, category: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Work">Work</SelectItem>
-                        <SelectItem value="Learning">Learning</SelectItem>
-                        <SelectItem value="Personal">Personal</SelectItem>
-                        <SelectItem value="Ideas">Ideas</SelectItem>
-                        <SelectItem value="Meeting">Meeting</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="notePriority">Priority</Label>
-                    <Select
-                      value={formData.priority}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, priority: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="noteStatus">Status</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, status: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="published">Published</SelectItem>
-                        <SelectItem value="archived">Archived</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="noteTags">Tags (comma separated)</Label>
-                    <Input
-                      id="noteTags"
-                      placeholder="work, project, important"
-                      value={formData.tags}
-                      onChange={(e) =>
-                        setFormData({ ...formData, tags: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-              </TabsContent>
+                </TabsContent>
 
-              <TabsContent value="content" className="space-y-4">
-                <div>
-                  <Label htmlFor="noteContent">Note Content</Label>
-                  <div className="mt-2">
-                    <textarea
-                      className="w-full min-h-[300px] p-3 border rounded-md"
-                      placeholder="Start writing your note..."
-                      value={formData.content}
-                      onChange={(e) =>
-                        setFormData({ ...formData, content: e.target.value })
-                      }
-                    />
+                <TabsContent value="content" className="mt-0 space-y-4">
+                  <div className="form-field form-field-full">
+                    <Label htmlFor="noteContent" className="form-label">Note Content</Label>
+                    <div className="mt-2">
+                      <textarea
+                        className="form-textarea w-full min-h-[300px]"
+                        placeholder="Start writing your note..."
+                        value={formData.content}
+                        onChange={(e) =>
+                          setFormData({ ...formData, content: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-            <DialogFooter>
-              <Button
-                variant="outline"
+                </TabsContent>
+              </Tabs>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-secondary"
                 onClick={() => setIsAddModalOpen(false)}
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
+                type="button"
+                className="btn-primary"
                 onClick={handleAddNote}
                 disabled={isLoading || !formData.title || !formData.content}
               >
@@ -1079,141 +1088,154 @@ const NotesPage = () => {
                 ) : (
                   "Create Note"
                 )}
-              </Button>
-            </DialogFooter>
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
 
         {/* Edit Note Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Note</DialogTitle>
-              <DialogDescription>
-                Edit your note with rich text formatting
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 gap-0 border-none shadow-2xl modal-content">
+            <div className="modal-header">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-slate-900">Edit Note</DialogTitle>
+                <DialogDescription className="text-sm text-slate-500 mt-1">
+                  Edit your note with rich text formatting
+                </DialogDescription>
+              </DialogHeader>
+            </div>
             {selectedNote && (
-              <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="details">Note Details</TabsTrigger>
-                  <TabsTrigger value="content">Content</TabsTrigger>
-                </TabsList>
+              <div className="modal-container">
+                <Tabs defaultValue="details" className="w-full">
+                  <TabsList className="form-tabs-list w-full mb-6">
+                    <TabsTrigger value="details" className="form-tabs-trigger flex-1">Note Details</TabsTrigger>
+                    <TabsTrigger value="content" className="form-tabs-trigger flex-1">Content</TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="details" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="editNoteTitle">Note Title</Label>
-                      <Input
-                        id="editNoteTitle"
-                        value={formData.title}
-                        onChange={(e) =>
-                          setFormData({ ...formData, title: e.target.value })
-                        }
-                      />
+                  <TabsContent value="details" className="mt-0 space-y-4">
+                    <div className="form-grid">
+                      <div className="form-field">
+                        <Label htmlFor="editNoteTitle" className="form-label">Note Title</Label>
+                        <Input
+                          id="editNoteTitle"
+                          className="form-input"
+                          value={formData.title}
+                          onChange={(e) =>
+                            setFormData({ ...formData, title: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="form-field">
+                        <Label htmlFor="editNoteCategory" className="form-label">Category</Label>
+                        <Select
+                          value={formData.category}
+                          onValueChange={(value) =>
+                            setFormData({ ...formData, category: value })
+                          }
+                        >
+                          <SelectTrigger className="form-select-trigger">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Work">Work</SelectItem>
+                            <SelectItem value="Learning">Learning</SelectItem>
+                            <SelectItem value="Personal">Personal</SelectItem>
+                            <SelectItem value="Ideas">Ideas</SelectItem>
+                            <SelectItem value="Meeting">Meeting</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="form-field">
+                        <Label htmlFor="editNotePriority" className="form-label">Priority</Label>
+                        <Select
+                          value={formData.priority}
+                          onValueChange={(value) =>
+                            setFormData({ ...formData, priority: value })
+                          }
+                        >
+                          <SelectTrigger className="form-select-trigger">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="form-field">
+                        <Label htmlFor="editNoteStatus" className="form-label">Status</Label>
+                        <Select
+                          value={formData.status}
+                          onValueChange={(value) =>
+                            setFormData({ ...formData, status: value })
+                          }
+                        >
+                          <SelectTrigger className="form-select-trigger">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="published">Published</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="form-field">
+                        <Label htmlFor="editAuthorName" className="form-label">Author Name</Label>
+                        <Input
+                          id="editAuthorName"
+                          className="form-input"
+                          value={selectedNote.authorName}
+                          readOnly
+                        />
+                      </div>
+                      <div className="form-field form-field-full">
+                        <Label htmlFor="editNoteTags" className="form-label">Tags</Label>
+                        <Input
+                          id="editNoteTags"
+                          className="form-input"
+                          value={formData.tags}
+                          onChange={(e) =>
+                            setFormData({ ...formData, tags: e.target.value })
+                          }
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="editNoteCategory">Category</Label>
-                      <Select
-                        value={formData.category}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, category: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Work">Work</SelectItem>
-                          <SelectItem value="Learning">Learning</SelectItem>
-                          <SelectItem value="Personal">Personal</SelectItem>
-                          <SelectItem value="Ideas">Ideas</SelectItem>
-                          <SelectItem value="Meeting">Meeting</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="editNotePriority">Priority</Label>
-                      <Select
-                        value={formData.priority}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, priority: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="editNoteStatus">Status</Label>
-                      <Select
-                        value={formData.status}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, status: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="published">Published</SelectItem>
-                          <SelectItem value="archived">Archived</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="editAuthorName">Author Name</Label>
-                      <Input
-                        id="editAuthorName"
-                        value={selectedNote.authorName}
-                        readOnly
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="editNoteTags">Tags</Label>
-                      <Input
-                        id="editNoteTags"
-                        value={formData.tags}
-                        onChange={(e) =>
-                          setFormData({ ...formData, tags: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
+                  </TabsContent>
 
-                <TabsContent value="content" className="space-y-4">
-                  <div>
-                    <Label htmlFor="editNoteContent">Note Content</Label>
-                    <div className="mt-2">
-                      <textarea
-                        className="w-full min-h-[300px] p-3 border rounded-md"
-                        placeholder="Start writing your note..."
-                        value={formData.content}
-                        onChange={(e) =>
-                          setFormData({ ...formData, content: e.target.value })
-                        }
-                      />
+                  <TabsContent value="content" className="mt-0 space-y-4">
+                    <div className="form-field form-field-full">
+                      <Label htmlFor="editNoteContent" className="form-label">Note Content</Label>
+                      <div className="mt-2">
+                        <textarea
+                          className="form-textarea w-full min-h-[300px]"
+                          placeholder="Start writing your note..."
+                          value={formData.content}
+                          onChange={(e) =>
+                            setFormData({ ...formData, content: e.target.value })
+                          }
+                        />
+                      </div>
                     </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
+                  </TabsContent>
+                </Tabs>
+              </div>
             )}
-            <DialogFooter>
-              <Button
-                variant="outline"
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-secondary"
                 onClick={() => setIsEditModalOpen(false)}
               >
                 Cancel
-              </Button>
-              <Button onClick={handleUpdateNote} disabled={isLoading}>
+              </button>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleUpdateNote}
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1222,8 +1244,8 @@ const NotesPage = () => {
                 ) : (
                   "Update Note"
                 )}
-              </Button>
-            </DialogFooter>
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
 

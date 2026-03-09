@@ -32,7 +32,18 @@ import {
   List,
   Upload,
   Camera,
+  User,
+  Mail,
+  Phone,
+  Hospital,
+  BookOpen,
+  Briefcase,
+  Clock,
+  StickyNote,
+  Globe,
+  ChevronLeft as ChevronLeftIcon,
 } from "lucide-react";
+import { FormSteps } from "@/components/ui/form-steps";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -126,6 +137,7 @@ const DoctorsPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [selectedDoctor, setSelectedDoctor] = useState<UserType | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addStep, setAddStep] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const addDoctorFileRef = useRef<HTMLInputElement>(null);
   const [newDoctor, setNewDoctor] = useState({
@@ -291,12 +303,17 @@ const DoctorsPage = () => {
     addDoctorFileRef.current?.click();
   };
 
-  const handleAddDoctorFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddDoctorFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setNewDoctor((prev) => ({ ...prev, imageUrl: reader.result as string }));
+        setNewDoctor((prev) => ({
+          ...prev,
+          imageUrl: reader.result as string,
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -330,7 +347,9 @@ const DoctorsPage = () => {
         formData.append("image", addDoctorFileRef.current.files[0]);
       }
 
-      const success = (await dispatch(createUser(formData as any))) as unknown as boolean;
+      const success = (await dispatch(
+        createUser(formData as any),
+      )) as unknown as boolean;
       if (success) {
         setIsAddModalOpen(false);
         setNewDoctor({
@@ -894,376 +913,619 @@ const DoctorsPage = () => {
         )}
 
         {/* Add Doctor Modal */}
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Doctor</DialogTitle>
-              <DialogDescription>
-                Register a new doctor with their medical credentials
-              </DialogDescription>
-            </DialogHeader>
-            {/* Avatar Section - Top Center */}
-            <div className="flex flex-col items-center space-y-4 py-4">
-              <Label className="text-lg font-medium">Profile Picture</Label>
-              <Avatar className="w-24 h-24">
-                <AvatarImage src={newDoctor.imageUrl || "/placeholder-doctor.svg"} />
-                <AvatarFallback className="text-xl">DR</AvatarFallback>
-              </Avatar>
-              <div className="flex gap-3">
-                <Button variant="outline" size="sm" onClick={handleAddDoctorImageUpload}>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Photo
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleRemoveAddDoctorImage}>
-                  <Camera className="w-4 h-4 mr-2" />
-                  Remove
-                </Button>
-              </div>
-              <input
-                type="file"
-                ref={addDoctorFileRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleAddDoctorFileChange}
+        <Dialog
+          open={isAddModalOpen}
+          onOpenChange={(open) => {
+            setIsAddModalOpen(open);
+            if (!open) setAddStep(1);
+          }}
+        >
+          <DialogContent className="max-w-3xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-slate-100 bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight mb-1">
+                  Add New Doctor
+                </DialogTitle>
+                <DialogDescription className="text-sm text-slate-500">
+                  Onboard a new medical professional to the platform.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <div className="bg-white px-8 pt-8 pb-4">
+              <FormSteps
+                currentStep={addStep}
+                steps={[
+                  { id: 1, name: "Professional Identity" },
+                  { id: 2, name: "Background & Fee" },
+                  { id: 3, name: "Social & Profile" },
+                ]}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label htmlFor="addFirstName">First Name</Label>
-                  <Input 
-                    id="addFirstName" 
-                    placeholder="First Name" 
-                    value={newDoctor.firstName}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, firstName: e.target.value })}
-                  />
+
+            <div className="px-8 py-6 bg-[#F8FAFC] min-h-[400px]">
+              {addStep === 1 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        First Name
+                      </label>
+                      <input
+                        className="form-input"
+                        placeholder="e.g. John"
+                        value={newDoctor.firstName}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            firstName: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        Last Name
+                      </label>
+                      <input
+                        className="form-input"
+                        placeholder="e.g. Doe"
+                        value={newDoctor.lastName}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            lastName: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        Email Address
+                      </label>
+                      <input
+                        className="form-input"
+                        type="email"
+                        placeholder="doctor@example.com"
+                        value={newDoctor.email}
+                        onChange={(e) =>
+                          setNewDoctor({ ...newDoctor, email: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        Phone Number
+                      </label>
+                      <input
+                        className="form-input"
+                        placeholder="+91 98765 43210"
+                        value={newDoctor.phone}
+                        onChange={(e) =>
+                          setNewDoctor({ ...newDoctor, phone: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="form-field form-field-full">
+                      <label className="form-label form-label-required">
+                        Medical Specialization
+                      </label>
+                      <Select
+                        value={newDoctor.specialization}
+                        onValueChange={(v) =>
+                          setNewDoctor({ ...newDoctor, specialization: v })
+                        }
+                      >
+                        <SelectTrigger className="form-select-trigger">
+                          <SelectValue placeholder="Select domain" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[
+                            "Cardiology",
+                            "Neurology",
+                            "Orthopedics",
+                            "Pediatrics",
+                            "Dermatology",
+                            "Ophthalmology",
+                            "Psychiatry",
+                            "General Medicine",
+                          ].map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {s}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="addLastName">Last Name</Label>
-                  <Input 
-                    id="addLastName" 
-                    placeholder="Last Name" 
-                    value={newDoctor.lastName}
-                    onChange={(e) => setNewDoctor({ ...newDoctor, lastName: e.target.value })}
-                  />
+              )}
+
+              {addStep === 2 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        Experience (Years)
+                      </label>
+                      <input
+                        className="form-input"
+                        type="number"
+                        placeholder="Years of practice"
+                        value={newDoctor.experience}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            experience: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        Consultation Fee (₹)
+                      </label>
+                      <input
+                        className="form-input"
+                        type="number"
+                        placeholder="Standard fee"
+                        value={newDoctor.consultationFee}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            consultationFee: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        Hospital Affiliation
+                      </label>
+                      <input
+                        className="form-input"
+                        placeholder="Organization name"
+                        value={newDoctor.hospital}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            hospital: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label form-label-required">
+                        Location
+                      </label>
+                      <input
+                        className="form-input"
+                        placeholder="City, State"
+                        value={newDoctor.location}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            location: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field form-field-full">
+                      <label className="form-label">Qualifications</label>
+                      <textarea
+                        className="form-textarea"
+                        placeholder="Degrees & Certifications (e.g. MBBS, MD, PhD)"
+                        rows={3}
+                        value={newDoctor.qualifications}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            qualifications: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="addEmail">Email</Label>
-                <Input
-                  id="addEmail"
-                  type="email"
-                  placeholder="doctor@email.com"
-                  value={newDoctor.email}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, email: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="addPhone">Phone</Label>
-                <Input 
-                  id="addPhone" 
-                  placeholder="+91 98765 43210" 
-                  value={newDoctor.phone}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, phone: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="addSpecialization">Specialization</Label>
-                <Select 
-                  value={newDoctor.specialization} 
-                  onValueChange={(value) => setNewDoctor({ ...newDoctor, specialization: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select specialization" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Cardiology">Cardiology</SelectItem>
-                    <SelectItem value="Neurology">Neurology</SelectItem>
-                    <SelectItem value="Orthopedics">Orthopedics</SelectItem>
-                    <SelectItem value="Pediatrics">Pediatrics</SelectItem>
-                    <SelectItem value="Dermatology">Dermatology</SelectItem>
-                    <SelectItem value="Ophthalmology">Ophthalmology</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="addExperience">Experience (Years)</Label>
-                <Input 
-                  id="addExperience" 
-                  type="number" 
-                  placeholder="5" 
-                  value={newDoctor.experience}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, experience: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="addFee">Consultation Fee</Label>
-                <Input 
-                  id="addFee" 
-                  type="number" 
-                  placeholder="1500" 
-                  value={newDoctor.consultationFee}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, consultationFee: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="addHospital">Hospital</Label>
-                <Input 
-                  id="addHospital" 
-                  placeholder="Hospital Name" 
-                  value={newDoctor.hospital}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, hospital: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="addLocation">Location</Label>
-                <Input 
-                  id="addLocation" 
-                  placeholder="City, State" 
-                  value={newDoctor.location}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, location: e.target.value })}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <Label htmlFor="addQualifications">Qualifications</Label>
-                <Textarea 
-                  id="addQualifications" 
-                  placeholder="MBBS, MD, etc." 
-                  value={newDoctor.qualifications}
-                  onChange={(e) => setNewDoctor({ ...newDoctor, qualifications: e.target.value })}
-                />
+              )}
+
+              {addStep === 3 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="flex flex-col items-center mb-6">
+                    <div className="relative group">
+                      <Avatar className="w-24 h-24 border-4 border-white shadow-xl">
+                        <AvatarImage
+                          src={newDoctor.imageUrl}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="text-2xl font-bold bg-blue-50 text-blue-600">
+                          {newDoctor.firstName?.[0]}
+                          {newDoctor.lastName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <button
+                        onClick={handleAddDoctorImageUpload}
+                        className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all"
+                      >
+                        <Camera className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2 font-medium">
+                      Professional Profile Photo
+                    </p>
+                  </div>
+
+                  <div className="form-grid">
+                    <div className="form-field">
+                      <label className="form-label">Availability</label>
+                      <input
+                        className="form-input"
+                        placeholder="e.g. Mon-Sat (9AM-5PM)"
+                      />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label">Default Password</label>
+                      <input
+                        className="form-input"
+                        type="password"
+                        value={newDoctor.password}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            password: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-field form-field-full">
+                      <div className="upload-dropzone">
+                        <div className="flex flex-col items-center gap-2 text-slate-500">
+                          <Upload className="w-8 h-8 text-blue-500 mb-2" />
+                          <p className="text-sm font-medium text-slate-700">
+                            Medical License / ID Verification
+                          </p>
+                          <p className="text-xs">
+                            Upload credible proof for account verification
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-between items-center gap-3">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() =>
+                  addStep > 1
+                    ? setAddStep(addStep - 1)
+                    : setIsAddModalOpen(false)
+                }
+              >
+                {addStep === 1 ? "Cancel" : "Previous"}
+              </button>
+              <div className="flex gap-3">
+                {addStep < 3 ? (
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={() => setAddStep(addStep + 1)}
+                  >
+                    Next Step <ChevronRight className="w-4 h-4 ml-1" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAddDoctor}
+                    disabled={isLoading}
+                    className="btn-primary"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4 mr-2" /> Add Doctor
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsAddModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleAddDoctor} disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  "Add Doctor"
-                )}
-              </Button>
-            </DialogFooter>
+            <input
+              type="file"
+              ref={addDoctorFileRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleAddDoctorFileChange}
+            />
           </DialogContent>
         </Dialog>
 
         {/* Edit Doctor Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Doctor Details</DialogTitle>
-              <DialogDescription>
-                View and edit doctor information and credentials
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="max-w-4xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-slate-100 bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight">
+                  Doctor Profile
+                </DialogTitle>
+                <DialogDescription className="text-sm text-slate-500">
+                  Manage medical professional credentials and parameters.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
             {selectedDoctor && (
-              <>
-                {/* Avatar Section - Top Center */}
-                <div className="flex flex-col items-center space-y-4 py-4">
-                  <Label className="text-lg font-medium">Profile Picture</Label>
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage
-                      src={selectedDoctor.imageUrl || "/placeholder-doctor.svg"}
-                    />
-                    <AvatarFallback className="text-xl">
-                      {selectedDoctor.firstName[0]}
-                      {selectedDoctor.lastName[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex gap-3">
-                    <Button variant="outline" size="sm">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Photo
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Remove
-                    </Button>
-                  </div>
-                </div>
+              <div className="px-8 py-6 bg-[#F8FAFC]">
                 <Tabs defaultValue="details" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="details">Details</TabsTrigger>
-                    <TabsTrigger value="schedule">Schedule</TabsTrigger>
-                    <TabsTrigger value="patients">Patients</TabsTrigger>
-                    <TabsTrigger value="notes">Notes</TabsTrigger>
+                  <TabsList className="flex gap-2 p-1 bg-slate-200/50 rounded-xl mb-6 w-full max-w-[500px]">
+                    <TabsTrigger
+                      value="details"
+                      className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    >
+                      Clinical Details
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="schedule"
+                      className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    >
+                      Operation Log
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="patients"
+                      className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                    >
+                      Patient Index
+                    </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="details" className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="editName">Full Name</Label>
-                        <Input
-                          id="editName"
-                          defaultValue={`${selectedDoctor.firstName} ${selectedDoctor.lastName}`}
-                        />
+                  <TabsContent
+                    value="details"
+                    className="mt-0 animate-in fade-in duration-300"
+                  >
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleUpdateDoctor();
+                      }}
+                    >
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">First Name</label>
+                          <input
+                            className="form-input"
+                            value={selectedDoctor.firstName}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                firstName: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Last Name</label>
+                          <input
+                            className="form-input"
+                            value={selectedDoctor.lastName}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                lastName: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Email</label>
+                          <input
+                            className="form-input"
+                            type="email"
+                            value={selectedDoctor.email}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                email: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Phone</label>
+                          <input
+                            className="form-input"
+                            value={selectedDoctor.phone}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                phone: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Specialization</label>
+                          <Select
+                            value={selectedDoctor.specialization}
+                            onValueChange={(v) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                specialization: v,
+                              })
+                            }
+                          >
+                            <SelectTrigger className="form-select-trigger">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[
+                                "Cardiology",
+                                "Neurology",
+                                "Orthopedics",
+                                "Pediatrics",
+                                "Dermatology",
+                                "Ophthalmology",
+                              ].map((s) => (
+                                <SelectItem key={s} value={s}>
+                                  {s}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">
+                            Experience (Years)
+                          </label>
+                          <input
+                            className="form-input"
+                            type="number"
+                            value={selectedDoctor.experience}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                experience: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">
+                            Consultation Fee (₹)
+                          </label>
+                          <input
+                            className="form-input"
+                            type="number"
+                            value={selectedDoctor.consultationFee}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                consultationFee: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Status</label>
+                          <Select
+                            value={selectedDoctor.status}
+                            onValueChange={(v) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                status: v as "Active" | "Inactive",
+                              })
+                            }
+                          >
+                            <SelectTrigger className="form-select-trigger">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Active">Active</SelectItem>
+                              <SelectItem value="Inactive">Inactive</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Hospital</label>
+                          <input
+                            className="form-input"
+                            value={selectedDoctor.hospital}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                hospital: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Qualifications</label>
+                          <textarea
+                            className="form-textarea"
+                            rows={3}
+                            value={selectedDoctor.qualifications}
+                            onChange={(e) =>
+                              setSelectedDoctor({
+                                ...selectedDoctor,
+                                qualifications: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="editEmail">Email</Label>
-                        <Input
-                          id="editEmail"
-                          type="email"
-                          defaultValue={selectedDoctor.email}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editPhone">Phone</Label>
-                        <Input
-                          id="editPhone"
-                          defaultValue={selectedDoctor.phone}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editSpecialization">
-                          Specialization
-                        </Label>
-                        <Select defaultValue={selectedDoctor.specialization}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Cardiology">
-                              Cardiology
-                            </SelectItem>
-                            <SelectItem value="Neurology">Neurology</SelectItem>
-                            <SelectItem value="Orthopedics">
-                              Orthopedics
-                            </SelectItem>
-                            <SelectItem value="Pediatrics">
-                              Pediatrics
-                            </SelectItem>
-                            <SelectItem value="Dermatology">
-                              Dermatology
-                            </SelectItem>
-                            <SelectItem value="Ophthalmology">
-                              Ophthalmology
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="editExperience">Experience</Label>
-                        <Input
-                          id="editExperience"
-                          type="number"
-                          defaultValue={selectedDoctor.experience}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editFee">Consultation Fee</Label>
-                        <Input
-                          id="editFee"
-                          type="number"
-                          defaultValue={selectedDoctor.consultationFee}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editHospital">Hospital</Label>
-                        <Input
-                          id="editHospital"
-                          defaultValue={selectedDoctor.hospital}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editLocation">Location</Label>
-                        <Input
-                          id="editLocation"
-                          defaultValue={selectedDoctor.location}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="editStatus">Status</Label>
-                        <Select defaultValue={selectedDoctor.status}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="editAvailability">Availability</Label>
-                        <Input
-                          id="editAvailability"
-                          defaultValue={selectedDoctor.availability}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="editQualifications">Qualifications</Label>
-                      <Textarea
-                        id="editQualifications"
-                        defaultValue={selectedDoctor.qualifications}
-                      />
-                    </div>
+                    </form>
                   </TabsContent>
 
-                  <TabsContent value="schedule" className="space-y-4">
-                    <div className="text-center py-8">
-                      <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">
-                        Schedule Management
+                  <TabsContent
+                    value="schedule"
+                    className="mt-0 animate-in fade-in duration-300"
+                  >
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                        <Clock className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800 mb-1">
+                        Availability Matrix
                       </h3>
-                      <p className="text-muted-foreground">
-                        Doctor&apos;s schedule and availability will be
-                        displayed here
+                      <p className="text-sm text-slate-400 mb-6 font-medium">
+                        Configure weekly operational slots
                       </p>
+                      <button className="btn-secondary">
+                        Configure Schedule
+                      </button>
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="patients" className="space-y-4">
-                    <div className="text-center py-8">
-                      <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">
-                        Patient List
+                  <TabsContent
+                    value="patients"
+                    className="mt-0 animate-in fade-in duration-300"
+                  >
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                        <Users className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800 mb-1">
+                        Patient History
                       </h3>
-                      <p className="text-muted-foreground">
-                        Doctor&apos;s patients will be displayed here
+                      <p className="text-sm text-slate-400 mb-6 font-medium">
+                        Historical records of consultations
                       </p>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="notes" className="space-y-4">
-                    <div>
-                      <Label htmlFor="editNotes">Notes</Label>
-                      <Textarea
-                        id="editNotes"
-                        placeholder="Add notes about this doctor"
-                      />
+                      <button className="btn-secondary">View Registry</button>
                     </div>
                   </TabsContent>
                 </Tabs>
-              </>
+              </div>
             )}
-            <DialogFooter>
-              <Button
-                variant="outline"
+
+            <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-end gap-3">
+              <button
+                type="button"
+                className="btn-secondary"
                 onClick={() => setIsEditModalOpen(false)}
+                disabled={isLoading}
               >
                 Cancel
-              </Button>
-              <Button onClick={handleUpdateDoctor} disabled={isLoading}>
+              </button>
+              <button
+                onClick={handleUpdateDoctor}
+                className="btn-primary"
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
+                    <Loader2 className="w-4 h-4 animate-spin" />{" "}
+                    Synchronizing...
                   </>
                 ) : (
-                  "Update Doctor"
+                  "Commit Updates"
                 )}
-              </Button>
-            </DialogFooter>
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

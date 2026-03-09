@@ -253,10 +253,10 @@ const ProductGrid = () => {
 
   const displayTitle = categoryFilter
     ? categoryNames[categoryFilter] ||
-    categoryFilter
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
+      categoryFilter
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
     : "All Products";
 
   const sortedProducts = useMemo(() => {
@@ -721,38 +721,38 @@ const ProductGrid = () => {
               )}
               {(priceRange.min > ABSOLUTE_MIN_PRICE ||
                 priceRange.max < ABSOLUTE_MAX_PRICE) && (
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f0f4f4] dark:bg-slate-800 text-sm font-semibold text-[#113A46] dark:text-slate-300 transition-colors border border-transparent hover:border-slate-300">
-                    Rs. {priceRange.min.toLocaleString("en-IN")} - Rs.{" "}
-                    {priceRange.max.toLocaleString("en-IN")}
-                    <button
-                      onClick={() =>
-                        setPriceRange({
-                          min: ABSOLUTE_MIN_PRICE,
-                          max: ABSOLUTE_MAX_PRICE,
-                        })
-                      }
-                      className="hover:text-black dark:hover:text-white ml-0.5"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </span>
-                )}
-              {(inStockOnly ||
-                priceRange.min > ABSOLUTE_MIN_PRICE ||
-                priceRange.max < ABSOLUTE_MAX_PRICE) && (
+                <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f0f4f4] dark:bg-slate-800 text-sm font-semibold text-[#113A46] dark:text-slate-300 transition-colors border border-transparent hover:border-slate-300">
+                  Rs. {priceRange.min.toLocaleString("en-IN")} - Rs.{" "}
+                  {priceRange.max.toLocaleString("en-IN")}
                   <button
-                    onClick={() => {
-                      setInStockOnly(false);
+                    onClick={() =>
                       setPriceRange({
                         min: ABSOLUTE_MIN_PRICE,
                         max: ABSOLUTE_MAX_PRICE,
-                      });
-                    }}
-                    className="text-sm font-semibold text-[#113A46] dark:text-slate-300 hover:underline underline-offset-4 ml-3"
+                      })
+                    }
+                    className="hover:text-black dark:hover:text-white ml-0.5"
                   >
-                    Clear all
+                    <X className="w-4 h-4" />
                   </button>
-                )}
+                </span>
+              )}
+              {(inStockOnly ||
+                priceRange.min > ABSOLUTE_MIN_PRICE ||
+                priceRange.max < ABSOLUTE_MAX_PRICE) && (
+                <button
+                  onClick={() => {
+                    setInStockOnly(false);
+                    setPriceRange({
+                      min: ABSOLUTE_MIN_PRICE,
+                      max: ABSOLUTE_MAX_PRICE,
+                    });
+                  }}
+                  className="text-sm font-semibold text-[#113A46] dark:text-slate-300 hover:underline underline-offset-4 ml-3"
+                >
+                  Clear all
+                </button>
+              )}
             </div>
 
             <div className="relative shrink-0 z-20 self-end xl:self-auto">
@@ -876,7 +876,7 @@ const ProductGrid = () => {
                       key={product._id}
                       className="h-full"
                     >
-                      <ProductCard product={formattedProduct} viewMode="grid" />
+                      <ProductCard product={formattedProduct} />
                     </motion.div>
                   );
                 })}

@@ -21,6 +21,10 @@ import {
   Users,
   ShoppingCart,
   TrendingUp,
+  Activity,
+  ArrowUpRight,
+  Settings,
+  RotateCcw,
 } from "lucide-react";
 import axios from "axios";
 import { getApiV1Url, getApiV1BaseUrl } from "@/lib/utils/api";
@@ -537,778 +541,538 @@ const OrdersPage = () => {
         ) : (
           <>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-slate-100 rounded-2xl border border-slate-200">
+                    {displayMode === "orders" ? <ShoppingCart className="w-6 h-6 text-primary" /> : <Users className="w-6 h-6 text-primary" />}
+                  </div>
+                  <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">
+                    {displayMode === "orders" ? (
+                      <>Transaction <span className="text-primary">Ledger</span></>
+                    ) : (
+                      <>Entity <span className="text-primary">Registry</span></>
+                    )}
+                  </h1>
+                </div>
+                <p className="text-slate-500 font-medium max-w-2xl leading-relaxed">
                   {displayMode === "orders"
-                    ? "Orders"
-                    : "Customers with Orders"}
-                </h1>
-                <p className="text-muted-foreground">
-                  {displayMode === "orders"
-                    ? "Manage customer orders and fulfillment"
-                    : "View customers and their order statistics"}
+                    ? "Oversee procurement cycles, delivery logistics, and operational metrics."
+                    : "Analyze entity patterns, acquisition metrics, and behavioral intelligence."}
                 </p>
               </div>
-              {(currentUser?.role === "admin" ||
-                currentUser?.role === "super_admin" ||
-                currentUser?.role === "Admin") && (
-                <div className="flex gap-2">
+
+              {(currentUser?.role === "admin" || currentUser?.role === "super_admin" || currentUser?.role === "Admin") && (
+                <div className="flex bg-slate-50 p-1.5 rounded-2xl gap-1 border border-slate-200 shadow-sm">
                   <Button
-                    variant={displayMode === "orders" ? "default" : "outline"}
                     onClick={() => setDisplayMode("orders")}
+                    className={`h-11 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all border-none ${displayMode === "orders"
+                      ? "bg-white text-primary shadow-md"
+                      : "bg-transparent text-slate-500 hover:text-slate-700"
+                      }`}
                   >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Orders
+                    <ShoppingCart className="w-3.5 h-3.5 mr-2" />
+                    Transactions
                   </Button>
                   <Button
-                    variant={displayMode === "users" ? "default" : "outline"}
                     onClick={() => setDisplayMode("users")}
+                    className={`h-11 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all border-none ${displayMode === "users"
+                      ? "bg-white text-primary shadow-md"
+                      : "bg-transparent text-slate-500 hover:text-slate-700"
+                      }`}
                   >
-                    <Users className="w-4 h-4 mr-2" />
-                    Customers
+                    <Users className="w-3.5 h-3.5 mr-2" />
+                    Entities
                   </Button>
                 </div>
               )}
             </div>
 
-            {/* Stats Cards */}
+            {/* Stats Perspective */}
             {displayMode === "orders" ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Total Orders
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {orders.length}
-                        </p>
-                      </div>
-                      <Package className="w-8 h-8 text-primary" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Pending Orders
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {orders.filter((o) => o.status === "Pending").length}
-                        </p>
-                      </div>
-                      <Clock className="w-8 h-8 text-amber-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Delivered Orders
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {
-                            orders.filter((o) => o.status === "Delivered")
-                              .length
-                          }
-                        </p>
-                      </div>
-                      <CheckCircle className="w-8 h-8 text-emerald-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Total Revenue
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {formatPrice(
-                            orders.reduce((sum, o) => sum + o.totalAmount, 0),
-                          )}
-                        </p>
-                      </div>
-                      <DollarSign className="w-8 h-8 text-blue-600" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Total Customers
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {usersWithOrders.length}
-                        </p>
-                      </div>
-                      <Users className="w-8 h-8 text-primary" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Total Orders
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {usersWithOrders.reduce(
-                            (sum, u) => sum + u.totalOrders,
-                            0,
-                          )}
-                        </p>
-                      </div>
-                      <ShoppingCart className="w-8 h-8 text-blue-600" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Total Revenue
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {formatPrice(
-                            usersWithOrders.reduce(
-                              (sum, u) => sum + u.totalSpent,
-                              0,
-                            ),
-                          )}
-                        </p>
-                      </div>
-                      <DollarSign className="w-8 h-8 text-emerald-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Avg Order Value
-                        </p>
-                        <p className="text-2xl font-bold text-foreground">
-                          {formatPrice(
-                            usersWithOrders.length > 0
-                              ? usersWithOrders.reduce(
-                                  (sum, u) => sum + u.averageOrderValue,
-                                  0,
-                                ) / usersWithOrders.length
-                              : 0,
-                          )}
-                        </p>
-                      </div>
-                      <TrendingUp className="w-8 h-8 text-amber-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Filters and Search */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row gap-4">
-                  {/* Search */}
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder={
-                        displayMode === "orders"
-                          ? "Search orders..."
-                          : "Search customers..."
-                      }
-                      value={filters.search || ""}
-                      onChange={(e) =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          search: e.target.value,
-                        }))
-                      }
-                      className="pl-10"
-                    />
-                  </div>
-
-                  {displayMode === "orders" && (
-                    <>
-                      {/* Status Filter */}
-                      <Select
-                        value={filters.status || "all"}
-                        onValueChange={(value) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            status: value === "all" ? "" : value,
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {orderStatuses.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {status === "all" ? "All Status" : status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-
-                      {/* Payment Status Filter */}
-                      <Select
-                        value={filters.paymentStatus || "all"}
-                        onValueChange={(value) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            paymentStatus: value === "all" ? "" : value,
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Payment status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {paymentStatuses.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {status === "all" ? "All Payment Status" : status}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </>
-                  )}
-
-                  {/* View Toggle - Only show for orders */}
-                  {displayMode === "orders" && (
-                    <div className="flex border border-input rounded-lg overflow-hidden">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant={viewMode === "grid" ? "default" : "ghost"}
-                            size="icon"
-                            onClick={() => setViewMode("grid")}
-                            className="rounded-none"
-                          >
-                            <Grid3X3 className="w-4 h-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Grid view</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant={viewMode === "list" ? "default" : "ghost"}
-                            size="icon"
-                            onClick={() => setViewMode("list")}
-                            className="rounded-none"
-                          >
-                            <List className="w-4 h-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>List view</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Content */}
-            {displayMode === "orders" ? (
-              <>
-                {isLoading ? (
-                  <Loader variant="skeleton" message="Loading orders..." />
-                ) : filteredOrders.length === 0 ? (
-                  <NoData
-                    message="No orders found"
-                    description="Orders will appear here once customers start making purchases"
-                    icon={
-                      <Package className="w-full h-full text-muted-foreground/60" />
-                    }
-                    size="lg"
-                  />
-                ) : viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {paginatedOrders.map((order) => (
-                      <Card
-                        key={order._id}
-                        className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full"
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="text-lg">
-                              {order.orderNumber}
-                            </CardTitle>
-                            <Badge
-                              variant={
-                                getStatusColor(order.status) as
-                                  | "default"
-                                  | "secondary"
-                                  | "destructive"
-                                  | "outline"
-                              }
-                            >
-                              {getStatusIcon(order.status)}
-                              <span className="ml-1">{order.status}</span>
-                            </Badge>
-                          </div>
-                          <CardDescription>
-                            {renderUser(order.user)}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-3 flex-1 flex flex-col">
-                          <div className="space-y-3 flex-1">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Order Date:
-                              </span>
-                              <span className="text-sm font-medium">
-                                {new Date(order.createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Total Amount:
-                              </span>
-                              <span className="text-lg font-bold text-foreground">
-                                {formatPrice(order.totalAmount)}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Payment:
-                              </span>
-                              <Badge
-                                variant={
-                                  order.paymentStatus === "Paid"
-                                    ? "success"
-                                    : order.paymentStatus === "Refunded"
-                                      ? "default"
-                                      : "warning"
-                                }
-                              >
-                                {order.paymentStatus}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Items:
-                              </span>
-                              <span className="text-sm font-medium">
-                                {order.items.length} items
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex gap-2 pt-2 mt-auto">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  onClick={() => openViewModal(order)}
-                                  className="flex-1 gap-2"
-                                  size="sm"
-                                  variant="outline"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                  View
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>View order details</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  onClick={() => openEditModal(order)}
-                                  className="flex-1 gap-2"
-                                  size="sm"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                  Edit
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Edit order status</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : !isLoading ? (
-                  <Card>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Order</TableHead>
-                          <TableHead>Customer</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Payment</TableHead>
-                          <TableHead>Total</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {paginatedOrders.map((order) => (
-                          <TableRow key={order._id}>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium text-foreground">
-                                  {order.orderNumber}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  {order.items.length} items
-                                </p>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium text-foreground">
-                                  {renderUser(order.user)}
-                                </p>
-                                <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                                  {renderAddress(order.shippingAddress)}
-                                </p>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {new Date(order.createdAt).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={
-                                  getStatusColor(order.status) as
-                                    | "default"
-                                    | "secondary"
-                                    | "destructive"
-                                    | "outline"
-                                }
-                              >
-                                {getStatusIcon(order.status)}
-                                <span className="ml-1">{order.status}</span>
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={
-                                  order.paymentStatus === "Paid"
-                                    ? "success"
-                                    : order.paymentStatus === "Refunded"
-                                      ? "default"
-                                      : "warning"
-                                }
-                              >
-                                {order.paymentStatus}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              {formatPrice(order.totalAmount)}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      onClick={() => openViewModal(order)}
-                                      variant="ghost"
-                                      size="icon"
-                                    >
-                                      <Eye className="w-4 h-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>View order</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      onClick={() => openEditModal(order)}
-                                      variant="ghost"
-                                      size="icon"
-                                    >
-                                      <Edit className="w-4 h-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Edit order</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Card>
-                ) : null}
-
-                {/* Pagination */}
-                {!isLoading && filteredOrders.length > 0 && totalPages > 1 && (
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-muted-foreground">
-                          Showing {startIndex + 1} to{" "}
-                          {Math.min(endIndex, filteredOrders.length)} of{" "}
-                          {filteredOrders.length} orders
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                {[
+                  { label: 'Total Volume', value: orders.length, icon: Package, color: 'primary', trend: 'Total Orders' },
+                  { label: 'Pending Cycle', value: orders.filter((o) => o.status === "Pending").length, icon: Clock, color: 'amber', trend: 'In Queue' },
+                  { label: 'Fulfillment Rate', value: orders.filter((o) => o.status === "Delivered").length, icon: CheckCircle, color: 'emerald', trend: 'Delivered' },
+                  { label: 'Gross Revenue', value: formatPrice(orders.reduce((sum, o) => sum + o.totalAmount, 0)), icon: DollarSign, color: 'blue', trend: 'Financial Impact' },
+                ].map((stat, i) => (
+                  <Card key={i} className="group overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl">
+                    <CardContent className="p-6 relative">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`p-3 rounded-xl bg-slate-50 border border-slate-100 group-hover:bg-white group-hover:scale-110 transition-all duration-500`}>
+                          <stat.icon className={`w-5 h-5 text-primary`} />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setCurrentPage((prev) => Math.max(prev - 1, 1))
-                            }
-                            disabled={currentPage === 1}
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                            Previous
-                          </Button>
-                          <div className="flex items-center gap-1">
-                            {Array.from(
-                              { length: totalPages },
-                              (_, i) => i + 1,
-                            ).map((page) => (
-                              <Button
-                                key={page}
-                                variant={
-                                  currentPage === page ? "default" : "outline"
-                                }
-                                size="sm"
-                                onClick={() => setCurrentPage(page)}
-                                className="w-8 h-8 p-0"
-                              >
-                                {page}
-                              </Button>
-                            ))}
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setCurrentPage((prev) =>
-                                Math.min(prev + 1, totalPages),
-                              )
-                            }
-                            disabled={currentPage === totalPages}
-                          >
-                            Next
-                            <ChevronRight className="w-4 h-4" />
-                          </Button>
+                        <Badge variant="outline" className="rounded-full font-bold text-[10px] uppercase tracking-wider border-slate-100 bg-slate-50 px-3 py-1 text-slate-500">
+                          {stat.trend}
+                        </Badge>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</h3>
+                        <div className="flex items-baseline gap-2">
+                          <p className="text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                {[
+                  { label: 'Total Entities', value: usersWithOrders.length, icon: Users, color: 'primary', trend: 'Customer Base' },
+                  { label: 'Order Velocity', value: usersWithOrders.reduce((sum, u) => sum + u.totalOrders, 0), icon: ShoppingCart, color: 'blue', trend: 'Total Volume' },
+                  { label: 'Financial Yield', value: formatPrice(usersWithOrders.reduce((sum, u) => sum + u.totalSpent, 0)), icon: DollarSign, color: 'emerald', trend: 'Total Spent' },
+                  { label: 'Economic Average', value: formatPrice(usersWithOrders.length > 0 ? usersWithOrders.reduce((sum, u) => sum + u.averageOrderValue, 0) / usersWithOrders.length : 0), icon: TrendingUp, color: 'amber', trend: 'Avg Ticket' },
+                ].map((stat, i) => (
+                  <Card key={i} className="group overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl">
+                    <CardContent className="p-6 relative">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`p-3 rounded-xl bg-slate-50 border border-slate-100 group-hover:bg-white group-hover:scale-110 transition-all duration-300`}>
+                          <stat.icon className={`w-5 h-5 text-slate-900`} />
+                        </div>
+                        <Badge variant="outline" className="rounded-full font-bold text-[10px] uppercase tracking-wider border-slate-100 bg-slate-50 px-3 py-1 text-slate-400">
+                          {stat.trend}
+                        </Badge>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</h3>
+                        <div className="flex items-baseline gap-2">
+                          <p className="text-2xl font-bold text-slate-900 tracking-tight">{stat.value}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Command & Control Bar */}
+            <div className="mb-10 sticky top-4 z-20">
+              <Card className="border border-slate-200 bg-white shadow-xl rounded-2xl overflow-hidden">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6">
+                    {/* Semantic Search */}
+                    <div className="relative flex-1 group">
+                      <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+                      <Input
+                        type="text"
+                        placeholder={displayMode === "orders" ? "Search transaction protocols by number or entity name..." : "Search customer registry by name, email, or telephone..."}
+                        value={filters.search}
+                        onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                        className="h-14 pl-16 pr-6 rounded-xl bg-slate-50 border-transparent focus:border-primary/20 focus:bg-white shadow-sm transition-all text-sm font-bold placeholder:font-medium"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                      {displayMode === "orders" && (
+                        <>
+                          {/* Status Filter */}
+                          <Select
+                            value={filters.status || "all"}
+                            onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === "all" ? "" : value }))}
+                          >
+                            <SelectTrigger className="w-full sm:w-[200px] h-14 rounded-xl bg-slate-50 border-transparent text-xs font-black uppercase tracking-widest text-slate-600">
+                              <SelectValue placeholder="Operational State" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl border-slate-100 shadow-2xl p-2">
+                              {orderStatuses.map(status => (
+                                <SelectItem key={status} value={status} className="rounded-xl mb-1 focus:bg-primary/5 focus:text-primary font-bold uppercase tracking-tighter text-[11px]">
+                                  {status === "all" ? "All Protocols" : status}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          {/* Payment Filter */}
+                          <Select
+                            value={filters.paymentStatus || "all"}
+                            onValueChange={(value) => setFilters(prev => ({ ...prev, paymentStatus: value === "all" ? "" : value }))}
+                          >
+                            <SelectTrigger className="w-full sm:w-[200px] h-14 rounded-xl bg-slate-50 border-transparent text-xs font-black uppercase tracking-widest text-slate-600">
+                              <SelectValue placeholder="Fiscal Status" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl border-slate-100 shadow-2xl p-2">
+                              {paymentStatuses.map(status => (
+                                <SelectItem key={status} value={status} className="rounded-xl mb-1 focus:bg-primary/5 focus:text-primary font-bold uppercase tracking-tighter text-[11px]">
+                                  {status === "all" ? "Complete Archive" : status}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </>
+                      )}
+
+                      {/* View Toggle */}
+                      <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
+                        {[
+                          { mode: 'grid', icon: Grid3X3 },
+                          { mode: 'list', icon: List },
+                        ].map((item) => (
+                          <Button
+                            key={item.mode}
+                            variant={viewMode === (item.mode as any) ? 'default' : 'ghost'}
+                            size="icon"
+                            onClick={() => setViewMode(item.mode as any)}
+                            className={`h-12 w-12 rounded-lg transition-all ${viewMode === item.mode
+                              ? 'bg-white text-primary shadow-sm'
+                              : 'text-slate-400 hover:text-slate-600'
+                              }`}
+                          >
+                            <item.icon className="w-5 h-5" />
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Content Synthesis */}
+            {displayMode === "orders" ? (
+              <>
+                {isLoading ? (
+                  <Loader variant="skeleton" message="Synchronizing transaction ledger..." />
+                ) : filteredOrders.length === 0 ? (
+                  <NoData
+                    message="No transaction records found"
+                    description="The ledger is currently empty. Initiate global commerce to populate this node."
+                    icon={<Package className="w-full h-full text-slate-200" />}
+                    size="lg"
+                  />
+                ) : (
+                  <>
+                    {viewMode === "grid" ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {paginatedOrders.map((order) => (
+                          <Card
+                            key={order._id}
+                            className="group relative overflow-hidden border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 rounded-2xl flex flex-col h-full"
+                          >
+                            <CardHeader className="p-6 pb-4">
+                              <div className="flex items-center justify-between mb-4">
+                                <Badge variant="outline" className="rounded-lg px-2 py-0.5 bg-slate-50 border-slate-200 font-bold font-mono text-[10px] tracking-tighter text-slate-500">
+                                  {order.orderNumber}
+                                </Badge>
+                                <Badge
+                                  className={`rounded-lg px-2 py-0.5 font-bold uppercase tracking-widest text-[8px] shadow-sm border-none ${order.status === "Delivered" ? "bg-emerald-500 text-white" :
+                                    order.status === "Pending" ? "bg-amber-500 text-white" :
+                                      order.status === "Cancelled" ? "bg-rose-500 text-white" :
+                                        "bg-primary text-white"
+                                    }`}
+                                >
+                                  {order.status}
+                                </Badge>
+                              </div>
+                              <CardTitle className="text-lg font-bold text-slate-900 tracking-tight leading-tight group-hover:text-primary transition-colors">
+                                {renderUser(order.user)}
+                              </CardTitle>
+                              <CardDescription className="text-xs font-medium text-slate-400 mt-1 flex items-center gap-2">
+                                <Clock className="w-3 h-3" />
+                                Synchronized {new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </CardDescription>
+                            </CardHeader>
+
+                            <CardContent className="p-8 pt-4 space-y-6 flex-1 flex flex-col">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Financial Impact</p>
+                                  <p className="text-xl font-black text-slate-900">{formatPrice(order.totalAmount)}</p>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fiscal Status</p>
+                                  <div className="flex items-center gap-1.5">
+                                    <div className={`w-1.5 h-1.5 rounded-full ${order.paymentStatus === 'Paid' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                    <p className="text-xs font-bold text-slate-700">{order.paymentStatus}</p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Inventory Payload</span>
+                                  <span className="font-black text-slate-700">{order.items.length} Units</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {order.items.slice(0, 2).map((item, idx) => (
+                                    <div key={idx} className="px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary truncate max-w-[150px]">
+                                      {renderProduct(item)}
+                                    </div>
+                                  ))}
+                                  {order.items.length > 2 && (
+                                    <div className="px-3 py-1.5 rounded-lg bg-slate-100 text-[10px] font-bold text-slate-500">
+                                      +{order.items.length - 2} More
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="pt-4 mt-auto flex gap-2">
+                                <Button
+                                  onClick={() => openViewModal(order)}
+                                  variant="outline"
+                                  className="flex-1 h-11 rounded-xl border-slate-200 font-bold uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all duration-300"
+                                >
+                                  <Eye className="w-3.5 h-3.5 mr-2" />
+                                  Explore
+                                </Button>
+                                <Button
+                                  onClick={() => openEditModal(order)}
+                                  className="flex-1 h-11 rounded-xl shadow-md font-bold uppercase tracking-widest text-[10px] bg-slate-900 text-white hover:bg-slate-800 transition-all duration-300 active:scale-95"
+                                >
+                                  <Edit className="w-3.5 h-3.5 mr-2" />
+                                  Manage
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl overflow-hidden">
+                        <Table>
+                          <TableHeader className="bg-slate-50">
+                            <TableRow className="border-slate-100 hover:bg-transparent">
+                              <TableHead className="py-6 px-8 text-[10px] font-bold uppercase tracking-widest text-slate-500">Transaction ID</TableHead>
+                              <TableHead className="py-6 text-[10px] font-bold uppercase tracking-widest text-slate-500">Entity Details</TableHead>
+                              <TableHead className="py-6 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Lifecycle Stage</TableHead>
+                              <TableHead className="py-6 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Fiscal Status</TableHead>
+                              <TableHead className="py-6 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Economic Impact</TableHead>
+                              <TableHead className="py-6 px-8 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Operations</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {paginatedOrders.map((order) => (
+                              <TableRow key={order._id} className="group border-slate-100 hover:bg-slate-50/50 transition-all">
+                                <TableCell className="py-6 px-8 text-nowrap">
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-black text-slate-900 tracking-tight">{order.orderNumber}</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="py-6">
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-black text-slate-900 tracking-tight">{renderUser(order.user)}</span>
+                                    <span className="text-[10px] font-medium text-slate-400 truncate max-w-[200px]">{renderAddress(order.shippingAddress)}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="py-6 text-center">
+                                  <Badge
+                                    className={`rounded-lg px-2.5 py-1 font-black uppercase tracking-widest text-[9px] shadow-sm border-none mx-auto ${order.status === "Delivered" ? "bg-emerald-500/10 text-emerald-600" :
+                                      order.status === "Pending" ? "bg-amber-500/10 text-amber-600" :
+                                        order.status === "Cancelled" ? "bg-rose-500/10 text-rose-600" :
+                                          "bg-primary/10 text-primary"
+                                      }`}
+                                  >
+                                    <div className="flex items-center gap-1.5">
+                                      {getStatusIcon(order.status)}
+                                      {order.status}
+                                    </div>
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="py-6 text-center">
+                                  <Badge
+                                    variant="outline"
+                                    className={`rounded-lg px-2.5 py-1 font-black uppercase tracking-widest text-[9px] border-none mx-auto ${order.paymentStatus === "Paid" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                                      }`}
+                                  >
+                                    {order.paymentStatus}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="py-6 text-right font-black text-slate-900 tracking-tight">
+                                  {formatPrice(order.totalAmount)}
+                                </TableCell>
+                                <TableCell className="py-6 px-8 text-right">
+                                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                      onClick={() => openViewModal(order)}
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      onClick={() => openEditModal(order)}
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-10 w-10 rounded-xl hover:bg-blue-500/10 hover:text-blue-500 transition-all"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </Card>
+                    )}
+
+                    {/* Pagination Interface */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-slate-100 mt-12">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Pagination Context</span>
+                        <p className="text-xs font-bold text-slate-600">
+                          Mapping <span className="text-primary">{startIndex + 1}</span> &mdash; <span className="text-primary">{Math.min(endIndex, filteredOrders.length)}</span> of <span className="text-primary">{filteredOrders.length}</span> entities
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="h-12 px-6 rounded-xl border-slate-200 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all bg-white"
+                        >
+                          <ChevronLeft className="w-4 h-4 mr-2" />
+                          Previous
+                        </Button>
+                        <div className="flex items-center gap-1.5 px-3">
+                          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(page => (
+                            <Button
+                              key={page}
+                              variant={currentPage === page ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setCurrentPage(page)}
+                              className={`w-10 h-10 p-0 rounded-xl font-black transition-all ${currentPage === page
+                                ? 'bg-slate-900 text-white shadow-lg scale-110'
+                                : 'border-slate-200 hover:bg-slate-100 bg-white'
+                                }`}
+                            >
+                              {page}
+                            </Button>
+                          ))}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="h-12 px-6 rounded-xl border-slate-200 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all bg-white"
+                        >
+                          Next Cycle
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
                 )}
               </>
             ) : (
               <>
-                {/* Users with Orders View */}
+                {/* Users with Orders View (Entity Analyst) */}
                 {isLoadingUsers ? (
-                  <Loader variant="skeleton" message="Loading customers..." />
+                  <Loader variant="skeleton" message="Parsing entity registry..." />
                 ) : filteredUsers.length === 0 ? (
                   <NoData
-                    message="No customers found"
-                    description="Customers with orders will appear here"
-                    icon={
-                      <Users className="w-full h-full text-muted-foreground/60" />
-                    }
+                    message="No entity records found"
+                    description="The registry is awaiting automated synchronization with procurement nodes."
+                    icon={<Users className="w-full h-full text-slate-200" />}
                     size="lg"
                   />
                 ) : (
-                  <Card>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Customer</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Phone</TableHead>
-                          <TableHead className="text-center">
-                            Total Orders
-                          </TableHead>
-                          <TableHead className="text-center">
-                            Delivered
-                          </TableHead>
-                          <TableHead className="text-right">
-                            Total Spent
-                          </TableHead>
-                          <TableHead className="text-right">
-                            Avg Order
-                          </TableHead>
-                          <TableHead>Last Order</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {paginatedUsers.map((user) => (
-                          <TableRow key={user._id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                  {user.imageUrl ? (
-                                    <img
-                                      src={user.imageUrl}
-                                      alt={`${user.firstName} ${user.lastName}`}
-                                      className="w-10 h-10 rounded-full object-cover"
-                                    />
-                                  ) : (
-                                    <span className="text-primary font-semibold">
-                                      {user.firstName[0]}
-                                      {user.lastName[0]}
-                                    </span>
-                                  )}
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">
-                                    {user.firstName} {user.lastName}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {user.role}
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm text-muted-foreground">
-                                {user.email}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm text-muted-foreground">
-                                {user.phone}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="default">
-                                {user.totalOrders}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <div className="flex flex-col gap-1 items-center">
-                                <Badge variant="success">
-                                  {user.deliveredOrders}
-                                </Badge>
-                                {user.pendingOrders > 0 && (
-                                  <Badge variant="warning" className="text-xs">
-                                    {user.pendingOrders} pending
-                                  </Badge>
-                                )}
-                                {user.cancelledOrders > 0 && (
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-xs"
-                                  >
-                                    {user.cancelledOrders} cancelled
-                                  </Badge>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <span className="font-semibold text-foreground">
-                                {formatPrice(user.totalSpent)}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <span className="text-sm text-muted-foreground">
-                                {formatPrice(user.averageOrderValue)}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm text-muted-foreground">
-                                {new Date(
-                                  user.lastOrderDate,
-                                ).toLocaleDateString()}
-                              </span>
-                            </TableCell>
+                  <>
+                    <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl overflow-hidden">
+                      <Table>
+                        <TableHeader className="bg-slate-50">
+                          <TableRow className="border-slate-100 hover:bg-transparent">
+                            <TableHead className="py-6 px-8 text-[10px] font-bold uppercase tracking-widest text-slate-500">Entity Identity</TableHead>
+                            <TableHead className="py-6 text-[10px] font-bold uppercase tracking-widest text-slate-500">Communication Vector</TableHead>
+                            <TableHead className="py-6 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Protocol Volume</TableHead>
+                            <TableHead className="py-6 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Economic Velocity</TableHead>
+                            <TableHead className="py-6 px-8 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Temporal Signature</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Card>
-                )}
-
-                {/* Pagination for Users */}
-                {!isLoadingUsers &&
-                  filteredUsers.length > 0 &&
-                  totalPages > 1 && (
-                    <Card>
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm text-muted-foreground">
-                            Showing {startIndex + 1} to{" "}
-                            {Math.min(endIndex, filteredUsers.length)} of{" "}
-                            {filteredUsers.length} customers
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                setCurrentPage((prev) => Math.max(prev - 1, 1))
-                              }
-                              disabled={currentPage === 1}
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                              Previous
-                            </Button>
-                            <div className="flex items-center gap-1">
-                              {Array.from(
-                                { length: totalPages },
-                                (_, i) => i + 1,
-                              ).map((page) => (
-                                <Button
-                                  key={page}
-                                  variant={
-                                    currentPage === page ? "default" : "outline"
-                                  }
-                                  size="sm"
-                                  onClick={() => setCurrentPage(page)}
-                                  className="w-8 h-8 p-0"
-                                >
-                                  {page}
-                                </Button>
-                              ))}
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                setCurrentPage((prev) =>
-                                  Math.min(prev + 1, totalPages),
-                                )
-                              }
-                              disabled={currentPage === totalPages}
-                            >
-                              Next
-                              <ChevronRight className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
+                        </TableHeader>
+                        <TableBody>
+                          {paginatedUsers.map((user) => (
+                            <TableRow key={user._id} className="group border-slate-100 hover:bg-slate-50/50 transition-all">
+                              <TableCell className="py-6 px-8">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner group-hover:scale-110 transition-transform">
+                                    {user.imageUrl ? (
+                                      <img src={user.imageUrl} alt={user.firstName} className="w-12 h-12 rounded-2xl object-cover" />
+                                    ) : (
+                                      <span className="text-primary font-black text-sm">{user.firstName[0]}{user.lastName[0]}</span>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-black text-slate-900 tracking-tight">{user.firstName} {user.lastName}</span>
+                                    <Badge variant="outline" className="w-fit mt-1 rounded-md px-1.5 py-0 text-[8px] font-black uppercase tracking-tighter bg-slate-50 border-slate-200 text-slate-400">
+                                      {user.role}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-6">
+                                <div className="flex flex-col">
+                                  <span className="text-[11px] font-bold text-slate-700">{user.email}</span>
+                                  <span className="text-[10px] font-medium text-slate-400">{user.phone}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-6 text-center">
+                                <div className="flex flex-col items-center gap-1.5">
+                                  <Badge className="rounded-xl px-3 py-1 bg-primary text-white font-black text-[10px]">
+                                    {user.totalOrders} Cycles
+                                  </Badge>
+                                  <div className="flex gap-1">
+                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[8px] px-1.5">{user.deliveredOrders} D</Badge>
+                                    {user.pendingOrders > 0 && <Badge className="bg-amber-500/10 text-amber-600 border-none text-[8px] px-1.5">{user.pendingOrders} P</Badge>}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-6 text-right">
+                                <div className="flex flex-col items-end">
+                                  <span className="text-sm font-black text-slate-900 tracking-tight">{formatPrice(user.totalSpent)}</span>
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Avg: {formatPrice(user.averageOrderValue)}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-6 px-8 text-right">
+                                <div className="flex flex-col items-end text-nowrap">
+                                  <span className="text-[11px] font-bold text-slate-700">{new Date(user.lastOrderDate).toLocaleDateString()}</span>
+                                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Last Activity</span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </Card>
-                  )}
+
+                    {/* Pagination for Entities */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-slate-100 mt-12">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Entity Index</span>
+                        <p className="text-xs font-bold text-slate-600">
+                          Analyzing <span className="text-primary">{startIndex + 1}</span> to <span className="text-primary">{Math.min(endIndex, filteredUsers.length)}</span> of <span className="text-primary">{filteredUsers.length}</span> verified nodes
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="h-12 px-6 rounded-xl border-slate-200 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all bg-white"
+                        >
+                          <ChevronLeft className="w-4 h-4 mr-2" />
+                          Previous Phase
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="h-12 px-6 rounded-xl border-slate-200 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all bg-white"
+                        >
+                          Next Phase
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             )}
           </>
@@ -1316,247 +1080,347 @@ const OrdersPage = () => {
 
         {/* View Order Modal */}
         <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                Order Details - {selectedOrder?.orderNumber}
-              </DialogTitle>
-              <DialogDescription>
-                Complete order information and details.
-              </DialogDescription>
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0 border-none bg-white rounded-2xl shadow-2xl">
+            <DialogHeader className="p-8 pb-6 bg-slate-100 border-b sticky top-0 z-10">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                  <Package className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl font-bold uppercase tracking-tight text-slate-900">
+                    Order Details <span className="text-primary/60 ml-2">#{selectedOrder?.orderNumber}</span>
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-500 font-medium">
+                    Comprehensive breakdown of procurement intelligence and fulfillment logic.
+                  </DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
+
             {selectedOrder && (
-              <div className="space-y-6">
-                {/* Order Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Order Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Order Number:
-                        </span>
-                        <span className="font-medium">
-                          {selectedOrder.orderNumber}
-                        </span>
+              <div className="p-8 space-y-8 pb-12">
+                {/* Status Progress Bar - Conceptual */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  {/* Left Column - Core Intelligence */}
+                  <div className="lg:col-span-7 space-y-8">
+                    {/* Order Information Card */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm transition-all hover:shadow-md">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                          <Activity className="w-5 h-5 text-blue-500" />
+                        </div>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Order Intelligence</h3>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Order Date:
-                        </span>
-                        <span className="font-medium">
-                          {new Date(
-                            selectedOrder.createdAt,
-                          ).toLocaleDateString()}
-                        </span>
+
+                      <div className="grid grid-cols-2 gap-y-6 gap-x-8">
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Temporal Sync</p>
+                          <p className="text-sm font-semibold text-slate-900">
+                            {new Date(selectedOrder.createdAt).toLocaleDateString("en-US", {
+                              day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Operational Status</p>
+                          <Badge
+                            variant={getStatusColor(selectedOrder.status) as any}
+                            className="rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider"
+                          >
+                            {getStatusIcon(selectedOrder.status)}
+                            <span className="ml-1.5">{selectedOrder.status}</span>
+                          </Badge>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Payment Protocol</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge
+                              variant={
+                                selectedOrder.paymentStatus === "Paid"
+                                  ? "success"
+                                  : selectedOrder.paymentStatus === "Refunded"
+                                    ? "default"
+                                    : "warning"
+                              }
+                              className="rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider"
+                            >
+                              {selectedOrder.paymentStatus}
+                            </Badge>
+                            <span className="text-xs font-medium text-slate-500 italic">via {selectedOrder.paymentMethod}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Financial Impact</p>
+                          <p className="text-xl font-black text-primary tracking-tighter">
+                            {formatPrice(selectedOrder.totalAmount)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status:</span>
-                        <Badge
-                          variant={
-                            getStatusColor(selectedOrder.status) as
-                              | "default"
-                              | "secondary"
-                              | "destructive"
-                              | "outline"
-                          }
-                        >
-                          {getStatusIcon(selectedOrder.status)}
-                          <span className="ml-1">{selectedOrder.status}</span>
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Total Amount:
-                        </span>
-                        <span className="font-bold text-lg">
-                          {formatPrice(selectedOrder.totalAmount)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Payment Method:
-                        </span>
-                        <span className="font-medium">
-                          {selectedOrder.paymentMethod}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Payment Status:
-                        </span>
-                        <Badge
-                          variant={
-                            selectedOrder.paymentStatus === "Paid"
-                              ? "success"
-                              : selectedOrder.paymentStatus === "Refunded"
-                                ? "default"
-                                : "warning"
-                          }
-                        >
-                          {selectedOrder.paymentStatus}
-                        </Badge>
-                      </div>
+
                       {selectedOrder.trackingNumber && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            Tracking Number:
-                          </span>
-                          <span className="font-medium">
-                            {selectedOrder.trackingNumber}
-                          </span>
+                        <div className="mt-8 pt-6 border-t border-slate-100">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Logistics Tracking</p>
+                              <code className="text-sm font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                                {selectedOrder.trackingNumber}
+                              </code>
+                            </div>
+                            <Button variant="ghost" size="sm" className="h-8 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary">
+                              Track Package <ArrowUpRight className="ml-1 w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       )}
-                    </CardContent>
-                  </Card>
+                    </div>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Customer Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">User ID:</span>
-                        <span className="font-medium">
+                    {/* Order Items List */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm overflow-hidden">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                          <List className="w-5 h-5 text-orange-500" />
+                        </div>
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Inventory Allocation</h3>
+                      </div>
+
+                      <div className="space-y-4">
+                        {selectedOrder.items?.map((item, index) => (
+                          <div
+                            key={index}
+                            className="group flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-primary/20 transition-all hover:shadow-sm"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center border border-slate-200 overflow-hidden shadow-sm">
+                                {typeof item.product !== 'string' && item.product?.image ? (
+                                  <img
+                                    src={item.product.image}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                  />
+                                ) : (
+                                  <Package className="w-6 h-6 text-slate-300" />
+                                )}
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-bold text-slate-900 leading-tight">
+                                  {renderProduct(item)}
+                                </p>
+                                <p className="text-xs text-slate-500 font-medium tracking-tight">
+                                  Quantity: <span className="font-bold text-slate-700">{item.quantity}</span> × {formatPrice(item.price)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-slate-900">
+                                {formatPrice(item.total)}
+                              </p>
+                              <div className="h-1 w-8 bg-primary/20 rounded-full ml-auto mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Entity Data */}
+                  <div className="lg:col-span-5 space-y-8">
+                    {/* Customer Profile Card */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                          <Users className="w-5 h-5 text-purple-500" />
+                        </div>
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Identity Context</h3>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-purple-50 border border-purple-100 mb-6">
+                        <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-1">Authenticated Entity</p>
+                        <p className="text-sm font-bold text-slate-900 truncate">
                           {typeof selectedOrder.user === "string"
                             ? selectedOrder.user
-                            : selectedOrder.user?._id || "N/A"}
-                        </span>
+                            : selectedOrder.user?.name || "Anonymous Requester"}
+                        </p>
+                        <p className="text-xs text-slate-500 font-medium">
+                          {typeof selectedOrder.user === "object" && selectedOrder.user?.email}
+                        </p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Shipping Address:
-                        </span>
-                        <span className="font-medium">
-                          {renderAddress(selectedOrder.shippingAddress)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Billing Address:
-                        </span>
-                        <span className="font-medium">
-                          {renderAddress(selectedOrder.billingAddress)}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
 
-                {/* Order Items */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Order Items</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {selectedOrder.items?.map((item, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-3 border rounded-lg"
-                        >
-                          <div>
-                            <p className="font-medium">{renderProduct(item)}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Quantity: {item.quantity}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-medium">
-                              {formatPrice(item.price)}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Total: {formatPrice(item.total)}
-                            </p>
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1 h-3 bg-blue-500 rounded-full" /> Shipping Terminal
+                          </p>
+                          <div className="p-4 rounded-2xl bg-slate-50 text-xs font-medium text-slate-600 leading-relaxed border border-dashed border-slate-200">
+                            {renderAddress(selectedOrder.shippingAddress)}
                           </div>
                         </div>
-                      ))}
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1 h-3 bg-indigo-500 rounded-full" /> Billing Origin
+                          </p>
+                          <div className="p-4 rounded-2xl bg-slate-50 text-xs font-medium text-slate-600 leading-relaxed border border-dashed border-slate-200">
+                            {renderAddress(selectedOrder.billingAddress)}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* Notes */}
-                {selectedOrder.notes && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Order Notes</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">
-                        {selectedOrder.notes}
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                    {/* Operational Notes */}
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm relative overflow-hidden">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                          <Edit className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Internal Remarks</h3>
+                      </div>
+
+                      <div className="relative z-10">
+                        {selectedOrder.notes ? (
+                          <div className="p-5 bg-emerald-50/30 rounded-2xl border border-emerald-100">
+                            <p className="text-sm text-slate-600 font-medium italic leading-relaxed">
+                              "{selectedOrder.notes}"
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-100 rounded-3xl">
+                            <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+                              <Search className="w-5 h-5 text-slate-300" />
+                            </div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No documentation found</p>
+                          </div>
+                        )}
+                      </div>
+                      {/* Decorative background circle */}
+                      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowViewModal(false)}>
-                Close
-              </Button>
+
+            <DialogFooter className="p-8 bg-white border-t sticky bottom-0 z-10 mt-0">
+              <div className="flex items-center justify-between w-full gap-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 hidden sm:block">
+                  Verified Transaction Protocol &copy; 2024
+                </p>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowViewModal(false)}
+                    className="rounded-xl px-8 h-12 font-black uppercase tracking-widest text-[10px] border-2 hover:bg-slate-50 hover:text-slate-950 transition-all border-slate-200 dark:border-slate-800"
+                  >
+                    Archive View
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowViewModal(false);
+                      openEditModal(selectedOrder!);
+                    }}
+                    className="rounded-xl px-8 h-12 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all bg-primary"
+                  >
+                    Calibrate Status
+                  </Button>
+                </div>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Edit Order Modal */}
         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Update Order Status</DialogTitle>
-              <DialogDescription>
-                Change the status of order {selectedOrder?.orderNumber}
-              </DialogDescription>
+          <DialogContent className="max-w-2xl p-0 border-none bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <DialogHeader className="p-8 pb-6 bg-slate-50 border-b sticky top-0 z-10">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center border border-slate-200">
+                  <Settings className="w-6 h-6 text-slate-900" />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl font-bold uppercase tracking-tight text-slate-900">
+                    Protocol <span className="text-primary">Calibration</span>
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-500 font-medium">
+                    Adjust lifecycle metrics and logistics parameters for node <span className="font-black text-slate-900">#{selectedOrder?.orderNumber}</span>.
+                  </DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
+
             {selectedOrder && (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="order-status" className="mb-2 block">
-                    Order Status
-                  </Label>
-                  <Select
-                    value={selectedOrder.status}
-                    onValueChange={(value) =>
-                      setSelectedOrder({ ...selectedOrder, status: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {orderStatuses.slice(1).map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div className="p-8 space-y-8">
+                {/* Main Control Panel */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Status Selection */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-4 bg-primary rounded-full" />
+                      <Label htmlFor="order-status" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                        Operational Status
+                      </Label>
+                    </div>
+                    <Select
+                      value={selectedOrder.status}
+                      onValueChange={(value) =>
+                        setSelectedOrder({ ...selectedOrder, status: value })
+                      }
+                    >
+                      <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-primary/20 shadow-sm transition-all font-bold text-slate-700">
+                        <SelectValue placeholder="Analyze stage..." />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-slate-200 p-2 shadow-2xl">
+                        {orderStatuses.slice(1).map((status) => (
+                          <SelectItem
+                            key={status}
+                            value={status}
+                            className="rounded-lg mb-1 focus:bg-primary/5 focus:text-primary font-medium"
+                          >
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(status)}
+                              <span>{status}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Tracking Number */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-4 bg-blue-500 rounded-full" />
+                      <Label htmlFor="tracking-number" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                        Logistics Tracer
+                      </Label>
+                    </div>
+                    <div className="relative">
+                      <Input
+                        id="tracking-number"
+                        type="text"
+                        placeholder="TRK-XXXXXXXXX"
+                        value={selectedOrder.trackingNumber || ""}
+                        onChange={(e) =>
+                          setSelectedOrder({
+                            ...selectedOrder,
+                            trackingNumber: e.target.value,
+                          })
+                        }
+                        className="h-12 pl-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-primary/20 shadow-sm transition-all font-mono font-bold"
+                      />
+                      <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="tracking-number" className="mb-2 block">
-                    Tracking Number
-                  </Label>
-                  <Input
-                    id="tracking-number"
-                    type="text"
-                    placeholder="Enter tracking number"
-                    value={selectedOrder.trackingNumber || ""}
-                    onChange={(e) =>
-                      setSelectedOrder({
-                        ...selectedOrder,
-                        trackingNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="order-notes" className="mb-2 block">
-                    Notes
-                  </Label>
+
+                {/* Notes/Internal Narrative */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-1 h-4 bg-emerald-500 rounded-full" />
+                    <Label htmlFor="order-notes" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                      Deployment Narrative
+                    </Label>
+                  </div>
                   <Textarea
                     id="order-notes"
-                    placeholder="Add order notes"
+                    placeholder="Document internal procedural observations..."
                     value={selectedOrder.notes || ""}
                     onChange={(e) =>
                       setSelectedOrder({
@@ -1564,40 +1428,60 @@ const OrdersPage = () => {
                         notes: e.target.value,
                       })
                     }
-                    rows={3}
+                    className="min-h-[120px] rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-emerald-500/20 shadow-inner transition-all p-5 font-medium resize-none leading-relaxed"
                   />
+                </div>
+
+                {/* Risk Warning/Acknowledge */}
+                <div className="p-4 bg-amber-50 rounded-2xl flex items-start gap-3 border border-amber-100">
+                  <div className="p-2 rounded-xl bg-amber-100 mt-0.5">
+                    <Activity className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-black uppercase tracking-tight text-amber-700">Sensitivity protocol</p>
+                    <p className="text-[10px] text-amber-600 font-medium leading-tight">
+                      Modifying the operational status will trigger automated notifications and inventory modulation.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowEditModal(false)}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  if (selectedOrder) {
-                    handleUpdateOrderStatus(
-                      selectedOrder._id!,
-                      selectedOrder.status,
-                      selectedOrder.trackingNumber,
-                    );
-                  }
-                }}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update Order"
-                )}
-              </Button>
+
+            <DialogFooter className="p-8 bg-slate-50 border-t mt-4">
+              <div className="flex items-center justify-between w-full gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowEditModal(false)}
+                  disabled={isLoading}
+                  className="flex-1 sm:flex-none rounded-xl px-8 h-12 font-black uppercase tracking-widest text-[10px] border-2 border-slate-200 hover:bg-white transition-all"
+                >
+                  Discard changes
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (selectedOrder) {
+                      handleUpdateOrderStatus(
+                        selectedOrder._id!,
+                        selectedOrder.status as any,
+                        selectedOrder.trackingNumber,
+                      );
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="flex-1 sm:flex-none rounded-xl px-12 h-12 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-slate-900/20 active:scale-95 transition-all bg-slate-900 text-white hover:bg-slate-800 group"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span className="animate-pulse">Syncing...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      Commit Registry <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </div>
+                  )}
+                </Button>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>

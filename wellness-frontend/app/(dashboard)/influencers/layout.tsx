@@ -12,18 +12,19 @@ export default function DashboardLayout({
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f8fafc] dashboard-root">
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       <Header isCollapsed={isCollapsed} />
       <main className={`
         pt-16 transition-all duration-300 ease-in-out min-h-screen
-        ${isCollapsed ? 'lg:ml-16' : 'lg:ml-64'}
+        ${isCollapsed ? 'lg:ml-[60px]' : 'lg:ml-64'}
         ml-0
       `}>
-        <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px]">
           {children}
         </div>
       </main>
     </div>
   );
 }
+

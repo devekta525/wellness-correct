@@ -168,7 +168,7 @@ const LeadsPage = () => {
     updatedData: Partial<Contact>,
   ) => {
     setModalLoading(true);
-    try { 
+    try {
       const token = getAuthToken();
       const headers: HeadersInit = {
         "Content-Type": "application/json",
@@ -658,89 +658,83 @@ const LeadsPage = () => {
 
             {/* View Lead Modal */}
             <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
-                    Contact Details - {selectedContact?.name}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Complete contact information and message.
-                  </DialogDescription>
+              <DialogContent className="max-w-[800px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <MessageSquare className="w-6 h-6 text-primary" />
+                      </div>
+                      Inquiry Procurement Node
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Decipher incoming lead intelligence and verify contact vectors.
+                    </DialogDescription>
+                  </div>
                 </DialogHeader>
-                {selectedContact && (
-                  <div className="space-y-6">
-                    {/* Lead Summary */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Contact Information</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Name:</span>
-                            <span className="font-medium">
-                              {selectedContact.name}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">
-                              Email:
-                            </span>
-                            <span className="font-medium">
-                              {selectedContact.email}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">
-                              Phone:
-                            </span>
-                            <span className="font-medium">
-                              {selectedContact.phone || "N/A"}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
 
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Message Details</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">
-                              Date:
-                            </span>
-                            <span className="font-medium">
-                              {new Date(
-                                selectedContact.createdAt,
-                              ).toLocaleString()}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
+                {selectedContact && (
+                  <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh]">
+                    {/* Identity Matrix */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Legal Alias</p>
+                        <p className="text-lg font-black text-slate-900 dark:text-slate-50">{selectedContact.name}</p>
+                      </div>
+                      <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Vector</p>
+                        <p className="text-sm font-bold text-primary truncate">{selectedContact.email}</p>
+                      </div>
+                      <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Voice Frequency</p>
+                        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">{selectedContact.phone || "UNAVAILABLE"}</p>
+                      </div>
                     </div>
 
-                    {/* Message Content */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Message</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="bg-muted/30 p-4 rounded-lg">
-                          <p className="whitespace-pre-wrap">
-                            {selectedContact.message}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    {/* Temporal & Contextual Data */}
+                    <div className="flex flex-wrap gap-4">
+                      <Badge variant="outline" className="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 text-[10px] font-black uppercase tracking-widest">
+                        <Clock className="w-3.5 h-3.5 mr-2 text-primary" />
+                        Procured: {new Date(selectedContact.createdAt).toLocaleString()}
+                      </Badge>
+                      <Badge variant="outline" className="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-200 text-[10px] font-black uppercase tracking-widest">
+                        <Calendar className="w-3.5 h-3.5 mr-2 text-primary" />
+                        Registry ID: {selectedContact._id.slice(-8).toUpperCase()}
+                      </Badge>
+                    </div>
+
+                    {/* Intelligence Payload */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Message Payload</span>
+                        <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
+                      </div>
+                      <div className="p-8 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-inner">
+                        <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium italic">
+                          &quot;{selectedContact.message}&quot;
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
-                <DialogFooter>
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 sticky bottom-0 z-10 backdrop-blur-sm">
                   <Button
                     variant="outline"
+                    className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] border-slate-200"
                     onClick={() => setShowViewModal(false)}
                   >
-                    Close
+                    Close Protocol
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowViewModal(false);
+                      openEditModal(selectedContact!);
+                    }}
+                    className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20"
+                  >
+                    Calibrate Vector
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -748,106 +742,107 @@ const LeadsPage = () => {
 
             {/* Edit Lead Modal */}
             <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Edit Contact</DialogTitle>
-                  <DialogDescription>
-                    Update contact details for {selectedContact?.name}
-                  </DialogDescription>
+              <DialogContent className="max-w-[600px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <Edit className="w-6 h-6 text-primary" />
+                      </div>
+                      Calibration Interface
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Refine contact parameters and stabilize identity record.
+                    </DialogDescription>
+                  </div>
                 </DialogHeader>
+
                 {editForm && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="contact-name" className="mb-2 block">
-                        Name
-                      </Label>
-                      <Input
-                        id="contact-name"
-                        value={editForm.name || ""}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            name: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="contact-email" className="mb-2 block">
-                        Email
-                      </Label>
-                      <Input
-                        id="contact-email"
-                        value={editForm.email || ""}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            email: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="contact-phone" className="mb-2 block">
-                        Phone
-                      </Label>
-                      <Input
-                        id="contact-phone"
-                        value={editForm.phone || ""}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            phone: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="contact-message" className="mb-2 block">
-                        Message
-                      </Label>
-                      <Textarea
-                        id="contact-message"
-                        value={editForm.message || ""}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            message: e.target.value,
-                          })
-                        }
-                        rows={3}
-                      />
+                  <div className="p-8 space-y-6">
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <Label htmlFor="contact-name" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Legal Designation</Label>
+                        <Input
+                          id="contact-name"
+                          className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                          value={editForm.name || ""}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              name: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <Label htmlFor="contact-email" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Connection String</Label>
+                        <Input
+                          id="contact-email"
+                          className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                          value={editForm.email || ""}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              email: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <Label htmlFor="contact-phone" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Voice Vector Port</Label>
+                        <Input
+                          id="contact-phone"
+                          className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                          value={editForm.phone || ""}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              phone: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <Label htmlFor="contact-message" className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Intelligence Payload Modification</Label>
+                        <Textarea
+                          id="contact-message"
+                          className="min-h-[120px] rounded-2xl border-slate-200 bg-white dark:bg-slate-900 shadow-inner focus:ring-primary/20 resize-none p-4 font-medium"
+                          value={editForm.message || ""}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              message: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
-                <DialogFooter>
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 sticky bottom-0 z-10 backdrop-blur-sm">
                   <Button
                     variant="outline"
+                    className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] border-slate-200"
                     onClick={() => setShowEditModal(false)}
                     disabled={modalLoading}
                   >
-                    Cancel
+                    Discard Changes
                   </Button>
                   <Button
-                    onClick={() => {
-                      if (selectedContact && editForm) {
-                        handleUpdateContact(selectedContact._id, {
-                          name: editForm.name,
-                          email: editForm.email,
-                          phone: editForm.phone,
-                          message: editForm.message,
-                        });
-                      }
-                    }}
+                    onClick={() =>
+                      handleUpdateContact(selectedContact!._id, editForm!)
+                    }
                     disabled={modalLoading}
+                    className="h-12 px-8 rounded-xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {modalLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Updating...
+                        Synchronizing...
                       </>
                     ) : (
-                      "Update Contact"
+                      "Commit Updates"
                     )}
                   </Button>
                 </DialogFooter>
@@ -856,34 +851,51 @@ const LeadsPage = () => {
 
             {/* Delete Confirmation Modal */}
             <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Delete Contact</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to delete contact{" "}
-                    {selectedContact?.name}? This action cannot be undone.
-                  </DialogDescription>
+              <DialogContent className="max-w-md p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-red-50/50 dark:bg-red-950/20 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-xl font-black uppercase tracking-tight text-red-600 dark:text-red-400 flex items-center gap-3">
+                      <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-xl text-red-600">
+                        <Trash2 className="w-5 h-5" />
+                      </div>
+                      Registry Purge Protocol
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Irreversible termination of lead intelligence node.
+                    </DialogDescription>
+                  </div>
                 </DialogHeader>
-                <DialogFooter>
+
+                <div className="p-8">
+                  <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed text-center">
+                      Confirm deletion of <span className="text-red-600 font-black px-2 bg-red-50 dark:bg-red-950/30 rounded-lg">&quot;{selectedContact?.name}&quot;</span> from the central registry?
+                    </p>
+                  </div>
+                </div>
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 sticky bottom-0 z-10 backdrop-blur-sm">
                   <Button
                     variant="outline"
+                    className="h-11 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] border-slate-200"
                     onClick={() => setShowDeleteModal(false)}
                     disabled={modalLoading}
                   >
-                    Cancel
+                    Abort Process
                   </Button>
                   <Button
                     variant="destructive"
                     onClick={handleDeleteContact}
                     disabled={modalLoading}
+                    className="h-11 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {modalLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Deleting...
+                        Purging...
                       </>
                     ) : (
-                      "Delete Contact"
+                      "Confirm Purge"
                     )}
                   </Button>
                 </DialogFooter>

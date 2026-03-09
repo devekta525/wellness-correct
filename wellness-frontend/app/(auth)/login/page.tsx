@@ -100,7 +100,7 @@ const LoginContent = () => {
               : null;
           const dashboardUrl = getDashboardForRole(userDetails.role);
 
-          router.replace(safeRedirect || dashboardUrl);
+          window.location.href = safeRedirect || dashboardUrl;
         } else {
           updateUserRole("user");
           const redirectParam = searchParams.get("redirect");
@@ -108,7 +108,7 @@ const LoginContent = () => {
             redirectParam && redirectParam.startsWith("/")
               ? redirectParam
               : null;
-          router.replace(safeRedirect || "/profile");
+          window.location.href = safeRedirect || "/profile";
         }
       } else {
         Swal.fire({
@@ -232,39 +232,42 @@ const LoginContent = () => {
               </h1>
             </div>
 
-            {/* Glass Card */}
+            {/* Card */}
             <div className="relative">
-              {/* Glow Effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+              {/* Subtle glow */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-10" aria-hidden="true" />
 
-              <div className="relative bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-8 sm:p-10">
+              <div className="relative bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10">
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
                     Sign In
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-500 text-sm">
                     Enter your credentials to access your account
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} noValidate className="space-y-5">
                   {error && (
-                    <div className="p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800 animate-shake">
+                    <div className="p-3.5 text-sm text-red-700 bg-red-50 rounded-xl border border-red-200">
                       {error}
                     </div>
                   )}
 
                   {/* Email Field */}
-                  <div className="space-y-2">
-                    <Label
+                  <div className="space-y-1.5">
+                    <label
                       htmlFor="email"
-                      className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                      className="block text-sm font-medium text-gray-700"
                     >
                       Email Address
-                    </Label>
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                    </label>
+                    <div className="relative flex items-center">
+                      <Mail
+                        className="absolute left-3 w-4.5 h-4.5 text-gray-400 pointer-events-none"
+                        aria-hidden="true"
+                      />
                       <Input
                         id="email"
                         type="email"
@@ -273,23 +276,25 @@ const LoginContent = () => {
                         autoComplete="username"
                         required
                         disabled={loading}
-                        className="relative pl-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-10 pr-4 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         placeholder="you@example.com"
                       />
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
 
                   {/* Password Field */}
-                  <div className="space-y-2">
-                    <Label
+                  <div className="space-y-1.5">
+                    <label
                       htmlFor="password"
-                      className="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                      className="block text-sm font-medium text-gray-700"
                     >
                       Password
-                    </Label>
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                    </label>
+                    <div className="relative flex items-center">
+                      <Lock
+                        className="absolute left-3 w-4.5 h-4.5 text-gray-400 pointer-events-none"
+                        aria-hidden="true"
+                      />
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
@@ -298,19 +303,16 @@ const LoginContent = () => {
                         autoComplete="current-password"
                         required
                         disabled={loading}
-                        className="relative pl-11 pr-11 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-10 pr-11 py-3 h-12 text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         placeholder="••••••••"
                       />
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                       <button
                         type="button"
                         tabIndex={-1}
                         onClick={() => setShowPassword((v) => !v)}
                         disabled={loading}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        aria-label={
-                          showPassword ? "Hide password" : "Show password"
-                        }
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors disabled:opacity-50"
                       >
                         {showPassword ? (
                           <EyeOff className="w-5 h-5" />
@@ -322,80 +324,74 @@ const LoginContent = () => {
                   </div>
 
                   {/* Forgot Password */}
-                  <div className="flex items-center justify-end">
+                  <div className="flex justify-end">
                     <button
                       type="button"
-                      className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold transition-colors flex items-center gap-1 group"
+                      className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
                     >
-                      <KeyRound className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                      <KeyRound className="w-4 h-4" aria-hidden="true" />
                       Forgot Password?
                     </button>
                   </div>
 
-                  {/* Submit Button */}
-                  <Button
+                  {/* Sign In Button */}
+                  <button
                     type="submit"
-                    suppressHydrationWarning
                     disabled={loading}
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-blue-500/60 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    suppressHydrationWarning
+                    className="w-full py-3 h-12 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:scale-[1.02] hover:shadow-lg shadow-indigo-300/50 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin" />
                         Signing In...
                       </>
                     ) : (
                       <>
                         Sign In
-                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-5 h-5" />
                       </>
                     )}
-                  </Button>
+                  </button>
 
                   {/* Divider */}
-                  <div className="relative my-8">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-4 bg-white/70 dark:bg-gray-900/70 text-gray-500 dark:text-gray-400 font-medium">
-                        New to Wellness Fuel?
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-4 my-2">
+                    <div className="flex-1 border-t border-gray-200" />
+                    <span className="text-gray-400 text-xs font-medium whitespace-nowrap">
+                      New to Wellness Fuel?
+                    </span>
+                    <div className="flex-1 border-t border-gray-200" />
                   </div>
 
-                  {/* Sign Up Button */}
-                  <Button
+                  {/* Create Account Button */}
+                  <button
                     type="button"
-                    variant="outline"
                     onClick={() => router.push("/signup")}
                     suppressHydrationWarning
-                    className="w-full h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 bg-transparent hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-all duration-300 font-semibold group"
+                    className="w-full border border-gray-300 py-3 h-12 rounded-xl font-medium text-sm bg-white hover:bg-gray-50 hover:border-gray-400 flex items-center justify-center gap-2 transition-all duration-200 text-gray-700 hover:shadow-md"
                   >
-                    <UserPlus className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                    <UserPlus className="w-5 h-5 text-indigo-500" aria-hidden="true" />
                     Create New Account
-                  </Button>
+                  </button>
                 </form>
 
                 {/* Footer */}
-                <div className="text-center mt-8">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    By signing in, you agree to our{" "}
-                    <a
-                      href="/terms"
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
-                    >
-                      Terms
-                    </a>{" "}
-                    and{" "}
-                    <a
-                      href="/privacy-policy"
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline"
-                    >
-                      Privacy Policy
-                    </a>
-                  </p>
-                </div>
+                <p className="text-xs text-gray-400 text-center mt-6 leading-relaxed">
+                  By signing in, you agree to our{" "}
+                  <a
+                    href="/terms"
+                    className="text-indigo-600 hover:underline font-medium"
+                  >
+                    Terms
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="/privacy-policy"
+                    className="text-indigo-600 hover:underline font-medium"
+                  >
+                    Privacy Policy
+                  </a>
+                </p>
               </div>
             </div>
           </div>

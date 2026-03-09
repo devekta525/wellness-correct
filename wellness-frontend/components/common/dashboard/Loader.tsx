@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Heart, Star, Sparkles } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface LoaderProps {
@@ -19,160 +19,75 @@ const Loader: React.FC<LoaderProps> = ({
   showMessage = true,
   className = ''
 }) => {
-  const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
-    xl: 'w-16 h-16'
-  }
 
-  const textSizeClasses = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
-    xl: 'text-xl'
-  }
-
-  const renderSpinner = () => (
-    <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="relative">
-        <div className={`${sizeClasses[size]} border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin`}></div>
-        <div className={`absolute inset-0 ${sizeClasses[size]} border-4 border-transparent border-t-blue-300 rounded-full animate-spin`} style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-      </div>
-      {showMessage && (
-        <p className={`${textSizeClasses[size]} text-gray-600 font-medium animate-pulse`}>
-          {message}
-        </p>
-      )}
-    </div>
-  )
-
-  const renderDots = () => (
-    <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="flex space-x-2">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-bounce`}
-            style={{ animationDelay: `${i * 0.1}s` }}
-          ></div>
-        ))}
-      </div>
-      {showMessage && (
-        <p className={`${textSizeClasses[size]} text-gray-600 font-medium animate-pulse`}>
-          {message}
-        </p>
-      )}
-    </div>
-  )
-
-  const renderPulse = () => (
-    <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="relative">
-        <div className={`${sizeClasses[size]} bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse`}></div>
-        <div className={`absolute inset-0 ${sizeClasses[size]} bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping opacity-75`}></div>
-      </div>
-      {showMessage && (
-        <p className={`${textSizeClasses[size]} text-gray-600 font-medium animate-pulse`}>
-          {message}
-        </p>
-      )}
-    </div>
-  )
-
-  const renderSkeleton = () => (
-    <div className="w-full space-y-4">
-      <div className="flex items-center space-x-4">
-        <Skeleton className="h-12 w-12 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[250px]" />
-          <Skeleton className="h-4 w-[200px]" />
+  // For skeleton variant, render placeholder cards
+  if (variant === 'skeleton') {
+    return (
+      <div className={cn("w-full space-y-6", className)}>
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48 rounded-xl" />
+            <Skeleton className="h-4 w-72 rounded-lg" />
+          </div>
+          <Skeleton className="h-10 w-32 rounded-xl" />
         </div>
-      </div>
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-3/4" />
-      {showMessage && (
-        <div className="text-center pt-4">
-          <p className={`${textSizeClasses[size]} text-gray-600 font-medium animate-pulse`}>
-            {message}
-          </p>
-        </div>
-      )}
-    </div>
-  )
 
-  const renderHeartbeat = () => (
-    <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="relative">
-        <Heart className={`${sizeClasses[size]} text-red-500 animate-pulse`} />
-        <div className="absolute inset-0 animate-ping">
-          <Heart className={`${sizeClasses[size]} text-red-300 opacity-75`} />
-        </div>
-      </div>
-      {showMessage && (
-        <p className={`${textSizeClasses[size]} text-gray-600 font-medium animate-pulse`}>
-          {message}
-        </p>
-      )}
-    </div>
-  )
-
-  const renderStars = () => (
-    <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="relative">
-        <div className="flex space-x-1">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <Star
-              key={i}
-              className={`w-4 h-4 text-yellow-500 animate-pulse`}
-              style={{ animationDelay: `${i * 0.2}s` }}
-            />
+        {/* Stats skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <Skeleton className="h-4 w-20 rounded-lg" />
+                <Skeleton className="h-9 w-9 rounded-xl" />
+              </div>
+              <Skeleton className="h-7 w-24 rounded-lg mb-1" />
+              <Skeleton className="h-3 w-16 rounded-md" />
+            </div>
           ))}
         </div>
-        <div className="absolute inset-0 animate-ping">
-          <Sparkles className={`${sizeClasses[size]} text-yellow-300 opacity-50`} />
+
+        {/* Table / Card skeleton */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <Skeleton className="h-5 w-40 rounded-lg" />
+            <Skeleton className="h-9 w-28 rounded-xl" />
+          </div>
+          <div className="p-4 space-y-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-2">
+                <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-full max-w-[200px] rounded-lg" />
+                  <Skeleton className="h-3 w-full max-w-[140px] rounded-md" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded-full flex-shrink-0" />
+                <Skeleton className="h-8 w-20 rounded-xl flex-shrink-0" />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      {showMessage && (
-        <p className={`${textSizeClasses[size]} text-gray-600 font-medium animate-pulse`}>
-          {message}
-        </p>
-      )}
-    </div>
-  )
 
-  const renderLoader = () => {
-    switch (variant) {
-      case 'dots':
-        return renderDots()
-      case 'pulse':
-        return renderPulse()
-      case 'skeleton':
-        return renderSkeleton()
-      case 'heartbeat':
-        return renderHeartbeat()
-      case 'stars':
-        return renderStars()
-      default:
-        return renderSpinner()
-    }
-  }
-
-  return (
-    <div className={`flex items-center justify-center ${className}`}>
-      <div className="relative">
-        {renderLoader()}
-        
-        {/* Background decoration for non-skeleton variants */}
-        {variant !== 'skeleton' && (
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-            <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-            <div className="absolute bottom-1/4 left-1/3 w-20 h-20 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        {showMessage && (
+          <div className="flex items-center justify-center gap-2 text-slate-400">
+            <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin" />
+            <span className="text-sm font-medium animate-pulse">{message}</span>
           </div>
         )}
       </div>
+    )
+  }
+
+  // Default spinner loader
+  return (
+    <div className={cn("flex flex-col items-center justify-center py-16 gap-4", className)}>
+      <div className="relative">
+        <div className="w-10 h-10 border-3 border-slate-200 rounded-full" />
+        <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-blue-600 rounded-full animate-spin" />
+      </div>
+      {showMessage && (
+        <p className="text-sm text-slate-500 font-medium animate-pulse">{message}</p>
+      )}
     </div>
   )
 }

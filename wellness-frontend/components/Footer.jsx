@@ -11,7 +11,7 @@ const quickLinks = [
   { label: 'About Us', href: '/about' },
   { label: 'Shop All', href: '/shop' },
   { label: 'Our Science', href: '/science' },
-  { label: 'Blog', href: '/blog' },
+  { label: 'Blogs', href: '/blogs' },
   { label: 'Contact', href: '/contact' },
 ];
 
@@ -51,7 +51,7 @@ export default function Footer() {
 
       {/* ── Cert strip ── */}
       <div className="border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12">
             {certBadges.map((b) => (
               <div key={b.label} className="flex items-center gap-2.5">
@@ -67,7 +67,7 @@ export default function Footer() {
       </div>
 
       {/* ── Main footer grid ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+      <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
 
           {/* ── Brand column (spans 2) ── */}

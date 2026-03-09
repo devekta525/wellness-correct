@@ -34,6 +34,12 @@ export const metadata: Metadata = {
   keywords: 'superfoods, marine collagen, glutathione, shilajit, wellness, nutrition, healthcare supplements',
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

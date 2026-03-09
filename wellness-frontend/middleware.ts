@@ -40,6 +40,8 @@ const publicRoutes = [
   "/cookie-policy",
   "/products",
   "/product",
+  "/blogs",
+
   "/our-doctors",
   "/book-appointment",
   "/science",
@@ -71,7 +73,11 @@ export function middleware(request: NextRequest) {
 
   if (userCookie) {
     try {
-      user = JSON.parse(userCookie.value);
+      const cookieValue = userCookie.value;
+      const decodedValue = cookieValue.startsWith('%7B') || cookieValue.startsWith('%7b')
+        ? decodeURIComponent(cookieValue)
+        : cookieValue;
+      user = JSON.parse(decodedValue);
     } catch (error) {
       console.error("Error parsing user cookie:", error);
       // Clear invalid cookies

@@ -25,7 +25,18 @@ import {
   Grid3X3,
   List,
   Upload,
-  Camera
+  Camera,
+  User,
+  Mail,
+  Phone,
+  Shield,
+  StickyNote,
+  Briefcase,
+  MapPin,
+  Clock,
+  Globe,
+  Hash,
+  HeartPulse,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -306,17 +317,17 @@ const CustomersPage = () => {
         ) : (
           <>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl p-6 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Customers</h1>
-                <p className="text-muted-foreground">Manage your customers and client relationships</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Customers</h1>
+                <p className="text-sm text-slate-500 mt-1">Manage your customers and client relationships</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" className="gap-2">
                   <Download className="w-4 h-4" />
                   Export
                 </Button>
-                <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
+                <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white border-0">
                   <UserPlus className="w-4 h-4" />
                   Add Customer
                 </Button>
@@ -325,28 +336,30 @@ const CustomersPage = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
+              <Card className="border-l-4 border-l-emerald-500 shadow-[0_2px_10px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all bg-white dark:bg-slate-950">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Customers</p>
-                      <p className="text-2xl font-bold text-foreground">{customers.length}</p>
-                      <p className="text-sm text-emerald-600 flex items-center gap-1">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Total Customers</p>
+                      <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{customers.length}</p>
+                      <p className="text-sm text-emerald-600 flex items-center gap-1 mt-2 font-medium">
                         <TrendingUp className="w-3 h-3" />
                         +15% from last month
                       </p>
                     </div>
-                    <Users className="w-8 h-8 text-emerald-500" />
+                    <div className="p-3 bg-emerald-100 dark:bg-emerald-900/40 rounded-full">
+                      <Users className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-l-4 border-l-blue-500 shadow-[0_2px_10px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all bg-white dark:bg-slate-950">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Active Customers</p>
-                      <p className="text-2xl font-bold text-foreground">{customers.filter(c => c.status === 'active').length}</p>
-                      <p className="text-sm text-blue-600 flex items-center gap-1">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Active Customers</p>
+                      <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{customers.filter(c => c.status === 'active').length}</p>
+                      <p className="text-sm text-blue-600 flex items-center gap-1 mt-2 font-medium">
                         <CheckCircle className="w-3 h-3" />
                         {customers.length > 0
                           ? Math.round((customers.filter(c => c.status === 'active').length / customers.length) * 100)
@@ -354,60 +367,67 @@ const CustomersPage = () => {
                         }% of total
                       </p>
                     </div>
-                    <CheckCircle className="w-8 h-8 text-blue-500" />
+                    <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-full">
+                      <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-l-4 border-l-purple-500 shadow-[0_2px_10px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all bg-white dark:bg-slate-950">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Customer Types</p>
-                      <p className="text-2xl font-bold text-foreground">{new Set(customers.map(c => c.customerType)).size}</p>
-                      <p className="text-sm text-purple-600 flex items-center gap-1">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Customer Types</p>
+                      <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{new Set(customers.map(c => c.customerType)).size}</p>
+                      <p className="text-sm text-purple-600 flex items-center gap-1 mt-2 font-medium">
                         <Award className="w-3 h-3" />
                         Registered tiers
                       </p>
                     </div>
-                    <Award className="w-8 h-8 text-purple-500" />
+                    <div className="p-3 bg-purple-100 dark:bg-purple-900/40 rounded-full">
+                      <Award className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-l-4 border-l-orange-500 shadow-[0_2px_10px_rgb(0,0,0,0.04)] hover:shadow-lg transition-all bg-white dark:bg-slate-950">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total Revenue</p>
-                      <p className="text-2xl font-bold text-foreground">₹{customers.reduce((sum, c) => sum + c.totalSpent, 0).toLocaleString()}</p>
-                      <p className="text-sm text-orange-600 flex items-center gap-1">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Total Revenue</p>
+                      <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">₹{customers.reduce((sum, c) => sum + c.totalSpent, 0).toLocaleString()}</p>
+                      <p className="text-sm text-orange-600 flex items-center gap-1 mt-2 font-medium">
                         <Star className="w-3 h-3" />
                         Customer value
                       </p>
                     </div>
-                    <Star className="w-8 h-8 text-orange-500" />
+                    <div className="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-full">
+                      <Star className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Filters and Search */}
-            <Card>
+            {/* Filters and Search */}
+            <Card className="border-none shadow-sm bg-slate-50/50 dark:bg-slate-900/50">
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row gap-4">
                   <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <div className="relative group">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                       <Input
                         placeholder="Search customers by name, email, phone, or type..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 focus:border-blue-500 transition-all shadow-[0_2px_4px_rgb(0,0,0,0.01)]"
                       />
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-[140px] bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800">
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -418,7 +438,7 @@ const CustomersPage = () => {
                       </SelectContent>
                     </Select>
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-[140px] bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800">
                         <SelectValue placeholder="Type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -429,7 +449,7 @@ const CustomersPage = () => {
                       </SelectContent>
                     </Select>
                     <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-[140px] bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800">
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                       <SelectContent>
@@ -442,21 +462,22 @@ const CustomersPage = () => {
                     </Select>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon"
+                      className="h-11 w-11 shrink-0 bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800"
                       onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                     >
                       {sortOrder === 'asc' ? '↑' : '↓'}
                     </Button>
 
                     {/* View Toggle */}
-                    <div className="flex border border-input rounded-lg overflow-hidden">
+                    <div className="flex bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-xl overflow-hidden p-1 gap-1 shadow-[0_2px_4px_rgb(0,0,0,0.01)] transition-all shrink-0">
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
-                            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                            variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
                             size="icon"
                             onClick={() => setViewMode('grid')}
-                            className="rounded-none"
+                            className="rounded-lg h-9 w-9"
                           >
                             <Grid3X3 className="w-4 h-4" />
                           </Button>
@@ -468,10 +489,10 @@ const CustomersPage = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
-                            variant={viewMode === 'table' ? 'default' : 'ghost'}
+                            variant={viewMode === 'table' ? 'secondary' : 'ghost'}
                             size="icon"
                             onClick={() => setViewMode('table')}
-                            className="rounded-none"
+                            className="rounded-lg h-9 w-9"
                           >
                             <List className="w-4 h-4" />
                           </Button>
@@ -490,7 +511,7 @@ const CustomersPage = () => {
             {isLoading ? (
               <Loader variant="skeleton" message="Loading customers..." />
             ) : filteredCustomers.length === 0 ? (
-              <NoData 
+              <NoData
                 message="No customers found"
                 description="Get started by adding your first customer"
                 icon={<Users className="w-full h-full text-muted-foreground/60" />}
@@ -501,413 +522,435 @@ const CustomersPage = () => {
                 size="lg"
               />
             ) : (
-          <>
-            {viewMode === 'table' && (
-              <Card>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Orders</TableHead>
-                        <TableHead>Total Spent</TableHead>
-                        <TableHead>Last Order</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedCustomers.map((customer) => (
-                        <TableRow key={customer.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="w-10 h-10">
-                                <AvatarImage src={customer.imageUrl} />
-                                <AvatarFallback>
-                                  {customer.name.split(' ').map(n => n[0]).join('')}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium">{customer.name}</p>
-                                <p className="text-sm text-muted-foreground">{customer.location}</p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getTypeColor(customer.customerType)}>
-                              {customer.customerType}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusColor(customer.status)}>
-                              {customer.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <ShoppingBag className="w-4 h-4 text-muted-foreground" />
-                              {customer.totalOrders}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <CreditCard className="w-4 h-4 text-muted-foreground" />
-                              ₹{customer.totalSpent.toLocaleString()}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4 text-muted-foreground" />
-                              {new Date(customer.lastOrder).toLocaleDateString()}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="sm" onClick={() => handleEditCustomer(customer)}>
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>View Details</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="sm" onClick={() => handleEditCustomer(customer)}>
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Edit Customer</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="sm" onClick={() => handleDeleteCustomer(customer.id)}>
-                                    <Trash2 className="w-4 h-4 text-destructive" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Delete Customer</TooltipContent>
-                              </Tooltip>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            )}
-
-            {viewMode === 'grid' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginatedCustomers.map((customer) => (
-                  <Card key={customer.id} className="flex flex-col h-full">
-                    <CardContent className="p-6 flex-1 flex flex-col">
-                      <div className="flex items-center gap-4 mb-4">
-                        <Avatar className="w-12 h-12">
-                          <AvatarImage src={customer.imageUrl} />
-                          <AvatarFallback>
-                            {customer.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h3 className="font-semibold">{customer.name}</h3>
-                          <p className="text-sm text-muted-foreground">{customer.location}</p>
-                        </div>
-                        <Badge variant={getStatusColor(customer.status)} className="text-xs">
-                          {customer.status}
-                        </Badge>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Type:</span>
-                          <Badge variant={getTypeColor(customer.customerType)} className="text-xs">
-                            {customer.customerType}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Orders:</span>
-                          <span className="text-sm font-medium">{customer.totalOrders}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Total Spent:</span>
-                          <span className="text-sm font-medium">₹{customer.totalSpent.toLocaleString()}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Join Date:</span>
-                          <span className="text-sm font-medium">{new Date(customer.joinDate).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-
-                      <div className="mt-auto pt-4">
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditCustomer(customer)}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </Button>
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditCustomer(customer)}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </Button>
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDeleteCustomer(customer.id)}>
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
+              <>
+                {viewMode === 'table' && (
+                  <Card className="border-none shadow-[0_2px_10px_rgb(0,0,0,0.02)] overflow-hidden rounded-xl">
+                    <CardContent className="p-0">
+                      <Table>
+                        <TableHeader className="bg-slate-50/50 dark:bg-slate-900/50">
+                          <TableRow>
+                            <TableHead>Customer</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Orders</TableHead>
+                            <TableHead>Total Spent</TableHead>
+                            <TableHead>Last Order</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paginatedCustomers.map((customer) => (
+                            <TableRow key={customer.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="w-10 h-10">
+                                    <AvatarImage src={customer.imageUrl} />
+                                    <AvatarFallback>
+                                      {customer.name.split(' ').map(n => n[0]).join('')}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="font-medium">{customer.name}</p>
+                                    <p className="text-sm text-muted-foreground">{customer.location}</p>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={getTypeColor(customer.customerType)}>
+                                  {customer.customerType}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={getStatusColor(customer.status)}>
+                                  {customer.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <ShoppingBag className="w-4 h-4 text-muted-foreground" />
+                                  {customer.totalOrders}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <CreditCard className="w-4 h-4 text-muted-foreground" />
+                                  ₹{customer.totalSpent.toLocaleString()}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                                  {new Date(customer.lastOrder).toLocaleDateString()}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-lg transition-colors" onClick={() => handleEditCustomer(customer)}>
+                                        <Eye className="w-4 h-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>View Details</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/40 rounded-lg transition-colors" onClick={() => handleEditCustomer(customer)}>
+                                        <Edit className="w-4 h-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Edit Customer</TooltipContent>
+                                  </Tooltip>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 rounded-lg transition-colors" onClick={() => handleDeleteCustomer(customer.id)}>
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Delete Customer</TooltipContent>
+                                  </Tooltip>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
+                )}
 
-            {/* Pagination */}
-            {!isLoading && filteredCustomers.length > 0 && totalPages > 1 && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to {Math.min(startIndex + pagination.limit, filteredCustomers.length)} of {filteredCustomers.length} customers
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
-                    disabled={pagination.page === 1}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <span className="text-sm">
-                    Page {pagination.page} of {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(Math.min(pagination.page + 1, totalPages))}
-                    disabled={pagination.page === totalPages}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+                {viewMode === 'grid' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {paginatedCustomers.map((customer) => (
+                      <Card key={customer.id} className="flex flex-col h-full hover:shadow-lg transition-all duration-300 rounded-xl overflow-hidden border border-slate-200/60 dark:border-slate-800 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+                        <CardContent className="p-6 flex-1 flex flex-col">
+                          <div className="flex items-center gap-4 mb-4">
+                            <Avatar className="w-12 h-12 border-2 border-white dark:border-slate-900 shadow-sm">
+                              <AvatarImage src={customer.imageUrl} />
+                              <AvatarFallback>
+                                {customer.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <h3 className="font-semibold">{customer.name}</h3>
+                              <p className="text-sm text-muted-foreground">{customer.location}</p>
+                            </div>
+                            <Badge variant={getStatusColor(customer.status)} className="text-xs">
+                              {customer.status}
+                            </Badge>
+                          </div>
 
-        {/* Add Customer Modal */}
-            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add New Customer</DialogTitle>
-                  <DialogDescription>
-                    Register a new customer account
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="addName">Full Name</Label>
-                    <Input
-                      id="addName"
-                      placeholder="Customer Name"
-                      value={addForm.name}
-                      onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
-                    />
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Type:</span>
+                              <Badge variant={getTypeColor(customer.customerType)} className="text-xs">
+                                {customer.customerType}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Orders:</span>
+                              <span className="text-sm font-medium">{customer.totalOrders}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Total Spent:</span>
+                              <span className="text-sm font-medium">₹{customer.totalSpent.toLocaleString()}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Join Date:</span>
+                              <span className="text-sm font-medium">{new Date(customer.joinDate).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+
+                          <div className="mt-auto pt-4">
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm" className="flex-1 text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 rounded-lg transition-colors border-0" onClick={() => handleEditCustomer(customer)}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                View
+                              </Button>
+                              <Button variant="ghost" size="sm" className="flex-1 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 rounded-lg transition-colors border-0" onClick={() => handleEditCustomer(customer)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit
+                              </Button>
+                              <Button variant="ghost" size="sm" className="flex-1 text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg transition-colors border-0" onClick={() => handleDeleteCustomer(customer.id)}>
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
-                  <div>
-                    <Label htmlFor="addEmail">Email</Label>
-                    <Input
-                      id="addEmail"
-                      type="email"
-                      placeholder="customer@email.com"
-                      value={addForm.email}
-                      onChange={e => setAddForm(f => ({ ...f, email: e.target.value }))}
-                    />
+                )}
+
+                {/* Pagination */}
+                {!isLoading && filteredCustomers.length > 0 && totalPages > 1 && (
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Showing {startIndex + 1} to {Math.min(startIndex + pagination.limit, filteredCustomers.length)} of {filteredCustomers.length} customers
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
+                        disabled={pagination.page === 1}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <span className="text-sm">
+                        Page {pagination.page} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(Math.min(pagination.page + 1, totalPages))}
+                        disabled={pagination.page === totalPages}
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="addPhone">Phone</Label>
-                    <Input
-                      id="addPhone"
-                      placeholder="+91 98765 43210"
-                      value={addForm.phone}
-                      onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="addType">Customer Type</Label>
-                    <Select
-                      value={addForm.customerType}
-                      onValueChange={v => setAddForm(f => ({ ...f, customerType: v }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Regular">Regular</SelectItem>
-                        <SelectItem value="Premium">Premium</SelectItem>
-                        <SelectItem value="VIP">VIP</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="addOccupation">Occupation</Label>
-                    <Input
-                      id="addOccupation"
-                      placeholder="Software Engineer"
-                      value={addForm.occupation}
-                      onChange={e => setAddForm(f => ({ ...f, occupation: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="addAge">Age</Label>
-                    <Input
-                      id="addAge"
-                      type="number"
-                      placeholder="28"
-                      value={addForm.age}
-                      onChange={e => setAddForm(f => ({ ...f, age: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="addBloodGroup">Blood Group</Label>
-                    <Select
-                      value={addForm.bloodGroup}
-                      onValueChange={v => setAddForm(f => ({ ...f, bloodGroup: v }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select blood group" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="A+">A+</SelectItem>
-                        <SelectItem value="A-">A-</SelectItem>
-                        <SelectItem value="B+">B+</SelectItem>
-                        <SelectItem value="B-">B-</SelectItem>
-                        <SelectItem value="AB+">AB+</SelectItem>
-                        <SelectItem value="AB-">AB-</SelectItem>
-                        <SelectItem value="O+">O+</SelectItem>
-                        <SelectItem value="O-">O-</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="addMaritalStatus">Marital Status</Label>
-                    <Select
-                      value={addForm.maritalStatus}
-                      onValueChange={v => setAddForm(f => ({ ...f, maritalStatus: v }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Single">Single</SelectItem>
-                        <SelectItem value="Married">Married</SelectItem>
-                        <SelectItem value="Divorced">Divorced</SelectItem>
-                        <SelectItem value="Widowed">Widowed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="addBio">Bio</Label>
-                    <Textarea
-                      id="addBio"
-                      placeholder="Tell us about yourself"
-                      rows={3}
-                      value={addForm.bio}
-                      onChange={e => setAddForm(f => ({ ...f, bio: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddCustomer} disabled={modalLoading}>
-                    {modalLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Adding...
-                      </>
-                    ) : (
-                      'Add Customer'
-                    )}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                )}
+              </>
+            )}
 
             {/* Add Customer Modal */}
             <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add New Customer</DialogTitle>
-                  <DialogDescription>
-                    Register a new customer account
-                  </DialogDescription>
+              <DialogContent className="max-w-[1000px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <UserPlus className="w-6 h-6 text-primary" />
+                      </div>
+                      Customer Procurement - Node Activation
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Initialize a new consumer node within the Wellness Fuel neural network.
+                    </DialogDescription>
+                  </div>
                 </DialogHeader>
-                {/* Avatar Section - Top Center */}
-                <div className="flex flex-col items-center space-y-4 py-4">
-                  <Label className="text-lg font-medium">Profile Picture</Label>
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage src={selectedCustomer?.imageUrl || '/placeholder-customer.svg'} />
-                    <AvatarFallback className="text-xl">CST</AvatarFallback>
-                  </Avatar>
-                  <div className="flex gap-3">
-                    <Button variant="outline" size="sm">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Photo
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Remove
-                    </Button>
+
+                <div className="overflow-y-auto max-h-[calc(90vh-180px)]">
+                  <div className="p-8">
+                    {/* Avatar Selection */}
+                    <div className="mb-10 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-slate-900/30 py-10 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-inner">
+                      <div className="relative group">
+                        <Avatar className="w-32 h-32 border-4 border-white dark:border-slate-800 shadow-2xl transition-all group-hover:scale-105 duration-300 ring-4 ring-primary/5">
+                          <AvatarFallback className="text-3xl bg-primary/10 text-primary font-black">
+                            {addForm.name ? addForm.name.split(' ').map(n => n[0]).join('') : <User className="w-10 h-10" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="absolute inset-x-0 bottom-0 flex justify-center translate-y-1/2">
+                          <button className="p-3 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110 active:scale-95 group/btn border-2 border-white dark:border-slate-900">
+                            <Camera className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-10 text-center space-y-1">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Identity Visualizer</Label>
+                        <p className="text-xs text-slate-500 font-medium">Upload a professional photo for consumer recognition</p>
+                      </div>
+                      <div className="mt-4 flex gap-3">
+                        <Button variant="outline" size="sm" className="h-9 px-6 rounded-xl font-bold text-xs bg-white dark:bg-slate-900 shadow-sm transition-all hover:shadow-md">
+                          <Upload className="w-3.5 h-3.5 mr-2" /> Assign Image
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-9 px-6 rounded-xl font-bold text-xs text-destructive hover:bg-red-50 dark:hover:bg-red-950/30">
+                          Reset Node
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      {/* Basic Information */}
+                      <section className="space-y-6">
+                        <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                          <div className="p-1.5 bg-primary/10 rounded-lg">
+                            <User className="w-5 h-5 text-primary" />
+                          </div>
+                          <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">Identity Metadata</h3>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Legal Name</Label>
+                            <Input
+                              placeholder="e.g. Jane Cooper"
+                              className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                              value={addForm.name}
+                              onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Digital Mail (Email)</Label>
+                            <div className="relative">
+                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                              <Input
+                                type="email"
+                                placeholder="jane.c@example.com"
+                                className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                value={addForm.email}
+                                onChange={e => setAddForm(f => ({ ...f, email: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Connectivity (Phone)</Label>
+                            <div className="relative">
+                              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                              <Input
+                                placeholder="+1 (555) 000-0000"
+                                className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                value={addForm.phone}
+                                onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Membership Classification</Label>
+                            <Select
+                              value={addForm.customerType}
+                              onValueChange={v => setAddForm(f => ({ ...f, customerType: v }))}
+                            >
+                              <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm font-bold">
+                                <SelectValue placeholder="Select tier" />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                <SelectItem value="Regular" className="rounded-lg font-bold">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-slate-400" /> Standard Access
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="Premium" className="rounded-lg font-bold">
+                                  <div className="flex items-center gap-2 text-blue-600">
+                                    <div className="w-2 h-2 rounded-full bg-blue-600" /> Premium Wellness
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="VIP" className="rounded-lg font-bold">
+                                  <div className="flex items-center gap-2 text-amber-600">
+                                    <Star className="w-3.5 h-3.5 fill-amber-600" /> VIP Elite Status
+                                  </div>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Profile & Demographics */}
+                      <section className="space-y-6">
+                        <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                          <div className="p-1.5 bg-emerald-500/10 rounded-lg">
+                            <Activity className="w-5 h-5 text-emerald-600" />
+                          </div>
+                          <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">Biometric Parameters</h3>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Biological Age</Label>
+                              <div className="relative">
+                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Input
+                                  type="number"
+                                  placeholder="25"
+                                  className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                  value={addForm.age}
+                                  onChange={e => setAddForm(f => ({ ...f, age: e.target.value }))}
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender Node</Label>
+                              <Select>
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 font-bold">
+                                  <SelectValue placeholder="Select" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  <SelectItem value="Male" className="rounded-lg font-bold">Male</SelectItem>
+                                  <SelectItem value="Female" className="rounded-lg font-bold">Female</SelectItem>
+                                  <SelectItem value="Other" className="rounded-lg font-bold">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Structural Role (Occupation)</Label>
+                            <div className="relative">
+                              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                              <Input
+                                placeholder="e.g. Product Designer"
+                                className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                value={addForm.occupation}
+                                onChange={e => setAddForm(f => ({ ...f, occupation: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Sanguine Group</Label>
+                              <Select
+                                value={addForm.bloodGroup}
+                                onValueChange={v => setAddForm(f => ({ ...f, bloodGroup: v }))}
+                              >
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 font-bold">
+                                  <SelectValue placeholder="Type" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(type => (
+                                    <SelectItem key={type} value={type} className="rounded-lg font-bold">{type}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Social State</Label>
+                              <Select
+                                value={addForm.maritalStatus}
+                                onValueChange={v => setAddForm(f => ({ ...f, maritalStatus: v }))}
+                              >
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 font-bold">
+                                  <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  {['Single', 'Married', 'Divorced', 'Widowed'].map(s => (
+                                    <SelectItem key={s} value={s} className="rounded-lg font-bold">{s}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Observational Highlights (Bio)</Label>
+                            <Textarea
+                              placeholder="Brief highlights about life preferences, allergies, or health goals..."
+                              className="min-h-[100px] rounded-2xl border-slate-200 bg-white dark:bg-slate-900 shadow-inner focus:ring-primary/20 p-4 font-medium resize-none"
+                              value={addForm.bio}
+                              onChange={e => setAddForm(f => ({ ...f, bio: e.target.value }))}
+                            />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="addName">Full Name</Label>
-                    <Input id="addName" placeholder="Customer Name" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addEmail">Email</Label>
-                    <Input id="addEmail" type="email" placeholder="customer@email.com" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addPhone">Phone</Label>
-                    <Input id="addPhone" placeholder="+91 98765 43210" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addCustomerType">Customer Type</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select customer type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="individual">Individual</SelectItem>
-                        <SelectItem value="corporate">Corporate</SelectItem>
-                        <SelectItem value="healthcare">Healthcare</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="addOccupation">Occupation</Label>
-                    <Input id="addOccupation" placeholder="Occupation" />
-                  </div>
-                  <div>
-                    <Label htmlFor="addAge">Age</Label>
-                    <Input id="addAge" type="number" placeholder="Age" />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
-                    Cancel
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 gap-3 sticky bottom-0 z-10 backdrop-blur-sm">
+                  <Button variant="outline" className="h-11 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] border-slate-200 dark:border-slate-800" onClick={() => setIsAddModalOpen(false)}>
+                    Abort Onboarding
                   </Button>
-                  <Button onClick={() => handleAddCustomer()} disabled={modalLoading}>
+                  <Button
+                    onClick={handleAddCustomer}
+                    disabled={modalLoading}
+                    className="h-11 px-10 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
                     {modalLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Adding...
+                        Analyzing...
                       </>
                     ) : (
-                      'Add Customer'
+                      'Finalize Procurement'
                     )}
                   </Button>
                 </DialogFooter>
@@ -916,199 +959,343 @@ const CustomersPage = () => {
 
             {/* Edit Customer Modal */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Customer Details</DialogTitle>
-                  <DialogDescription>
-                    View and edit customer information
-                  </DialogDescription>
+              <DialogContent className="max-w-[1000px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <User className="w-6 h-6 text-primary" />
+                      </div>
+                      Customer Intelligence - 360° Matrix
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Calibrate identity parameters and monitor wellness transformation trajectory.
+                    </DialogDescription>
+                  </div>
                 </DialogHeader>
+
                 {selectedCustomer && (
-                  <>
-                    {/* Avatar Section - Top Center */}
-                    <div className="flex flex-col items-center space-y-4 py-4">
-                      <Label className="text-lg font-medium">Profile Picture</Label>
-                      <Avatar className="w-24 h-24">
-                        <AvatarImage src={selectedCustomer?.imageUrl || '/placeholder-customer.svg'} />
-                        <AvatarFallback className="text-xl">
-                          {selectedCustomer.firstName[0]}{selectedCustomer.lastName[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex gap-3">
-                        <Button variant="outline" size="sm">
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Photo
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Camera className="w-4 h-4 mr-2" />
-                          Remove
-                        </Button>
+                  <div className="overflow-y-auto max-h-[calc(90vh-180px)]">
+                    <div className="p-8">
+                      {/* Avatar & Key Metrics Section */}
+                      <div className="mb-8 flex flex-col md:flex-row items-center gap-8 bg-slate-50/50 dark:bg-slate-900/30 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-inner">
+                        <div className="relative group">
+                          <Avatar className="w-28 h-28 border-4 border-white dark:border-slate-800 shadow-2xl transition-all ring-4 ring-primary/5">
+                            <AvatarImage src={selectedCustomer?.imageUrl} className="object-cover" />
+                            <AvatarFallback className="text-3xl font-black bg-primary/10 text-primary">
+                              {selectedCustomer.firstName[0]}{selectedCustomer.lastName[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="absolute inset-x-0 bottom-0 flex justify-center translate-y-1/2 md:translate-y-0 md:translate-x-1/2 md:right-0 md:left-auto">
+                            <button className="p-2.5 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110 border-2 border-white dark:border-slate-900">
+                              <Camera className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex-1 text-center md:text-left space-y-2">
+                          <h3 className="text-3xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
+                            {selectedCustomer.firstName} {selectedCustomer.lastName}
+                          </h3>
+                          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                            <div className="flex items-center gap-2 px-3 py-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                              <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">{editForm.customerType || 'Regular'} Node</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                              <Calendar className="w-4 h-4" />
+                              Acquired {new Date(selectedCustomer.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                            <Button variant="outline" size="sm" className="h-9 px-6 rounded-xl font-bold text-xs bg-white dark:bg-slate-900 shadow-sm transition-all hover:shadow-md">
+                              <Upload className="w-3.5 h-3.5 mr-2" /> Shift Identity Visual
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-9 px-6 rounded-xl font-bold text-xs text-destructive hover:bg-red-50 dark:hover:bg-red-950/30">
+                              Nullify Photo
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-6 px-8 py-2 border-l border-slate-200 dark:border-slate-800 hidden lg:grid">
+                          <div className="text-center">
+                            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">Redemption Count</p>
+                            <div className="flex items-center justify-center gap-2">
+                              <ShoppingBag className="w-5 h-5 text-emerald-500" />
+                              <p className="text-2xl font-black text-slate-900 dark:text-slate-50">{(selectedCustomer as any).totalOrders || 0}</p>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">Lifetime Value</p>
+                            <div className="flex items-center justify-center gap-2">
+                              <CreditCard className="w-5 h-5 text-primary" />
+                              <p className="text-2xl font-black text-slate-900 dark:text-slate-50">₹{((selectedCustomer as any).totalSpent || 0).toLocaleString()}</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+
+                      <Tabs defaultValue="details" className="w-full">
+                        <TabsList className="grid w-full grid-cols-4 h-14 p-1.5 bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl mb-8 border border-slate-200/50 dark:border-slate-800/50 shadow-inner">
+                          <TabsTrigger value="details" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-xl transition-all font-black uppercase tracking-widest text-[10px]">
+                            <User className="w-4 h-4 mr-2" /> Mapping
+                          </TabsTrigger>
+                          <TabsTrigger value="orders" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-xl transition-all font-black uppercase tracking-widest text-[10px]">
+                            <ShoppingBag className="w-4 h-4 mr-2" /> Logs
+                          </TabsTrigger>
+                          <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-xl transition-all font-black uppercase tracking-widest text-[10px]">
+                            <Activity className="w-4 h-4 mr-2" /> Wellness
+                          </TabsTrigger>
+                          <TabsTrigger value="notes" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-xl transition-all font-black uppercase tracking-widest text-[10px]">
+                            <StickyNote className="w-4 h-4 mr-2" /> Notes
+                          </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="details" className="space-y-8 animate-in fade-in-50 slide-in-from-bottom-2 duration-300">
+                          {/* Account Identity */}
+                          <section className="space-y-6">
+                            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                              <div className="p-1.5 bg-primary/10 rounded-lg">
+                                <Shield className="w-5 h-5 text-primary" />
+                              </div>
+                              <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">Identity Calibrator</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Entity Name</Label>
+                                <Input
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                  value={editForm.name}
+                                  onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Communication Uplink (Email)</Label>
+                                <div className="relative">
+                                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    type="email"
+                                    className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                    value={editForm.email}
+                                    onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Mobile Link (Phone)</Label>
+                                <div className="relative">
+                                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                    value={editForm.phone}
+                                    onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Membership Stratum</Label>
+                                <Select
+                                  value={editForm.customerType}
+                                  onValueChange={v => setEditForm(f => ({ ...f, customerType: v }))}
+                                >
+                                  <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm font-bold">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-xl">
+                                    <SelectItem value="Regular" className="rounded-lg font-bold">Standard Access</SelectItem>
+                                    <SelectItem value="Premium" className="rounded-lg font-bold">Premium Wellness</SelectItem>
+                                    <SelectItem value="VIP" className="rounded-lg font-bold">VIP Elite Status</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </section>
+
+                          {/* Demographic Info */}
+                          <section className="space-y-6">
+                            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                              <div className="p-1.5 bg-emerald-500/10 rounded-lg">
+                                <Globe className="w-5 h-5 text-emerald-600" />
+                              </div>
+                              <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-slate-100">Biological Profile</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Professional Classification</Label>
+                                <div className="relative">
+                                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                    value={editForm.occupation}
+                                    onChange={e => setEditForm(f => ({ ...f, occupation: e.target.value }))}
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current Age</Label>
+                                  <Input
+                                    type="number"
+                                    className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                    value={editForm.age}
+                                    onChange={e => setEditForm(f => ({ ...f, age: e.target.value }))}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Sanguine Type</Label>
+                                  <Select
+                                    value={editForm.bloodGroup}
+                                    onValueChange={v => setEditForm(f => ({ ...f, bloodGroup: v }))}
+                                  >
+                                    <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm font-bold">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl">
+                                      {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(t => (
+                                        <SelectItem key={t} value={t} className="rounded-lg font-bold">{t}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Social Synchronicity</Label>
+                                <Select
+                                  value={editForm.maritalStatus}
+                                  onValueChange={v => setEditForm(f => ({ ...f, maritalStatus: v }))}
+                                >
+                                  <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm font-bold">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-xl">
+                                    {['Single', 'Married', 'Divorced', 'Widowed'].map(s => (
+                                      <SelectItem key={s} value={s} className="rounded-lg font-bold">{s}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Geospatial Coordinates</Label>
+                                <div className="relative">
+                                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    className="h-12 pl-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-bold"
+                                    defaultValue={selectedCustomer.location || 'Pending Validation'}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Observational Intelligence (Bio)</Label>
+                              <Textarea
+                                className="min-h-[100px] rounded-2xl border-slate-200 bg-white dark:bg-slate-900 shadow-inner focus:ring-primary/20 p-4 font-medium resize-none shadow-sm"
+                                value={editForm.bio}
+                                onChange={e => setEditForm(f => ({ ...f, bio: e.target.value }))}
+                              />
+                            </div>
+                          </section>
+                        </TabsContent>
+
+                        <TabsContent value="orders" className="space-y-4 animate-in fade-in-50 slide-in-from-right-4 duration-300">
+                          <div className="flex flex-col items-center justify-center py-20 bg-slate-50/50 dark:bg-slate-900/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-inner">
+                            <div className="w-24 h-24 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-2xl mb-6 transform -rotate-3 transition-transform hover:rotate-0 ring-4 ring-primary/5">
+                              <ShoppingBag className="w-12 h-12 text-primary" />
+                            </div>
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-slate-50 mb-2 uppercase tracking-tighter">
+                              Transaction Intelligence
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-center max-w-sm px-4 text-xs font-medium leading-relaxed">
+                              Unified tracking of purchase velocity, lifetime value analytics, and supply chain interactions.
+                            </p>
+                            <Button variant="outline" className="mt-8 px-10 rounded-xl border-slate-200 dark:border-slate-800 font-black uppercase tracking-widest text-[10px] shadow-sm">
+                              Interrogate Logs
+                            </Button>
+                          </div>
+                        </TabsContent>
+
+                        <TabsContent value="profile" className="space-y-6 animate-in fade-in-50 slide-in-from-right-4 duration-300">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Card className="border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all rounded-3xl bg-white dark:bg-slate-900">
+                              <CardContent className="p-6">
+                                <div className="flex items-center gap-4">
+                                  <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-2xl">
+                                    <HeartPulse className="w-6 h-6 text-red-500" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest text-[10px] mb-1">Wellness Objectives</h4>
+                                    <p className="text-xs text-slate-500 font-bold">Standard Optimization Target</p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                            <Card className="border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all rounded-3xl bg-white dark:bg-slate-900">
+                              <CardContent className="p-6">
+                                <div className="flex items-center gap-4">
+                                  <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-2xl">
+                                    <Activity className="w-6 h-6 text-blue-500" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-black text-slate-900 dark:text-slate-100 uppercase tracking-widest text-[10px] mb-1">Metabolic Output</h4>
+                                    <p className="text-xs text-slate-500 font-bold">Moderate Activity Matrix</p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+                          <section className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-inner">
+                            <h4 className="font-black mb-6 flex items-center gap-2 uppercase tracking-widest text-[10px] text-slate-400">
+                              <Shield className="w-3.5 h-3.5" />
+                              Psychographic Attributes
+                            </h4>
+                            <div className="flex flex-wrap gap-3">
+                              {['Vegetarian-Focused', 'Gluten Sensitivity', 'Early Market Adopter', 'High Loyalty Index'].map(tag => (
+                                <Badge key={tag} variant="secondary" className="px-5 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-none font-bold text-[10px] shadow-sm transition-all hover:scale-105 active:scale-95">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          </section>
+                        </TabsContent>
+
+                        <TabsContent value="notes" className="space-y-4 animate-in fade-in-50 slide-in-from-right-4 duration-300">
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="p-2.5 bg-amber-50 dark:bg-amber-950/30 rounded-xl">
+                                <StickyNote className="w-5 h-5 text-amber-500" />
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-black uppercase tracking-tight">Administrative Intel</h3>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Internal Tactical Notes</p>
+                              </div>
+                            </div>
+                            <Textarea
+                              placeholder="Document internal feedback, support interactions, or membership adjustments. Precise documentation is critical..."
+                              className="min-h-[250px] rounded-3xl border-slate-200 dark:border-slate-800 p-8 focus:ring-primary/20 bg-slate-50/50 dark:bg-slate-900/50 shadow-inner resize-none leading-relaxed font-medium"
+                            />
+                            <div className="flex items-center gap-2 px-4 py-2 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl w-fit">
+                              <Shield className="w-3.5 h-3.5 text-slate-400" />
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Confidential: Clearance Level 2 Access Required</span>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
                     </div>
-                    <Tabs defaultValue="details" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
-                      <TabsTrigger value="details">Details</TabsTrigger>
-                      <TabsTrigger value="orders">Orders</TabsTrigger>
-                      <TabsTrigger value="profile">Profile</TabsTrigger>
-                      <TabsTrigger value="notes">Notes</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="details" className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="editName">Full Name</Label>
-                          <Input
-                            id="editName"
-                            value={editForm.name}
-                            onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="editEmail">Email</Label>
-                          <Input
-                            id="editEmail"
-                            type="email"
-                            value={editForm.email}
-                            onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="editPhone">Phone</Label>
-                          <Input
-                            id="editPhone"
-                            value={editForm.phone}
-                            onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="editType">Customer Type</Label>
-                          <Select
-                            value={editForm.customerType}
-                            onValueChange={v => setEditForm(f => ({ ...f, customerType: v }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Regular">Regular</SelectItem>
-                              <SelectItem value="Premium">Premium</SelectItem>
-                              <SelectItem value="VIP">VIP</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="editOccupation">Occupation</Label>
-                          <Input
-                            id="editOccupation"
-                            value={editForm.occupation}
-                            onChange={e => setEditForm(f => ({ ...f, occupation: e.target.value }))}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="editAge">Age</Label>
-                          <Input
-                            id="editAge"
-                            type="number"
-                            value={editForm.age}
-                            onChange={e => setEditForm(f => ({ ...f, age: e.target.value }))}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="editBloodGroup">Blood Group</Label>
-                          <Select
-                            value={editForm.bloodGroup}
-                            onValueChange={v => setEditForm(f => ({ ...f, bloodGroup: v }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="A+">A+</SelectItem>
-                              <SelectItem value="A-">A-</SelectItem>
-                              <SelectItem value="B+">B+</SelectItem>
-                              <SelectItem value="B-">B-</SelectItem>
-                              <SelectItem value="AB+">AB+</SelectItem>
-                              <SelectItem value="AB-">AB-</SelectItem>
-                              <SelectItem value="O+">O+</SelectItem>
-                              <SelectItem value="O-">O-</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="editMaritalStatus">Marital Status</Label>
-                          <Select
-                            value={editForm.maritalStatus}
-                            onValueChange={v => setEditForm(f => ({ ...f, maritalStatus: v }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Single">Single</SelectItem>
-                              <SelectItem value="Married">Married</SelectItem>
-                              <SelectItem value="Divorced">Divorced</SelectItem>
-                              <SelectItem value="Widowed">Widowed</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="editBio">Bio</Label>
-                        <Textarea
-                          id="editBio"
-                          value={editForm.bio}
-                          onChange={e => setEditForm(f => ({ ...f, bio: e.target.value }))}
-                          rows={3}
-                        />
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="orders" className="space-y-4">
-                      <div className="text-center py-8">
-                        <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">Order History</h3>
-                        <p className="text-muted-foreground">Customer&apos;s order history will be displayed here</p>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="profile" className="space-y-4">
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="text-center p-4 bg-muted rounded-lg">
-                            <Heart className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                            <p className="text-sm font-medium">Health Interests</p>
-                            <p className="text-xs text-muted-foreground">Wellness products</p>
-                          </div>
-                          <div className="text-center p-4 bg-muted rounded-lg">
-                            <Activity className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                            <p className="text-sm font-medium">Activity Level</p>
-                            <p className="text-xs text-muted-foreground">Moderate</p>
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="notes" className="space-y-4">
-                      <div>
-                        <Label htmlFor="editNotes">Notes</Label>
-                        <Textarea id="editNotes" placeholder="Add notes about this customer" />
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                  </>
+                  </div>
                 )}
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                    Cancel
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 gap-3 sticky bottom-0 z-10 backdrop-blur-sm">
+                  <Button variant="outline" className="h-11 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] border-slate-200 dark:border-slate-800" onClick={() => setIsEditModalOpen(false)}>
+                    Abort Interaction
                   </Button>
-                  <Button onClick={handleUpdateCustomer} disabled={modalLoading}>
+                  <Button
+                    onClick={handleUpdateCustomer}
+                    disabled={modalLoading}
+                    className="h-11 px-10 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
                     {modalLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Updating...
+                        Calibrating...
                       </>
                     ) : (
-                      'Update Customer'
+                      'Commit Matrix Updates'
                     )}
                   </Button>
                 </DialogFooter>

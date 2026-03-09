@@ -2,18 +2,29 @@
 
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { 
-  Plus, 
-  Search, 
-  Grid3X3, 
-  List, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  Grid3X3,
+  List,
+  Edit,
+  Trash2,
   Ticket,
   TrendingUp,
   Loader2,
   Users,
-  Clock
+  Clock,
+  Calendar,
+  Percent,
+  Banknote,
+  ShieldCheck,
+  AlertCircle,
+  History,
+  Activity,
+  TrendingUp as Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -155,7 +166,7 @@ const CouponsPage = () => {
   const handleDeleteCoupon = async () => {
     try {
       if (!selectedCoupon) return
-      
+
       const success = await dispatch(deleteCoupon(selectedCoupon._id!)) as unknown as boolean
       if (success) {
         setShowDeleteModal(false)
@@ -364,7 +375,7 @@ const CouponsPage = () => {
             {isLoading ? (
               <Loader variant="skeleton" message="Loading coupons..." />
             ) : coupons.length === 0 ? (
-              <NoData 
+              <NoData
                 message="No coupons found"
                 description="Get started by creating your first discount coupon"
                 icon={<Ticket className="w-full h-full text-muted-foreground/60" />}
@@ -390,7 +401,7 @@ const CouponsPage = () => {
                                 {getStatusText(coupon)}
                               </Badge>
                             </div>
-                            
+
                             <div className="space-y-3 mb-4">
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-muted-foreground">Discount</span>
@@ -398,31 +409,31 @@ const CouponsPage = () => {
                                   {coupon.type === 'Percentage' ? `${coupon.value}%` : `₹${coupon.value}`}
                                 </span>
                               </div>
-                              
+
                               {coupon.type === 'Percentage' && (
                                 <div className="flex items-center justify-between">
                                   <span className="text-sm text-muted-foreground">Max Discount</span>
                                   <span className="font-medium">₹{coupon.maxDiscount}</span>
                                 </div>
                               )}
-                              
+
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-muted-foreground">Min Order</span>
                                 <span className="font-medium">₹{coupon.minOrderValue}</span>
                               </div>
-                              
+
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-muted-foreground">Usage</span>
                                 <span className="font-medium">{coupon.usedCount}/{coupon.usageLimit}</span>
                               </div>
-                              
+
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-muted-foreground">Expires</span>
                                 <span className="font-medium text-sm">{formatDate(coupon.expiryDate)}</span>
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="flex gap-2 mt-auto">
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -543,142 +554,252 @@ const CouponsPage = () => {
 
             {/* Add Coupon Modal */}
             <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add New Coupon</DialogTitle>
-                  <DialogDescription>
-                    Create a new discount coupon with all the necessary details.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Basic Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">Basic Information</h3>
-                    <div>
-                      <Label htmlFor="add-coupon-code" className="mb-2 block">Coupon Code</Label>
-                      <Input
-                        id="add-coupon-code"
-                        type="text"
-                        placeholder="e.g., SAVE20"
-                        value={newCoupon.code}
-                        onChange={(e) => setNewCoupon({...newCoupon, code: e.target.value.toUpperCase()})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-coupon-type" className="mb-2 block">Discount Type</Label>
-                      <Select value={newCoupon.type} onValueChange={(value: 'Percentage' | 'Fixed') => setNewCoupon({...newCoupon, type: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Percentage">Percentage</SelectItem>
-                          <SelectItem value="Fixed">Fixed Amount</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="add-coupon-value" className="mb-2 block">
-                        {newCoupon.type === 'Percentage' ? 'Discount Percentage' : 'Discount Amount (₹)'}
-                      </Label>
-                      <Input
-                        id="add-coupon-value"
-                        type="number"
-                        placeholder={newCoupon.type === 'Percentage' ? '20' : '100'}
-                        value={newCoupon.value}
-                        onChange={(e) => setNewCoupon({...newCoupon, value: e.target.value})}
-                      />
-                    </div>
-                    {newCoupon.type === 'Percentage' && (
-                      <div>
-                        <Label htmlFor="add-coupon-max-discount" className="mb-2 block">Maximum Discount (₹)</Label>
-                        <Input
-                          id="add-coupon-max-discount"
-                          type="number"
-                          placeholder="500"
-                          value={newCoupon.maxDiscount}
-                          onChange={(e) => setNewCoupon({...newCoupon, maxDiscount: parseInt(e.target.value)})}
-                        />
+              <DialogContent className="max-w-[1000px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2.5">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <Ticket className="w-6 h-6 text-primary" />
                       </div>
-                    )}
+                      Incentive Protocol Creation
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400">
+                      Initialize a new promotional instrument with specific redemption logic and temporal constraints.
+                    </DialogDescription>
                   </div>
+                </DialogHeader>
 
-                  {/* Usage & Validity */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">Usage & Validity</h3>
-                    <div>
-                      <Label htmlFor="add-coupon-min-order" className="mb-2 block">Minimum Order Value (₹)</Label>
-                      <Input
-                        id="add-coupon-min-order"
-                        type="number"
-                        placeholder="1000"
-                        value={newCoupon.minOrderValue}
-                        onChange={(e) => setNewCoupon({...newCoupon, minOrderValue: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-coupon-start-date" className="mb-2 block">Start Date</Label>
-                      <Input
-                        id="add-coupon-start-date"
-                        type="date"
-                        value={newCoupon.startDate}
-                        onChange={(e) => setNewCoupon({...newCoupon, startDate: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-coupon-expiry-date" className="mb-2 block">Expiry Date</Label>
-                      <Input
-                        id="add-coupon-expiry-date"
-                        type="date"
-                        value={newCoupon.expiryDate}
-                        onChange={(e) => setNewCoupon({...newCoupon, expiryDate: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-coupon-usage-limit" className="mb-2 block">Total Usage Limit</Label>
-                      <Input
-                        id="add-coupon-usage-limit"
-                        type="number"
-                        placeholder="100"
-                        value={newCoupon.usageLimit}
-                        onChange={(e) => setNewCoupon({...newCoupon, usageLimit: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-coupon-user-limit" className="mb-2 block">Per User Usage Limit</Label>
-                      <Input
-                        id="add-coupon-user-limit"
-                        type="number"
-                        placeholder="1"
-                        value={newCoupon.userUsageLimit}
-                        onChange={(e) => setNewCoupon({...newCoupon, userUsageLimit: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-coupon-status" className="mb-2 block">Status</Label>
-                      <Select value={newCoupon.status} onValueChange={(value: 'Active' | 'Inactive') => setNewCoupon({...newCoupon, status: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
+                <div className="overflow-y-auto max-h-[75vh]">
+                  <div className="p-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                      {/* Left Column: Core Configuration */}
+                      <div className="space-y-12">
+                        {/* Section 1: General Info */}
+                        <section className="space-y-8">
+                          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div className="p-2 bg-blue-500/10 rounded-xl text-blue-600">
+                              <Ticket className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Promotional Identity</h3>
+                          </div>
+                          <div className="space-y-6">
+                            <div className="space-y-3">
+                              <Label htmlFor="coupon-code" className="text-xs font-black text-slate-400 uppercase tracking-widest">Identifier Alias (Code)</Label>
+                              <Input
+                                id="coupon-code"
+                                placeholder="e.g., WELNESS25"
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-mono text-lg uppercase tracking-wider font-bold"
+                                value={newCoupon.code}
+                                onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                              />
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Inception Date</Label>
+                                <div className="relative">
+                                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    type="date"
+                                    className="h-12 pl-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                    value={newCoupon.startDate}
+                                    onChange={(e) => setNewCoupon({ ...newCoupon, startDate: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Termination Threshold</Label>
+                                <div className="relative">
+                                  <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    type="date"
+                                    className="h-12 pl-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                    value={newCoupon.expiryDate}
+                                    onChange={(e) => setNewCoupon({ ...newCoupon, expiryDate: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* Section 2: Discount Logic */}
+                        <section className="space-y-8">
+                          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-600">
+                              <Percent className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Discount Mechanics</h3>
+                          </div>
+                          <div className="space-y-6">
+                            <div className="space-y-3">
+                              <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Valuation Model</Label>
+                              <Select value={newCoupon.type} onValueChange={(val: 'Percentage' | 'Fixed') => setNewCoupon({ ...newCoupon, type: val })}>
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  <SelectItem value="Percentage" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold">
+                                      <Percent className="w-4 h-4 text-emerald-500" /> Relational (Percentage)
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="Fixed" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold">
+                                      <Banknote className="w-4 h-4 text-primary" /> Static (Fixed Amount)
+                                    </div>
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-8">
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">{newCoupon.type === 'Percentage' ? 'Scale Factor (%)' : 'Scalar Value (₹)'}</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-black text-primary"
+                                  placeholder="0"
+                                  value={newCoupon.value}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, value: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Entry Barrier (Min ₹)</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  placeholder="0"
+                                  value={newCoupon.minOrderValue}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, minOrderValue: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                            </div>
+                            {newCoupon.type === 'Percentage' && (
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Cap Ceiling (Max ₹)</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  placeholder="Unlimited"
+                                  value={newCoupon.maxDiscount}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, maxDiscount: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </section>
+                      </div>
+
+                      {/* Right Column: Limits & Status */}
+                      <div className="space-y-12">
+                        {/* Section 3: Usage Controls */}
+                        <section className="space-y-8">
+                          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div className="p-2 bg-amber-500/10 rounded-xl text-amber-600">
+                              <Users className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Redemption Velocity</h3>
+                          </div>
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-2 gap-8">
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Global Quota</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  placeholder="Total"
+                                  value={newCoupon.usageLimit}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, usageLimit: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Identity Cap</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  placeholder="Per user"
+                                  value={newCoupon.userUsageLimit}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, userUsageLimit: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Operational State</Label>
+                              <Select value={newCoupon.status} onValueChange={(val: 'Active' | 'Inactive') => setNewCoupon({ ...newCoupon, status: val })}>
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  <SelectItem value="Active" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold text-emerald-600">
+                                      <ShieldCheck className="w-4 h-4" /> Live Deployment
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="Inactive" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold text-slate-400">
+                                      <AlertCircle className="w-4 h-4" /> System Halted
+                                    </div>
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* Performance Anticipation */}
+                        <section className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                          <div className="absolute top-0 right-0 p-6 opacity-5">
+                            <Activity className="w-20 h-20 text-primary" />
+                          </div>
+
+                          <div className="flex items-center gap-3 text-slate-900 dark:text-slate-100 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
+                            <Activity className="w-5 h-5 text-primary" />
+                            Protocol Visualization
+                          </div>
+                          <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-inner space-y-4 relative z-10">
+                            <div className="flex justify-between items-center">
+                              <span className="font-mono font-black text-primary tracking-tighter text-lg">{newCoupon.code || 'DRAFT_STATE'}</span>
+                              <Badge variant={newCoupon.status === 'Active' ? 'default' : 'secondary'} className="rounded-lg px-2 py-0.5 text-[10px] font-black uppercase">{newCoupon.status}</Badge>
+                            </div>
+                            <div className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+                              {newCoupon.type === 'Percentage' ? `${newCoupon.value}%` : `₹${newCoupon.value}`} <span className="text-sm font-medium text-slate-400 uppercase tracking-widest">Reduction</span>
+                            </div>
+                            <div className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">
+                              Active: {newCoupon.startDate || 'TBD'} — {newCoupon.expiryDate || 'PERPETUAL'}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 mt-6 relative z-10">
+                            <div className="p-4 bg-white/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                              <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-widest">Entry Barrier</p>
+                              <p className="text-xs font-black">₹{newCoupon.minOrderValue}</p>
+                            </div>
+                            <div className="p-4 bg-white/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                              <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-widest">Global Quota</p>
+                              <p className="text-xs font-black">{newCoupon.usageLimit || 'UNLIMITED'}</p>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowAddModal(false)} disabled={isLoading}>
-                    Cancel
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 gap-3 sticky bottom-0 z-10 backdrop-blur-sm">
+                  <Button variant="outline" className="h-11 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] border-slate-200 dark:border-slate-800" onClick={() => setShowAddModal(false)} disabled={isLoading}>
+                    Discard Draft
                   </Button>
-                  <Button onClick={handleAddCoupon} disabled={isLoading}>
+                  <Button
+                    onClick={handleAddCoupon}
+                    disabled={isLoading}
+                    className="h-11 px-10 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Adding...
+                        Ingesting...
                       </>
                     ) : (
-                      'Add Coupon'
+                      'Authorize Protocol'
                     )}
                   </Button>
                 </DialogFooter>
@@ -687,142 +808,250 @@ const CouponsPage = () => {
 
             {/* Edit Coupon Modal */}
             <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Edit Coupon</DialogTitle>
-                  <DialogDescription>
-                    Update the coupon details below.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Basic Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">Basic Information</h3>
-                    <div>
-                      <Label htmlFor="edit-coupon-code" className="mb-2 block">Coupon Code</Label>
-                      <Input
-                        id="edit-coupon-code"
-                        type="text"
-                        placeholder="e.g., SAVE20"
-                        value={newCoupon.code}
-                        onChange={(e) => setNewCoupon({...newCoupon, code: e.target.value.toUpperCase()})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-coupon-type" className="mb-2 block">Discount Type</Label>
-                      <Select value={newCoupon.type} onValueChange={(value: 'Percentage' | 'Fixed') => setNewCoupon({...newCoupon, type: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Percentage">Percentage</SelectItem>
-                          <SelectItem value="Fixed">Fixed Amount</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-coupon-value" className="mb-2 block">
-                        {newCoupon.type === 'Percentage' ? 'Discount Percentage' : 'Discount Amount (₹)'}
-                      </Label>
-                      <Input
-                        id="edit-coupon-value"
-                        type="number"
-                        placeholder={newCoupon.type === 'Percentage' ? '20' : '100'}
-                        value={newCoupon.value}
-                        onChange={(e) => setNewCoupon({...newCoupon, value: e.target.value})}
-                      />
-                    </div>
-                    {newCoupon.type === 'Percentage' && (
-                      <div>
-                        <Label htmlFor="edit-coupon-max-discount" className="mb-2 block">Maximum Discount (₹)</Label>
-                        <Input
-                          id="edit-coupon-max-discount"
-                          type="number"
-                          placeholder="500"
-                          value={newCoupon.maxDiscount}
-                          onChange={(e) => setNewCoupon({...newCoupon, maxDiscount: parseInt(e.target.value)})}
-                        />
+              <DialogContent className="max-w-[1000px] w-[95vw] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-2xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2.5">
+                      <div className="p-2 bg-primary/10 rounded-xl">
+                        <Edit className="w-6 h-6 text-primary" />
                       </div>
-                    )}
+                      Incentive Calibration
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400">
+                      Refine promotional parameters, temporal windows, and usage constraints for optimized performance.
+                    </DialogDescription>
                   </div>
+                </DialogHeader>
 
-                  {/* Usage & Validity */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">Usage & Validity</h3>
-                    <div>
-                      <Label htmlFor="edit-coupon-min-order" className="mb-2 block">Minimum Order Value (₹)</Label>
-                      <Input
-                        id="edit-coupon-min-order"
-                        type="number"
-                        placeholder="1000"
-                        value={newCoupon.minOrderValue}
-                        onChange={(e) => setNewCoupon({...newCoupon, minOrderValue: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-coupon-start-date" className="mb-2 block">Start Date</Label>
-                      <Input
-                        id="edit-coupon-start-date"
-                        type="date"
-                        value={newCoupon.startDate}
-                        onChange={(e) => setNewCoupon({...newCoupon, startDate: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-coupon-expiry-date" className="mb-2 block">Expiry Date</Label>
-                      <Input
-                        id="edit-coupon-expiry-date"
-                        type="date"
-                        value={newCoupon.expiryDate}
-                        onChange={(e) => setNewCoupon({...newCoupon, expiryDate: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-coupon-usage-limit" className="mb-2 block">Total Usage Limit</Label>
-                      <Input
-                        id="edit-coupon-usage-limit"
-                        type="number"
-                        placeholder="100"
-                        value={newCoupon.usageLimit}
-                        onChange={(e) => setNewCoupon({...newCoupon, usageLimit: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-coupon-user-limit" className="mb-2 block">Per User Usage Limit</Label>
-                      <Input
-                        id="edit-coupon-user-limit"
-                        type="number"
-                        placeholder="1"
-                        value={newCoupon.userUsageLimit}
-                        onChange={(e) => setNewCoupon({...newCoupon, userUsageLimit: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-coupon-status" className="mb-2 block">Status</Label>
-                      <Select value={newCoupon.status} onValueChange={(value: 'Active' | 'Inactive') => setNewCoupon({...newCoupon, status: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
+                <div className="overflow-y-auto max-h-[75vh]">
+                  <div className="p-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                      {/* Left Column: Core Configuration */}
+                      <div className="space-y-12">
+                        {/* Section 1: General Info */}
+                        <section className="space-y-8">
+                          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div className="p-2 bg-blue-500/10 rounded-xl text-blue-600">
+                              <Ticket className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Protocol Identity</h3>
+                          </div>
+                          <div className="space-y-6">
+                            <div className="space-y-3">
+                              <Label htmlFor="edit-coupon-code" className="text-xs font-black text-slate-400 uppercase tracking-widest">Identifier Alias (Code)</Label>
+                              <Input
+                                id="edit-coupon-code"
+                                className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-mono text-lg uppercase tracking-wider font-bold"
+                                value={newCoupon.code}
+                                onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                              />
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Inception Date</Label>
+                                <div className="relative">
+                                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    type="date"
+                                    className="h-12 pl-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                    value={newCoupon.startDate ? newCoupon.startDate.split('T')[0] : ''}
+                                    onChange={(e) => setNewCoupon({ ...newCoupon, startDate: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Termination Threshold</Label>
+                                <div className="relative">
+                                  <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                  <Input
+                                    type="date"
+                                    className="h-12 pl-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                    value={newCoupon.expiryDate ? newCoupon.expiryDate.split('T')[0] : ''}
+                                    onChange={(e) => setNewCoupon({ ...newCoupon, expiryDate: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* Section 2: Discount Logic */}
+                        <section className="space-y-8">
+                          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-600">
+                              <Percent className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Discount Mechanics</h3>
+                          </div>
+                          <div className="space-y-6">
+                            <div className="space-y-3">
+                              <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Valuation Model</Label>
+                              <Select value={newCoupon.type} onValueChange={(val: 'Percentage' | 'Fixed') => setNewCoupon({ ...newCoupon, type: val })}>
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  <SelectItem value="Percentage" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold">
+                                      <Percent className="w-4 h-4 text-emerald-500" /> Relational (Percentage)
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="Fixed" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold">
+                                      <Banknote className="w-4 h-4 text-primary" /> Static (Fixed Amount)
+                                    </div>
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-8">
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">{newCoupon.type === 'Percentage' ? 'Scale Factor (%)' : 'Scalar Value (₹)'}</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20 font-black text-primary"
+                                  value={newCoupon.value}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, value: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Entry Barrier (Min ₹)</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  value={newCoupon.minOrderValue}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, minOrderValue: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                            </div>
+                            {newCoupon.type === 'Percentage' && (
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Cap Ceiling (Max ₹)</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  value={newCoupon.maxDiscount}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, maxDiscount: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </section>
+                      </div>
+
+                      {/* Right Column: Limits & Status */}
+                      <div className="space-y-12">
+                        {/* Section 3: Usage Controls */}
+                        <section className="space-y-8">
+                          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div className="p-2 bg-amber-500/10 rounded-xl text-amber-600">
+                              <Users className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Redemption Velocity</h3>
+                          </div>
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-2 gap-8">
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Global Quota</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  value={newCoupon.usageLimit}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, usageLimit: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                              <div className="space-y-3">
+                                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Identity Cap</Label>
+                                <Input
+                                  type="number"
+                                  className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm focus:ring-primary/20"
+                                  value={newCoupon.userUsageLimit}
+                                  onChange={(e) => setNewCoupon({ ...newCoupon, userUsageLimit: parseInt(e.target.value) || 0 })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Operational State</Label>
+                              <Select value={newCoupon.status} onValueChange={(val: 'Active' | 'Inactive') => setNewCoupon({ ...newCoupon, status: val })}>
+                                <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-white dark:bg-slate-900 shadow-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  <SelectItem value="Active" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold text-emerald-600">
+                                      <ShieldCheck className="w-4 h-4" /> Live Protocol
+                                    </div>
+                                  </SelectItem>
+                                  <SelectItem value="Inactive" className="rounded-lg">
+                                    <div className="flex items-center gap-2 font-bold text-slate-400">
+                                      <AlertCircle className="w-4 h-4" /> Suspended
+                                    </div>
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* Cumulative Intelligence */}
+                        <section className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900/50 dark:to-slate-950 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                          <div className="absolute top-0 right-0 p-6 opacity-5">
+                            <History className="w-20 h-20 text-primary" />
+                          </div>
+
+                          <div className="flex items-center gap-3 text-slate-900 dark:text-slate-100 font-black uppercase text-xs tracking-widest mb-6 relative z-10">
+                            <History className="w-5 h-5 text-primary" />
+                            Protocol Performance
+                          </div>
+                          <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-inner space-y-4 relative z-10">
+                            <div className="flex justify-between items-center text-xs text-slate-400 font-black uppercase tracking-widest">
+                              <span>Quota Utilization</span>
+                              <span>{selectedCoupon?.usedCount || 0} / {newCoupon.usageLimit || '∞'}</span>
+                            </div>
+                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                              <div
+                                className="bg-primary h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+                                style={{ width: `${Math.min(((selectedCoupon?.usedCount || 0) / (newCoupon.usageLimit || 1)) * 100, 100)}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between items-center pt-2">
+                              <span className="text-lg font-mono font-black text-primary tracking-tighter">{newCoupon.code}</span>
+                              <Badge variant={getStatusColor(selectedCoupon!)} className="rounded-lg px-2 py-0.5 text-[10px] font-black uppercase">{getStatusText(selectedCoupon!)}</Badge>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 mt-6 relative z-10">
+                            <div className="p-4 bg-white/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                              <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-widest">Initialized</p>
+                              <p className="text-xs font-black">{new Date(selectedCoupon?.createdAt || Date.now()).toLocaleDateString()}</p>
+                            </div>
+                            <div className="p-4 bg-white/50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                              <p className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-widest">Last Sync</p>
+                              <p className="text-xs font-black">{new Date(selectedCoupon?.updatedAt || Date.now()).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={isLoading}>
-                    Cancel
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 gap-3 sticky bottom-0 z-10 backdrop-blur-sm">
+                  <Button variant="outline" className="h-11 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] border-slate-200 dark:border-slate-800" onClick={() => setShowEditModal(false)} disabled={isLoading}>
+                    Discard Revisions
                   </Button>
-                  <Button onClick={handleEditCoupon} disabled={isLoading}>
+                  <Button
+                    onClick={handleEditCoupon}
+                    disabled={isLoading}
+                    className="h-11 px-10 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Updating...
+                        Calibrating...
                       </>
                     ) : (
-                      'Update Coupon'
+                      'Commit Updates'
                     )}
                   </Button>
                 </DialogFooter>
@@ -831,25 +1060,51 @@ const CouponsPage = () => {
 
             {/* Delete Confirmation Modal */}
             <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Delete Coupon</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to delete coupon &quot;{selectedCoupon?.code}&quot;? This action cannot be undone.
-                  </DialogDescription>
+              <DialogContent className="max-w-md p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-white dark:bg-slate-950">
+                <DialogHeader className="px-8 py-6 border-b bg-red-50/50 dark:bg-red-950/20 sticky top-0 z-10 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    <DialogTitle className="text-xl font-black uppercase tracking-tight text-red-600 dark:text-red-400 flex items-center gap-3">
+                      <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-xl text-red-600">
+                        <Trash2 className="w-5 h-5" />
+                      </div>
+                      Protocol Termination
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium">
+                      Irreversible erasure of incentive vector from core system.
+                    </DialogDescription>
+                  </div>
                 </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={isLoading}>
-                    Cancel
+
+                <div className="p-8">
+                  <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed text-center">
+                      Confirm irreversible termination of incentive node <span className="text-red-600 font-black px-2 bg-red-50 dark:bg-red-950/30 rounded-lg">&quot;{selectedCoupon?.code}&quot;</span>?
+                    </p>
+                  </div>
+                </div>
+
+                <DialogFooter className="px-8 py-6 border-t bg-slate-50/50 dark:bg-slate-900/50 sticky bottom-0 z-10 backdrop-blur-sm">
+                  <Button
+                    variant="outline"
+                    className="h-11 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] border-slate-200"
+                    onClick={() => setShowDeleteModal(false)}
+                    disabled={isLoading}
+                  >
+                    Abort Cycle
                   </Button>
-                  <Button variant="destructive" onClick={handleDeleteCoupon} disabled={isLoading}>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteCoupon}
+                    disabled={isLoading}
+                    className="h-11 px-8 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
                     {isLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Deleting...
+                        Terminating...
                       </>
                     ) : (
-                      'Delete'
+                      "Confirm Termination"
                     )}
                   </Button>
                 </DialogFooter>
@@ -857,7 +1112,7 @@ const CouponsPage = () => {
             </Dialog>
           </>
         )}
-      </div>    
+      </div>
     </TooltipProvider>
   )
 }

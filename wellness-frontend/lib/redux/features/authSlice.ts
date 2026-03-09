@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch } from "../store";
-import axiosInstance from '../../utils/axiosInstance';
-import axios from 'axios';
+import axiosInstance from "../../utils/axiosInstance";
+import axios from "axios";
 import { clearAuthData } from "../../utils/auth";
 import { getApiV1BaseUrl } from "../../utils/api";
 
@@ -16,12 +16,12 @@ export interface User {
   password: string;
   phone: string;
   role:
-  | "admin"
-  | "super_admin"
-  | "Admin"
-  | "Doctor"
-  | "Influencer"
-  | "Customer";
+    | "admin"
+    | "super_admin"
+    | "Admin"
+    | "Doctor"
+    | "Influencer"
+    | "Customer";
   status: "Active" | "Inactive";
   dateOfBirth?: string;
   verified: boolean;
@@ -202,7 +202,6 @@ export const registerUser =
           headers: {
             "Content-Type": "application/json",
           },
-
         },
       );
 
@@ -267,60 +266,60 @@ export const sendPasswordResetEmail =
 // Reset password
 export const resetPassword =
   (oldPassword: string, newPassword: string) =>
-    async (dispatch: AppDispatch) => {
-      dispatch(setPasswordResetStatus({ loading: true, error: null }));
-      try {
-        const response = await axiosInstance.post(
-          `${API_BASE_URL}/auth/resetpassword`,
-          {
-            oldPassword,
-            newPassword,
+  async (dispatch: AppDispatch) => {
+    dispatch(setPasswordResetStatus({ loading: true, error: null }));
+    try {
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/auth/resetpassword`,
+        {
+          oldPassword,
+          newPassword,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${""}`,
           },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${""}`,
-            },
-          },
-        );
+        },
+      );
 
-        // According to the prompt, the response will be: { "message": "Password Reset Successfully" }
-        if (response.data?.message === "Password Reset Successfully") {
-          dispatch(setPasswordResetStatus({ loading: false }));
-          return true;
-        } else {
-          throw new Error(response.data?.message || "Password reset failed");
-        }
-      } catch (error: unknown) {
-        const errorMessage = handleApiError(error);
-        dispatch(setPasswordResetStatus({ loading: false, error: errorMessage }));
-        return false;
+      // According to the prompt, the response will be: { "message": "Password Reset Successfully" }
+      if (response.data?.message === "Password Reset Successfully") {
+        dispatch(setPasswordResetStatus({ loading: false }));
+        return true;
+      } else {
+        throw new Error(response.data?.message || "Password reset failed");
       }
-    };
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      dispatch(setPasswordResetStatus({ loading: false, error: errorMessage }));
+      return false;
+    }
+  };
 
 // Update profile
 export const updateProfile =
   (userId: string, profileData: Partial<User>) =>
-    async (dispatch: AppDispatch) => {
-      dispatch(setAuthLoading());
-      try {
-        const response = await axiosInstance.put(
-          `${API_BASE_URL}/users/${userId}`,
-          profileData,
-        );
+  async (dispatch: AppDispatch) => {
+    dispatch(setAuthLoading());
+    try {
+      const response = await axiosInstance.put(
+        `${API_BASE_URL}/users/${userId}`,
+        profileData,
+      );
 
-        if (response.data?.success) {
-          dispatch(setUser(response.data.user));
-          return true;
-        } else {
-          throw new Error(response.data?.message || "Profile update failed");
-        }
-      } catch (error: unknown) {
-        const errorMessage = handleApiError(error);
-        dispatch(setAuthError(errorMessage));
-        return false;
+      if (response.data?.success) {
+        dispatch(setUser(response.data.user));
+        return true;
+      } else {
+        throw new Error(response.data?.message || "Profile update failed");
       }
-    };
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error);
+      dispatch(setAuthError(errorMessage));
+      return false;
+    }
+  };
 // Update profile image
 export const updateProfileImage =
   (userId: string, imageFile: FormData) => async (dispatch: AppDispatch) => {
@@ -372,6 +371,29 @@ export const toggle2FA =
       return false;
     }
   };
+
+// Load user from token (for app initialization)
+export const loadUserFromToken = () => async (dispatch: AppDispatch) => {
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    return;
+  }
+
+  dispatch(setAuthLoading());
+  try {
+    const response = await axiosInstance.post(`${API_BASE_URL}/auth/check`);
+    if (response.data?.user) {
+      dispatch(setUser(response.data.user));
+    } else {
+      throw new Error("Invalid token");
+    }
+  } catch (error: unknown) {
+    const errorMessage = handleApiError(error);
+    dispatch(setAuthError(errorMessage));
+    // Clear invalid token
+    clearAuthData();
+  }
+};
 
 // Logout user
 export const logoutUser = () => async (dispatch: AppDispatch) => {

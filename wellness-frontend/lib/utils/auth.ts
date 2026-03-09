@@ -72,8 +72,16 @@ export const storeAuthData = (session: SessionData) => {
   // Store in cookies for server-side access
   // Store user ID as a simple object for middleware compatibility
   const userData = { id: session.user, role: "user" }; // Default role, update based on your API
-  document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
-  document.cookie = `token=${session.token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
+
+  const isProd = process.env.NODE_ENV === "production";
+  const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+
+  let cookieBase = `path=/; max-age=${7 * 24 * 60 * 60}; samesite=Lax`;
+  if (isProd) cookieBase += `; secure`;
+  if (domain && domain !== "localhost") cookieBase += `; domain=${domain}`;
+
+  document.cookie = `user=${encodeURIComponent(JSON.stringify(userData))}; ${cookieBase}`;
+  document.cookie = `token=${session.token}; ${cookieBase}`;
 };
 
 // Clear authentication data
@@ -83,9 +91,13 @@ export const clearAuthData = () => {
   localStorage.removeItem("userId");
   localStorage.removeItem("sessionData");
 
+  const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+  let domainStr = "";
+  if (domain && domain !== "localhost") domainStr = `; domain=${domain}`;
+
   // Clear cookies
-  document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = `user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainStr}`;
+  document.cookie = `token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domainStr}`;
 };
 
 // Check if user is authenticated
@@ -246,7 +258,14 @@ export const updateUserRole = (role: string) => {
 
       // Update cookies
       const userData = { id: sessionData.user, role: role };
-      document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
+      const isProd = process.env.NODE_ENV === "production";
+      const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
+
+      let cookieBase = `path=/; max-age=${7 * 24 * 60 * 60}; samesite=Lax`;
+      if (isProd) cookieBase += `; secure`;
+      if (domain && domain !== "localhost") cookieBase += `; domain=${domain}`;
+
+      document.cookie = `user=${encodeURIComponent(JSON.stringify(userData))}; ${cookieBase}`;
     }
   } catch (error) {
     console.error("Error updating user role:", error);

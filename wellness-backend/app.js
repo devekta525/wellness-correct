@@ -1,11 +1,22 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import helmet from "helmet";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
+// Security Middleware
+import { globalLimiter, strictLimiter } from "./middleware/rateLimiter.js";
+import { botBlocker } from "./middleware/botBlocker.js";
+import { geoBlocker } from "./middleware/geoBlocker.js";
+import { requestLogger, errorLogger, getRecentLogs } from "./middleware/requestLogger.js";
+import { ddosProtection, getDDoSStats, getBlacklistedIPs } from "./middleware/ddosProtection.js";
+
+// Route imports
 import blogRoute from "./routes/blogRoute.js";
 import productRoute from "./routes/productRoutes.js";
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
-import cors from "cors";
 import ratingRouter from "./routes/ratingRoute.js";
 import categoryRoutes from "./routes/categoryRoute.js";
 import orderRoutes from './routes/orderRoute.js';
@@ -13,7 +24,6 @@ import leadRoutes from './routes/leadRoute.js';
 import addressRoutes from './routes/addressRouter.js';
 import couponRoutes from './routes/couponRouter.js';
 import reviewRoutes from './routes/reviewRouter.js';
-import cookieParser from "cookie-parser";
 import settingRoutes from './routes/settingRoute.js';
 import notesRoute from './routes/notesRoute.js';
 import sessionRoute from './routes/sessionRoute.js';
@@ -38,22 +48,33 @@ import influencerReportRoute from './routes/influencerReportRoute.js';
 import influencerSettingsRoute from './routes/influencerSettingsRoute.js';
 import influencerRoute from './routes/influencerRoute.js';
 import wishlistRoute from './routes/wishlistRoute.js';
+import shiprocketRoute from "./routes/shiprocketRoute.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-app.use(cookieParser());
+// ============================================================================
+// SECURITY MIDDLEWARE INITIALIZATION - ORDER MATTERS!
+// ============================================================================
+// 1. Helmet - Must be first to set security headers
+app.use(helmet());
 
+// 2. CORS - Allow cross-origin requests
 app.use(cors({
     origin: true,
     credentials: true
 }));
 
+// 3. Cookie Parser - Parse cookies
+app.use(cookieParser());
+
+// 4. Body Parsers - Parse request bodies
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
 
+// 5. JSON Parsing Error Handler
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
         console.error('JSON Parsing Error:', err.message);
@@ -70,17 +91,41 @@ app.use((err, req, res, next) => {
     next(err);
 });
 
+// 6. Logging Middleware - Log all requests
+app.use(requestLogger);
+
+// 7. DDoS Protection - Detect rapid-fire attacks (50 requests in 10 seconds)
+app.use(ddosProtection);
+
+// 8. Bot Detection - Block known bots and crawlers
+app.use(botBlocker);
+
+// 9. GeoIP Blocking - Allow only traffic from India
+app.use(geoBlocker);
+
+// 10. Rate Limiting - Global rate limiter (200 requests per 15 minutes)
+app.use(globalLimiter);
+
+// Legacy console logging (can be removed if using requestLogger)
 app.use((req, res, next) => {
     console.log(new Date().toISOString(), ':: Request for :', req.url)
     next();
 })
 
+// ============================================================================
+// STATIC FILES AND ROUTES
+// ============================================================================
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// API Routes - Most routes use global rate limiter
 app.use("/v1/blogs", blogRoute);
 app.use("/v1/products", productRoute);
 app.use("/v1/users", userRoute);
-app.use("/v1/auth", authRoute);
+
+// Auth routes - Use strict rate limiter (5 attempts per 15 min) for login/register
+app.use("/v1/auth", strictLimiter, authRoute);
+
 app.use("/v1/ratings", ratingRouter);
 app.use("/v1/categories", categoryRoutes);
 app.use('/v1/orders', orderRoutes);
@@ -114,8 +159,50 @@ app.use('/v1/influencer-notes', influencerNoteRoute);
 app.use('/v1/influencer-reports', influencerReportRoute);
 app.use('/v1/influencer-settings', influencerSettingsRoute);
 
+app.use('/api/webhook', shiprocketRoute);
+
 app.get("/", (req, res) => {
     res.send("API is running....");
 });
+
+// ============================================================================
+// SECURITY MONITORING ENDPOINTS (Optional - Admin Only)
+// ============================================================================
+// These endpoints allow you to monitor security metrics
+// In production, protect these with authentication middleware
+
+app.get("/admin/security/ddos-stats", (req, res) => {
+    // TODO: Add authentication check here
+    // if (!req.user?.isAdmin) return res.status(403).json({ message: 'Forbidden' });
+
+    res.json({
+        success: true,
+        data: getDDoSStats()
+    });
+});
+
+app.get("/admin/security/blacklisted-ips", (req, res) => {
+    // TODO: Add authentication check here
+    res.json({
+        success: true,
+        data: getBlacklistedIPs()
+    });
+});
+
+app.get("/admin/security/logs", (req, res) => {
+    // TODO: Add authentication check here
+    const logType = req.query.type || 'all'; // 'all', 'blocked', 'suspicious', 'errors'
+    const lines = parseInt(req.query.lines) || 100;
+
+    res.json({
+        success: true,
+        data: getRecentLogs(logType, lines)
+    });
+});
+
+// ============================================================================
+// ERROR HANDLING MIDDLEWARE - Must be last
+// ============================================================================
+app.use(errorLogger);
 
 export default app;

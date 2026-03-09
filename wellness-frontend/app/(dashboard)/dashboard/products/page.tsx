@@ -20,7 +20,18 @@ import {
   Sparkles,
   Upload,
   X,
+  FileText,
+  Info,
+  Image as ImageIcon,
+  Tag,
+  Barcode,
+  Clock,
+  Settings,
+  AlertCircle,
+  LayoutGrid,
+  ChevronLeft as ChevronLeftIcon,
 } from "lucide-react";
+import { FormSteps } from "@/components/ui/form-steps";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -113,7 +124,9 @@ const ProductsPage = () => {
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [addStep, setAddStep] = useState(1);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [editStep, setEditStep] = useState(1);
   const [selectedProduct, setSelectedProduct] =
     useState<ProductWithImages | null>(null);
   const [imageErrors, setImageErrors] = useState<{ [key: string]: boolean }>(
@@ -555,7 +568,7 @@ const ProductsPage = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
+              <Card className="border-none shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -566,11 +579,13 @@ const ProductsPage = () => {
                         {pagination.total}
                       </p>
                     </div>
-                    <Package className="w-8 h-8 text-primary" />
+                    <div className="p-3 bg-primary/10 rounded-xl">
+                      <Package className="w-6 h-6 text-primary" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-none shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -584,11 +599,13 @@ const ProductsPage = () => {
                         }
                       </p>
                     </div>
-                    <TrendingUp className="w-8 h-8 text-emerald-500" />
+                    <div className="p-3 bg-emerald-100 rounded-xl">
+                      <TrendingUp className="w-6 h-6 text-emerald-600" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-none shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -603,11 +620,13 @@ const ProductsPage = () => {
                         }
                       </p>
                     </div>
-                    <Package className="w-8 h-8 text-amber-500" />
+                    <div className="p-3 bg-amber-100 rounded-xl">
+                      <Package className="w-6 h-6 text-amber-600" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-none shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -624,7 +643,9 @@ const ProductsPage = () => {
                           .toFixed(2)}
                       </p>
                     </div>
-                    <DollarSign className="w-8 h-8 text-blue-600" />
+                    <div className="p-3 bg-blue-100 rounded-xl">
+                      <DollarSign className="w-6 h-6 text-blue-600" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -740,57 +761,56 @@ const ProductsPage = () => {
                     {products.map((product) => (
                       <Card
                         key={product._id}
-                        className="group overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 flex flex-col h-full relative"
+                        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white hover:shadow-lg transition-all duration-300 flex flex-col h-full relative"
                       >
-                        <div className="relative w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div className="relative w-full aspect-[4/3] bg-slate-50 overflow-hidden">
                           <Image
                             src={getProductImage(product)}
                             alt={product.name}
                             fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
                             onError={() => handleImageError(product._id)}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                          <div className="absolute top-3 right-3 shadow-md z-10">
+                          <div className="absolute top-3 right-3 shadow-sm z-10">
                             <Badge
-                              className={`shadow-sm border-0 font-semibold px-3 py-1 text-xs tracking-wide uppercase ${product.status === "active"
-                                ? "bg-blue-600 text-white hover:bg-blue-700"
+                              className={`shadow-sm border-0 font-bold px-3 py-1 text-[10px] tracking-wide uppercase ${product.status === "active"
+                                ? "bg-blue-600 text-white"
                                 : product.status === "inactive"
-                                  ? "bg-slate-500 text-white hover:bg-slate-600"
-                                  : "bg-red-500 text-white hover:bg-red-600"
+                                  ? "bg-slate-500 text-white"
+                                  : "bg-red-500 text-white"
                                 }`}
                             >
                               {product.status?.replace("_", " ") || "active"}
                             </Badge>
                           </div>
                         </div>
-                        <CardContent className="p-5 flex-1 flex flex-col pt-6 relative bg-white dark:bg-slate-900 z-10 rounded-t-3xl -mt-5 transition-transform duration-300 border-t border-slate-100 dark:border-slate-800">
+                        <CardContent className="p-5 flex-1 flex flex-col pt-6 relative bg-white z-10 rounded-t-2xl -mt-4 border-t border-slate-100">
                           <div className="flex-1">
-                            <CardTitle className="text-xl font-bold mb-1 text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 transition-colors">
+                            <CardTitle className="text-lg font-bold mb-1 text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
                               {product.name}
                             </CardTitle>
-                            <CardDescription className="mb-4 text-sm font-medium text-slate-500">
+                            <CardDescription className="mb-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                               {product.category}
                             </CardDescription>
 
-                            <div className="flex items-center gap-3 mb-4">
-                              <span className="text-2xl font-black text-slate-900 dark:text-white">
+                            <div className="flex items-center gap-2 mb-4">
+                              <span className="text-xl font-bold text-slate-900">
                                 ₹{product.price.amount}
                               </span>
                               {product.price.mrp &&
                                 product.price.mrp > product.price.amount && (
-                                  <span className="text-sm font-medium text-slate-400 line-through">
+                                  <span className="text-xs font-medium text-slate-400 line-through">
                                     ₹{product.price.mrp}
                                   </span>
                                 )}
                             </div>
 
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 line-clamp-2 leading-relaxed">
+                            <p className="text-sm text-slate-500 mb-5 line-clamp-2 leading-relaxed">
                               {product.shortDescription}
                             </p>
 
-                            <div className="flex items-center text-sm font-medium text-slate-600 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl mb-6 border border-slate-100 dark:border-slate-700/50">
-                              <span>Stock: <span className={`font-bold ${Number(product.stockQuantity) < 10 ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'}`}>{product.stockQuantity || 0}</span></span>
+                            <div className="flex items-center text-sm font-medium text-slate-600 bg-slate-50 p-3 rounded-xl mb-6 border border-slate-100">
+                              <span>Stock: <span className={`font-bold ${Number(product.stockQuantity) < 10 ? 'text-red-500' : 'text-slate-800'}`}>{product.stockQuantity || 0}</span></span>
                               {product?.weightSize?.value && (
                                 <>
                                   <span className="mx-2 text-slate-300">•</span>
@@ -838,14 +858,14 @@ const ProductsPage = () => {
                 ) : (
                   <Card>
                     <Table>
-                      <TableHeader>
+                      <TableHeader className="bg-slate-50 font-bold">
                         <TableRow>
                           <TableHead>Product</TableHead>
                           <TableHead>Category</TableHead>
                           <TableHead>Price</TableHead>
                           <TableHead>Stock</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -889,8 +909,8 @@ const ProductsPage = () => {
                                 {product.status?.replace("_", " ") || "active"}
                               </Badge>
                             </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
@@ -995,892 +1015,389 @@ const ProductsPage = () => {
             )}
 
             {/* Add Product Modal */}
-            <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add New Product</DialogTitle>
-                  <DialogDescription>
-                    Create a new product with all the necessary details.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Basic Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Basic Information
-                    </h3>
-                    <div>
-                      <Label htmlFor="add-product-name" className="mb-2 block">
-                        Product Name
-                      </Label>
-                      <Input
-                        id="add-product-name"
-                        type="text"
-                        placeholder="Enter product name"
-                        value={newProduct.name}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, name: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-category"
-                        className="mb-2 block"
-                      >
-                        Category
-                      </Label>
-                      <Select
-                        value={newProduct.category}
-                        onValueChange={(value) =>
-                          setNewProduct({ ...newProduct, category: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.slice(1).map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-short-desc"
-                        className="mb-2 block"
-                      >
-                        Short Description
-                      </Label>
-                      <Input
-                        id="add-product-short-desc"
-                        type="text"
-                        placeholder="Brief product description"
-                        value={newProduct.shortDescription}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            shortDescription: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-long-desc"
-                        className="mb-2 block"
-                      >
-                        Long Description
-                      </Label>
-                      <Textarea
-                        id="add-product-long-desc"
-                        placeholder="Detailed product description"
-                        value={newProduct.longDescription}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            longDescription: e.target.value,
-                          })
-                        }
-                        rows={4}
-                      />
-                    </div>
-                  </div>
+            <Dialog open={showAddModal} onOpenChange={(open) => {
+              setShowAddModal(open);
+              if (!open) setAddStep(1);
+            }}>
+              <DialogContent className="max-w-3xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+                <div className="px-8 py-6 border-b border-slate-100 bg-white">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight mb-1">Add New Product</DialogTitle>
+                    <DialogDescription className="text-sm text-slate-500">
+                      Create a new product entry in your inventory.
+                    </DialogDescription>
+                  </DialogHeader>
+                </div>
 
-                  {/* Pricing & Inventory */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Pricing & Inventory
-                    </h3>
-                    <div>
-                      <Label htmlFor="add-product-price" className="mb-2 block">
-                        Selling Price (₹)
-                      </Label>
-                      <Input
-                        id="add-product-price"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newProduct.price.amount}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            price: {
-                              ...newProduct.price,
-                              amount: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-original-price"
-                        className="mb-2 block"
-                      >
-                        Original Price (₹)
-                      </Label>
-                      <Input
-                        id="add-product-original-price"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newProduct.price.mrp}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            price: { ...newProduct.price, mrp: e.target.value },
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-product-stock" className="mb-2 block">
-                        Stock Quantity
-                      </Label>
-                      <Input
-                        id="add-product-stock"
-                        type="number"
-                        placeholder="0"
-                        value={newProduct.stockQuantity}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            stockQuantity: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-weight"
-                        className="mb-2 block"
-                      >
-                        Weight/Size
-                      </Label>
-                      <Input
-                        id="add-product-weight"
-                        type="text"
-                        placeholder="e.g., 2.2 lbs (1kg)"
-                        value={newProduct.weightSize.value}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            weightSize: {
-                              ...newProduct.weightSize,
-                              value: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
+                <div className="bg-white px-8 pt-8 pb-4">
+                  <FormSteps
+                    currentStep={addStep}
+                    steps={[
+                      { id: 1, name: "Basic Info" },
+                      { id: 2, name: "Descriptions" },
+                      { id: 3, name: "Pricing & Stock" },
+                      { id: 4, name: "Visuals" },
+                    ]}
+                  />
+                </div>
 
-                  {/* Product Details */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Product Details
-                    </h3>
-                    <div>
-                      <Label
-                        htmlFor="add-product-ingredients"
-                        className="mb-2 block"
-                      >
-                        Ingredients
-                      </Label>
-                      <Textarea
-                        id="add-product-ingredients"
-                        placeholder="List all ingredients separated by commas"
-                        value={newProduct.ingredients}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            ingredients: e.target.value,
-                          })
-                        }
-                        rows={3}
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-dosage"
-                        className="mb-2 block"
-                      >
-                        Dosage Instructions
-                      </Label>
-                      <Textarea
-                        id="add-product-dosage"
-                        placeholder="e.g., 1 capsule daily with food"
-                        value={newProduct.dosageInstructions}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            dosageInstructions: e.target.value,
-                          })
-                        }
-                        rows={2}
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-benefits"
-                        className="mb-2 block"
-                      >
-                        Benefits (one per line)
-                      </Label>
-                      <Textarea
-                        id="add-product-benefits"
-                        placeholder="Builds lean muscle mass&#10;Supports post-workout recovery&#10;Contains all essential amino acids"
-                        value={newProduct.benefits}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            benefits: e.target.value,
-                          })
-                        }
-                        rows={4}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-product-for" className="mb-2 block">
-                        For (comma separated)
-                      </Label>
-                      <Input
-                        id="add-product-for"
-                        type="text"
-                        placeholder="e.g., Energy, Immunity"
-                        value={newProduct.for}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, for: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="add-product-with" className="mb-2 block">
-                        With (comma separated)
-                      </Label>
-                      <Input
-                        id="add-product-with"
-                        type="text"
-                        placeholder="e.g., Spirulina, Moringa"
-                        value={newProduct.with}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, with: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Additional Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Additional Information
-                    </h3>
-                    <div>
-                      <Label
-                        htmlFor="add-product-manufacturer"
-                        className="mb-2 block"
-                      >
-                        Manufacturer
-                      </Label>
-                      <Input
-                        id="add-product-manufacturer"
-                        type="text"
-                        placeholder="Enter manufacturer name"
-                        value={newProduct.manufacturer}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            manufacturer: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="add-product-expiry"
-                        className="mb-2 block"
-                      >
-                        Expiry Date
-                      </Label>
-                      <Input
-                        id="add-product-expiry"
-                        type="date"
-                        value={newProduct.expiryDate}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            expiryDate: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Product Images */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Product Images (Limit: 5)
-                    </h3>
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label>Product Images {productImages.length}/5</Label>
-                        <div className="flex gap-2">
-                          {productImages.length < 5 && (
-                            <Button
-                              onClick={addImageFromFile}
-                              size="sm"
-                              variant="outline"
-                            >
-                              <Upload className="w-4 h-4 mr-1" />
-                              Upload Files
-                            </Button>
-                          )}
+                <div className="px-8 py-6 bg-[#F8FAFC] min-h-[450px]">
+                  {addStep === 1 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field form-field-full">
+                          <label className="form-label form-label-required">Product Name</label>
+                          <input className="form-input" placeholder="e.g. Organic Whey Protein" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label form-label-required">Category</label>
+                          <Select value={newProduct.category} onValueChange={(v) => setNewProduct({ ...newProduct, category: v })}>
+                            <SelectTrigger className="form-select-trigger"><SelectValue placeholder="Select Category" /></SelectTrigger>
+                            <SelectContent>
+                              {categories.slice(1).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label form-label-required">Manufacturer</label>
+                          <input className="form-input" placeholder="Brand Name" value={newProduct.manufacturer} onChange={(e) => setNewProduct({ ...newProduct, manufacturer: e.target.value })} />
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Product Slug</label>
+                          <input className="form-input" placeholder="product-url-slug" value={newProduct.slug} onChange={(e) => setNewProduct({ ...newProduct, slug: e.target.value })} />
                         </div>
                       </div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                      {productImages.length < 5 && (
-                        <div className="flex gap-2 mb-3">
-                          <Input
-                            placeholder="Image URL"
-                            value={urlInput}
-                            onChange={(e) => setUrlInput(e.target.value)}
-                          />
-                          <Button
-                            onClick={addImageFromUrl}
-                            size="sm"
-                            variant="outline"
-                          >
-                            Add URL
-                          </Button>
+                    </div>
+                  )}
+
+                  {addStep === 2 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field form-field-full">
+                          <label className="form-label form-label-required">Short Summary</label>
+                          <input className="form-input" placeholder="Brief catchphrase or pitch" value={newProduct.shortDescription} onChange={(e) => setNewProduct({ ...newProduct, shortDescription: e.target.value })} />
                         </div>
-                      )}
-                      {productImages.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {productImages.map((image) => (
-                            <div
-                              key={image.id}
-                              className="border rounded-lg p-3 space-y-2"
+                        <div className="form-field form-field-full">
+                          <label className="form-label form-label-required">Detailed Description</label>
+                          <textarea className="form-textarea" placeholder="Full product features and details" rows={4} value={newProduct.longDescription} onChange={(e) => setNewProduct({ ...newProduct, longDescription: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Key Benefits</label>
+                          <textarea className="form-textarea" placeholder="One benefit per line" rows={3} value={newProduct.benefits} onChange={(e) => setNewProduct({ ...newProduct, benefits: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Ingredients</label>
+                          <textarea className="form-textarea" placeholder="Separated by commas" rows={3} value={newProduct.ingredients} onChange={(e) => setNewProduct({ ...newProduct, ingredients: e.target.value })} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {addStep === 3 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label form-label-required">Selling Price (₹)</label>
+                          <input className="form-input" type="number" placeholder="0.00" value={newProduct.price.amount} onChange={(e) => setNewProduct({ ...newProduct, price: { ...newProduct.price, amount: e.target.value } })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">MRP (₹)</label>
+                          <input className="form-input" type="number" placeholder="0.00" value={newProduct.price.mrp} onChange={(e) => setNewProduct({ ...newProduct, price: { ...newProduct.price, mrp: e.target.value } })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label form-label-required">Stock Quantity</label>
+                          <input className="form-input" type="number" placeholder="Units in stock" value={newProduct.stockQuantity} onChange={(e) => setNewProduct({ ...newProduct, stockQuantity: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label form-label-required">Weight/Size</label>
+                          <div className="flex gap-2">
+                            <input className="form-input flex-1" placeholder="Value" value={newProduct.weightSize.value} onChange={(e) => setNewProduct({ ...newProduct, weightSize: { ...newProduct.weightSize, value: e.target.value } })} />
+                            <Select value={newProduct.weightSize.unit} onValueChange={(v) => setNewProduct({ ...newProduct, weightSize: { ...newProduct.weightSize, unit: v } })}>
+                              <SelectTrigger className="form-select-trigger w-24"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {["g", "kg", "ml", "L", "lb", "capsules", "tablets"].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Expiry Date</label>
+                          <input className="form-input" type="date" value={newProduct.expiryDate} onChange={(e) => setNewProduct({ ...newProduct, expiryDate: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Dosage Instructions</label>
+                          <input className="form-input" placeholder="e.g. 1 scoop with water" value={newProduct.dosageInstructions} onChange={(e) => setNewProduct({ ...newProduct, dosageInstructions: e.target.value })} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {addStep === 4 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Visual Assets (Max 5)</label>
+                          <div className="flex gap-3 mb-4">
+                            <input className="form-input flex-1" placeholder="Image URL" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} />
+                            <button type="button" className="btn-secondary" onClick={addImageFromUrl}>Add URL</button>
+                          </div>
+                          <div className="grid grid-cols-4 sm:grid-cols-5 gap-4">
+                            <button
+                              onClick={addImageFromFile}
+                              disabled={productImages.length >= 5}
+                              className="upload-dropzone min-h-0 aspect-square p-0 flex flex-col items-center justify-center gap-1 border-2"
                             >
-                              <div className="relative w-full h-20 overflow-hidden rounded-lg">
-                                <img
-                                  src={image.url}
-                                  alt={image.alt}
-                                  className="object-cover"
-                                />
-                                <Button
-                                  onClick={() => removeImage(image.id)}
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute top-1 right-1 h-5 w-5"
+                              <Upload className="w-5 h-5 text-blue-500" />
+                              <span className="text-[10px] font-bold">Upload</span>
+                            </button>
+                            {productImages.map((img) => (
+                              <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200">
+                                <img src={img.url} className="w-full h-full object-cover" alt="Preview" />
+                                <button
+                                  onClick={() => removeImage(img.id)}
+                                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full shadow-lg"
                                 >
                                   <X className="w-3 h-3" />
-                                </Button>
+                                </button>
                               </div>
-                              <Input
-                                placeholder="Alt text"
-                                value={image.alt}
-                                onChange={(e) =>
-                                  updateImage(image.id, "alt", e.target.value)
-                                }
-                                className="text-sm"
-                              />
-                              <Input
-                                placeholder="Caption (optional)"
-                                value={image.caption || ""}
-                                onChange={(e) =>
-                                  updateImage(
-                                    image.id,
-                                    "caption",
-                                    e.target.value,
-                                  )
-                                }
-                                className="text-sm"
-                              />
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      )}
+                        <div className="form-field">
+                          <label className="form-label">Meta Title</label>
+                          <input className="form-input" placeholder="SEO Title" value={newProduct.metaTitle} onChange={(e) => setNewProduct({ ...newProduct, metaTitle: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Meta Description</label>
+                          <input className="form-input" placeholder="SEO Description" value={newProduct.metaDescription} onChange={(e) => setNewProduct({ ...newProduct, metaDescription: e.target.value })} />
+                        </div>
+                      </div>
                     </div>
+                  )}
+                </div>
+
+                <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-between items-center gap-3">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => addStep > 1 ? setAddStep(addStep - 1) : setShowAddModal(false)}
+                  >
+                    {addStep === 1 ? "Cancel" : "Previous"}
+                  </button>
+                  <div className="flex gap-3">
+                    {addStep < 4 ? (
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={() => setAddStep(addStep + 1)}
+                      >
+                        Next Step <ChevronRight className="w-4 h-4 ml-1" />
+                      </button>
+                    ) : (
+                      <button onClick={handleAddProduct} disabled={isLoading} className="btn-primary">
+                        {isLoading ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>
+                        ) : (
+                          "Add Product"
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAddModal(false)}
-                    disabled={isLoading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddProduct} disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Adding...
-                      </>
-                    ) : (
-                      "Add Product"
-                    )}
-                  </Button>
-                </DialogFooter>
+                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileSelect} />
               </DialogContent>
             </Dialog>
 
             {/* Edit Product Modal */}
-            <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Edit Product</DialogTitle>
-                  <DialogDescription>
-                    Update the product details below.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Basic Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Basic Information
-                    </h3>
-                    <div>
-                      <Label htmlFor="edit-product-name" className="mb-2 block">
-                        Product Name
-                      </Label>
-                      <Input
-                        id="edit-product-name"
-                        type="text"
-                        placeholder="Enter product name"
-                        value={newProduct.name}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, name: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-category"
-                        className="mb-2 block"
-                      >
-                        Category
-                      </Label>
-                      <Select
-                        value={newProduct.category}
-                        onValueChange={(value) =>
-                          setNewProduct({ ...newProduct, category: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.slice(1).map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-short-desc"
-                        className="mb-2 block"
-                      >
-                        Short Description
-                      </Label>
-                      <Input
-                        id="edit-product-short-desc"
-                        type="text"
-                        placeholder="Brief product description"
-                        value={newProduct.shortDescription}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            shortDescription: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-long-desc"
-                        className="mb-2 block"
-                      >
-                        Long Description
-                      </Label>
-                      <Textarea
-                        id="edit-product-long-desc"
-                        placeholder="Detailed product description"
-                        value={newProduct.longDescription}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            longDescription: e.target.value,
-                          })
-                        }
-                        rows={4}
-                      />
-                    </div>
-                  </div>
+            <Dialog open={showEditModal} onOpenChange={(open) => {
+              setShowEditModal(open);
+              if (!open) setEditStep(1);
+            }}>
+              <DialogContent className="max-w-3xl p-0 gap-0 rounded-2xl border-slate-200 shadow-2xl overflow-hidden">
+                <div className="px-8 py-6 border-b border-slate-100 bg-white">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight mb-1">Edit Product</DialogTitle>
+                    <DialogDescription className="text-sm text-slate-500">
+                      Update product details and specifications.
+                    </DialogDescription>
+                  </DialogHeader>
+                </div>
 
-                  {/* Pricing & Inventory */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Pricing & Inventory
-                    </h3>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-price"
-                        className="mb-2 block"
-                      >
-                        Selling Price (₹)
-                      </Label>
-                      <Input
-                        id="edit-product-price"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newProduct.price.amount}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            price: {
-                              ...newProduct.price,
-                              amount: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-original-price"
-                        className="mb-2 block"
-                      >
-                        Original Price (₹)
-                      </Label>
-                      <Input
-                        id="edit-product-original-price"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={newProduct.price.mrp}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            price: { ...newProduct.price, mrp: e.target.value },
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-stock"
-                        className="mb-2 block"
-                      >
-                        Stock Quantity
-                      </Label>
-                      <Input
-                        id="edit-product-stock"
-                        type="number"
-                        placeholder="0"
-                        value={newProduct.stockQuantity}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            stockQuantity: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-weight"
-                        className="mb-2 block"
-                      >
-                        Weight/Size
-                      </Label>
-                      <Input
-                        id="edit-product-weight"
-                        type="text"
-                        placeholder="e.g., 2.2 lbs (1kg)"
-                        value={newProduct.weightSize.value}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            weightSize: {
-                              ...newProduct.weightSize,
-                              value: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
+                <div className="bg-white px-8 pt-8 pb-4">
+                  <FormSteps
+                    currentStep={editStep}
+                    steps={[
+                      { id: 1, name: "Basic Info" },
+                      { id: 2, name: "Descriptions" },
+                      { id: 3, name: "Pricing & Stock" },
+                      { id: 4, name: "Visuals" },
+                    ]}
+                  />
+                </div>
 
-                  {/* Product Details */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Product Details
-                    </h3>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-ingredients"
-                        className="mb-2 block"
-                      >
-                        Ingredients
-                      </Label>
-                      <Textarea
-                        id="edit-product-ingredients"
-                        placeholder="List all ingredients separated by commas"
-                        value={newProduct.ingredients}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            ingredients: e.target.value,
-                          })
-                        }
-                        rows={3}
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-dosage"
-                        className="mb-2 block"
-                      >
-                        Dosage Instructions
-                      </Label>
-                      <Textarea
-                        id="edit-product-dosage"
-                        placeholder="e.g., 1 capsule daily with food"
-                        value={newProduct.dosageInstructions}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            dosageInstructions: e.target.value,
-                          })
-                        }
-                        rows={2}
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-benefits"
-                        className="mb-2 block"
-                      >
-                        Benefits (one per line)
-                      </Label>
-                      <Textarea
-                        id="edit-product-benefits"
-                        placeholder="Builds lean muscle mass&#10;Supports post-workout recovery&#10;Contains all essential amino acids"
-                        value={newProduct.benefits}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            benefits: e.target.value,
-                          })
-                        }
-                        rows={4}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-product-for" className="mb-2 block">
-                        For (comma separated)
-                      </Label>
-                      <Input
-                        id="edit-product-for"
-                        type="text"
-                        placeholder="e.g., Energy, Immunity"
-                        value={newProduct.for}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, for: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="edit-product-with" className="mb-2 block">
-                        With (comma separated)
-                      </Label>
-                      <Input
-                        id="edit-product-with"
-                        type="text"
-                        placeholder="e.g., Spirulina, Moringa"
-                        value={newProduct.with}
-                        onChange={(e) =>
-                          setNewProduct({ ...newProduct, with: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Additional Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Additional Information
-                    </h3>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-manufacturer"
-                        className="mb-2 block"
-                      >
-                        Manufacturer
-                      </Label>
-                      <Input
-                        id="edit-product-manufacturer"
-                        type="text"
-                        placeholder="Enter manufacturer name"
-                        value={newProduct.manufacturer}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            manufacturer: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="edit-product-expiry"
-                        className="mb-2 block"
-                      >
-                        Expiry Date
-                      </Label>
-                      <Input
-                        id="edit-product-expiry"
-                        type="date"
-                        value={newProduct.expiryDate}
-                        onChange={(e) =>
-                          setNewProduct({
-                            ...newProduct,
-                            expiryDate: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Product Images */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Product Images (Limit: 5)
-                    </h3>
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label>Product Images {productImages.length}/5</Label>
-                        <div className="flex gap-2">
-                          {productImages.length < 5 && (
-                            <Button
-                              onClick={addImageFromFile}
-                              size="sm"
-                              variant="outline"
-                            >
-                              <Upload className="w-4 h-4 mr-1" />
-                              Upload More
-                            </Button>
-                          )}
+                <div className="px-8 py-6 bg-[#F8FAFC] min-h-[450px]">
+                  {editStep === 1 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field form-field-full">
+                          <label className="form-label form-label-required">Product Name</label>
+                          <input className="form-input" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Category</label>
+                          <Select value={newProduct.category} onValueChange={(v) => setNewProduct({ ...newProduct, category: v })}>
+                            <SelectTrigger className="form-select-trigger"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {categories.slice(1).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Manufacturer</label>
+                          <input className="form-input" value={newProduct.manufacturer} onChange={(e) => setNewProduct({ ...newProduct, manufacturer: e.target.value })} />
+                        </div>
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Product Slug</label>
+                          <input className="form-input" value={newProduct.slug} onChange={(e) => setNewProduct({ ...newProduct, slug: e.target.value })} />
                         </div>
                       </div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                      {productImages.length < 5 && (
-                        <div className="flex gap-2 mb-3">
-                          <Input
-                            placeholder="Image URL"
-                            value={urlInput}
-                            onChange={(e) => setUrlInput(e.target.value)}
-                          />
-                          <Button
-                            onClick={addImageFromUrl}
-                            size="sm"
-                            variant="outline"
-                          >
-                            Add URL
-                          </Button>
+                    </div>
+                  )}
+
+                  {editStep === 2 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Short Summary</label>
+                          <input className="form-input" value={newProduct.shortDescription} onChange={(e) => setNewProduct({ ...newProduct, shortDescription: e.target.value })} />
                         </div>
-                      )}
-                      {productImages.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {productImages.map((image) => (
-                            <div
-                              key={image.id}
-                              className="border rounded-lg p-3 space-y-2"
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Detailed Description</label>
+                          <textarea className="form-textarea" rows={4} value={newProduct.longDescription} onChange={(e) => setNewProduct({ ...newProduct, longDescription: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Key Benefits</label>
+                          <textarea className="form-textarea" rows={3} value={newProduct.benefits} onChange={(e) => setNewProduct({ ...newProduct, benefits: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Ingredients</label>
+                          <textarea className="form-textarea" rows={3} value={newProduct.ingredients} onChange={(e) => setNewProduct({ ...newProduct, ingredients: e.target.value })} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {editStep === 3 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label">Selling Price (₹)</label>
+                          <input className="form-input" type="number" value={newProduct.price.amount} onChange={(e) => setNewProduct({ ...newProduct, price: { ...newProduct.price, amount: e.target.value } })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">MRP (₹)</label>
+                          <input className="form-input" type="number" value={newProduct.price.mrp} onChange={(e) => setNewProduct({ ...newProduct, price: { ...newProduct.price, mrp: e.target.value } })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Stock Quantity</label>
+                          <input className="form-input" type="number" value={newProduct.stockQuantity} onChange={(e) => setNewProduct({ ...newProduct, stockQuantity: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Weight/Size</label>
+                          <div className="flex gap-2">
+                            <input className="form-input flex-1" value={newProduct.weightSize.value} onChange={(e) => setNewProduct({ ...newProduct, weightSize: { ...newProduct.weightSize, value: e.target.value } })} />
+                            <Select value={newProduct.weightSize.unit} onValueChange={(v) => setNewProduct({ ...newProduct, weightSize: { ...newProduct.weightSize, unit: v } })}>
+                              <SelectTrigger className="form-select-trigger w-24"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {["g", "kg", "ml", "L", "lb", "capsules", "tablets"].map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Expiry Date</label>
+                          <input className="form-input" type="date" value={newProduct.expiryDate} onChange={(e) => setNewProduct({ ...newProduct, expiryDate: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Dosage Instructions</label>
+                          <input className="form-input" value={newProduct.dosageInstructions} onChange={(e) => setNewProduct({ ...newProduct, dosageInstructions: e.target.value })} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {editStep === 4 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="form-grid">
+                        <div className="form-field form-field-full">
+                          <label className="form-label">Visual Assets (Max 5)</label>
+                          <div className="flex gap-3 mb-4">
+                            <input className="form-input flex-1" placeholder="Image URL" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} />
+                            <button type="button" className="btn-secondary" onClick={addImageFromUrl}>Add URL</button>
+                          </div>
+                          <div className="grid grid-cols-4 sm:grid-cols-5 gap-4">
+                            <button
+                              onClick={addImageFromFile}
+                              disabled={productImages.length >= 5}
+                              className="upload-dropzone min-h-0 aspect-square p-0 flex flex-col items-center justify-center gap-1 border-2"
                             >
-                              <div className="relative w-full h-20 overflow-hidden rounded-lg">
-                                <img
-                                  src={image.url}
-                                  alt={image.alt}
-                                  className="object-cover"
-                                />
-                                <Button
-                                  onClick={() => removeImage(image.id)}
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute top-1 right-1 h-5 w-5"
+                              <Upload className="w-5 h-5 text-blue-500" />
+                              <span className="text-[10px] font-bold">Upload</span>
+                            </button>
+                            {productImages.map((img) => (
+                              <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200">
+                                <img src={img.url} className="w-full h-full object-cover" alt="Preview" />
+                                <button
+                                  onClick={() => removeImage(img.id)}
+                                  className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full shadow-lg"
                                 >
                                   <X className="w-3 h-3" />
-                                </Button>
+                                </button>
                               </div>
-                              <Input
-                                placeholder="Alt text"
-                                value={image.alt}
-                                onChange={(e) =>
-                                  updateImage(image.id, "alt", e.target.value)
-                                }
-                                className="text-sm"
-                              />
-                              <Input
-                                placeholder="Caption (optional)"
-                                value={image.caption || ""}
-                                onChange={(e) =>
-                                  updateImage(
-                                    image.id,
-                                    "caption",
-                                    e.target.value,
-                                  )
-                                }
-                                className="text-sm"
-                              />
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      )}
+                        <div className="form-field">
+                          <label className="form-label">Meta Title</label>
+                          <input className="form-input" value={newProduct.metaTitle} onChange={(e) => setNewProduct({ ...newProduct, metaTitle: e.target.value })} />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label">Meta Description</label>
+                          <input className="form-input" value={newProduct.metaDescription} onChange={(e) => setNewProduct({ ...newProduct, metaDescription: e.target.value })} />
+                        </div>
+                      </div>
                     </div>
+                  )}
+                </div>
+
+                <div className="px-8 py-5 border-t border-slate-100 bg-white flex justify-between items-center gap-3">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => editStep > 1 ? setEditStep(editStep - 1) : setShowEditModal(false)}
+                  >
+                    {editStep === 1 ? "Cancel" : "Previous"}
+                  </button>
+                  <div className="flex gap-3">
+                    {editStep < 4 ? (
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={() => setEditStep(editStep + 1)}
+                      >
+                        Next Step <ChevronRight className="w-4 h-4 ml-1" />
+                      </button>
+                    ) : (
+                      <button onClick={handleEditProduct} disabled={isLoading} className="btn-primary">
+                        {isLoading ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>
+                        ) : (
+                          "Update Product"
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowEditModal(false)}
-                    disabled={isLoading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button onClick={handleEditProduct} disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Updating...
-                      </>
-                    ) : (
-                      "Update Product"
-                    )}
-                  </Button>
-                </DialogFooter>
               </DialogContent>
             </Dialog>
           </>

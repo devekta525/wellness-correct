@@ -1,5 +1,5 @@
 import React from 'react'
-import { FileQuestion, Plus } from 'lucide-react'
+import { FileX, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -15,74 +15,54 @@ interface NoDataProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const NoData: React.FC<NoDataProps> = ({ 
-  message, 
-  description, 
-  icon, 
+const NoData: React.FC<NoDataProps> = ({
+  message,
+  description,
+  icon,
   action,
   className,
   size = 'md'
 }) => {
-  const sizeClasses = {
-    sm: {
-      wrapper: 'p-4 space-y-2',
-      icon: 'w-12 h-12',
-      title: 'text-base',
-      description: 'text-sm',
-    },
-    md: {
-      wrapper: 'p-6 space-y-3',
-      icon: 'w-16 h-16',
-      title: 'text-lg',
-      description: 'text-base',
-    },
-    lg: {
-      wrapper: 'p-8 space-y-4',
-      icon: 'w-20 h-20',
-      title: 'text-xl',
-      description: 'text-lg',
-    },
+  const sizeConfig = {
+    sm: { wrapper: 'py-10 px-6', iconBox: 'w-12 h-12', title: 'text-sm', description: 'text-xs' },
+    md: { wrapper: 'py-16 px-8', iconBox: 'w-16 h-16', title: 'text-base', description: 'text-sm' },
+    lg: { wrapper: 'py-20 px-8', iconBox: 'w-20 h-20', title: 'text-lg', description: 'text-sm' },
   }
+
+  const config = sizeConfig[size]
 
   return (
     <div className={cn(
-      "flex flex-col items-center justify-center w-full min-h-[200px] rounded-lg border border-dashed animate-in fade-in-50 duration-500",
-      sizeClasses[size].wrapper,
+      "flex flex-col items-center justify-center w-full rounded-2xl border border-dashed border-slate-200 bg-slate-50/50",
+      config.wrapper,
       className
     )}>
       {/* Icon */}
       <div className={cn(
-        "text-muted-foreground/60",
-        sizeClasses[size].icon
+        "flex items-center justify-center rounded-2xl bg-white border border-slate-200 shadow-sm mb-4 text-slate-300",
+        config.iconBox
       )}>
-        {icon || <FileQuestion className="w-full h-full" />}
+        {icon || <FileX className="w-1/2 h-1/2" />}
       </div>
 
-      {/* Text Content */}
-      <div className="text-center space-y-1">
-        <h3 className={cn(
-          "font-semibold text-foreground",
-          sizeClasses[size].title
-        )}>
+      {/* Text */}
+      <div className="text-center space-y-1.5 max-w-sm">
+        <h3 className={cn("font-semibold text-slate-700", config.title)}>
           {message}
         </h3>
         {description && (
-          <p className={cn(
-            "text-muted-foreground",
-            sizeClasses[size].description
-          )}>
+          <p className={cn("text-slate-400 leading-relaxed", config.description)}>
             {description}
           </p>
         )}
       </div>
 
-      {/* Action Button */}
+      {/* Action */}
       {action && (
         <Button
           onClick={action.onClick}
-          variant="outline"
           size={size === 'sm' ? 'sm' : 'default'}
-          className="mt-4 gap-2"
+          className="mt-6 gap-2 rounded-xl shadow-sm"
         >
           <Plus className="w-4 h-4" />
           {action.label}
