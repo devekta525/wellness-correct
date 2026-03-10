@@ -1,0 +1,17 @@
+{
+  "name": "Wellness_fuel",
+  "version": "1.0.0",
+  "description": "Wellness_fuel - AI-Powered E-Commerce Platform with Referral Tracking",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "client-only": "echo '\n⚠️  Running client only – API will not work. Use \"npm start\" from project root for server + client.\n' && npm run client",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
