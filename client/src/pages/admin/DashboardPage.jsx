@@ -157,7 +157,9 @@ const DashboardPage = () => {
     ? []
     : (data?.salesLast7Days || []).map(d => ({ day: d._id?.slice(5), revenue: d.revenue || 0 }));
 
-  const recentOrders = data?.recentOrders || [];
+  const recentOrders = (data?.recentOrders || []).filter(
+    (o) => o.paymentStatus === 'paid' && o.orderStatus !== 'cancelled'
+  );
   const topProducts = data?.topProducts || [];
   const lowStockProducts = data?.lowStockProducts || [];
 

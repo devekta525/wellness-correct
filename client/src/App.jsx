@@ -38,6 +38,7 @@ import BlogDetailPage from './pages/customer/BlogDetailPage';
 import ConsultationPage from './pages/customer/ConsultationPage';
 import DoctorBookPage from './pages/customer/DoctorBookPage';
 import MyConsultationsPage from './pages/customer/MyConsultationsPage';
+import ConsultationBookedPage from './pages/customer/ConsultationBookedPage';
 
 // Doctor Pages
 import DoctorProfileSetup from './pages/doctor/DoctorProfileSetup';
@@ -77,6 +78,7 @@ import AdminLegalPagesPage from './pages/admin/AdminLegalPagesPage';
 import CustomerLayout from './components/customer/CustomerLayout';
 import DoctorLayout from './components/doctor/DoctorLayout';
 import { SiteProvider } from './context/SiteContext';
+import { LanguageProvider } from './context/LanguageContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRoute from './components/common/AdminRoute';
 import Loader from './components/common/Loader';
@@ -129,15 +131,25 @@ function App() {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [dispatch]);
 
-  // ── Cart sync (debounced, auth-gated) ────────────────────────────────
+  // ── Cart sync (auth-gated): store cart in DB when user adds/updates items ─
   useEffect(() => {
     if (!user) return;
-    if (cartSyncTimer.current) clearTimeout(cartSyncTimer.current);
-    cartSyncTimer.current = setTimeout(() => {
+    const prev = cartSyncTimer.current;
+    if (prev) clearTimeout(prev);
+    const runSync = () => {
       trackingAPI.syncCart(cartItems).catch(() => {});
-    }, 3000);
-    return () => clearTimeout(cartSyncTimer.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    };
+    if (cartItems.length > 0) {
+      // Sync immediately so DB is updated as soon as user adds to cart
+      runSync();
+      // Debounce additional syncs for rapid quantity changes
+      cartSyncTimer.current = setTimeout(runSync, 600);
+    } else {
+      cartSyncTimer.current = setTimeout(runSync, 400);
+    }
+    return () => {
+      if (cartSyncTimer.current) clearTimeout(cartSyncTimer.current);
+    };
   }, [cartItems, user]);
 
   // ── Global click tracking ─────────────────────────────────────────────
@@ -169,6 +181,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <LanguageProvider>
       <Routes>
         {/* Splash */}
         <Route path="/splash" element={<SplashScreen />} />
@@ -197,6 +210,7 @@ function App() {
           <Route path="/blog/:slug" element={<BlogDetailPage />} />
           <Route path="/consultation" element={<ConsultationPage />} />
           <Route path="/consultation/:id" element={<DoctorBookPage />} />
+          <Route path="/consultation-booked/:consultationId" element={<ProtectedRoute><ConsultationBookedPage /></ProtectedRoute>} />
           <Route path="/my-consultations" element={<ProtectedRoute><MyConsultationsPage /></ProtectedRoute>} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
@@ -250,6 +264,7 @@ function App() {
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

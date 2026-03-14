@@ -52,6 +52,7 @@ export const authAPI = {
   resetPassword: (token, password) => API.post(`/auth/reset-password/${token}`, { password }),
   addAddress: (data) => API.post('/auth/addresses', data),
   toggleWishlist: (productId) => API.post(`/auth/wishlist/${productId}`),
+  deleteAccount: () => API.delete('/auth/account'),
 };
 
 // Products
@@ -200,10 +201,12 @@ export const doctorAPI = {
   // Public
   getAll: (params) => API.get('/doctors', { params }),
   getById: (id) => API.get(`/doctors/${id}`),
+  getBookedSlots: (id, params) => API.get(`/doctors/${id}/booked-slots`, { params }),
   getSpecializations: () => API.get('/doctors/specializations'),
   searchMedicines: (q, page = 1) => API.get('/doctors/medicines/search', { params: { q, page, limit: 20 } }),
   // Patient
   book: (doctorId, data) => API.post(`/doctors/${doctorId}/book`, data),
+  verifyConsultationPayment: (data) => API.post('/doctors/consultations/payment/verify', data),
   getMyConsultations: (params) => API.get('/doctors/my-consultations', { params }),
   getMyPrescriptions: () => API.get('/doctors/my-prescriptions'),
   // Doctor dashboard

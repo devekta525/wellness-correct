@@ -3,6 +3,14 @@ import { useSelector } from 'react-redux';
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube, Linkedin, Stethoscope } from 'lucide-react';
 import { useSite } from '../../context/SiteContext';
 
+// Ensure URL has protocol for external links
+const toFullUrl = (val) => {
+  if (!val || typeof val !== 'string') return null;
+  const trimmed = val.trim();
+  if (!trimmed) return null;
+  return trimmed.startsWith('http') ? trimmed : `https://${trimmed}`;
+};
+
 const socialIcons = [
   { key: 'facebook', Icon: Facebook },
   { key: 'twitter', Icon: Twitter },
@@ -36,17 +44,18 @@ const Footer = () => {
               AI-powered e-commerce platform delivering exceptional shopping experiences.
             </p>
             <div className="flex gap-3">
-              {socialIcons.map(({ key, Icon }) => (
-                social[key] ? (
-                  <a key={key} href={social[key]} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-primary-600 flex items-center justify-center transition-colors" aria-label={key}>
+              {socialIcons.map(({ key, Icon }) => {
+                const url = toFullUrl(social[key]);
+                return url ? (
+                  <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-primary-600 flex items-center justify-center transition-colors" aria-label={key}>
                     <Icon size={14} />
                   </a>
                 ) : (
-                  <span key={key} className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center opacity-50">
+                  <span key={key} className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center opacity-50 cursor-default" aria-hidden>
                     <Icon size={14} />
                   </span>
-                )
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -59,7 +68,7 @@ const Footer = () => {
                 { label: 'Products', to: '/search' },
                 { label: 'About Us', to: '/about' },
                 { label: 'Contact', to: '/contact' },
-                { label: 'Blog', to: '/blog' },
+                { label: 'Blog', to: '/blogs' },
                 { label: isDoctor ? 'Doctor Portal' : 'Join as Doctor', to: isDoctor ? '/doctor/dashboard' : '/doctor/setup', icon: Stethoscope },
               ].map(({ label, to, icon: Icon }) => (
                 <li key={to}>
@@ -122,9 +131,9 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500 text-center md:text-left">© {new Date().getFullYear()} Wellness_fuel. All rights reserved.</p>
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-5 sm:h-6 opacity-60" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-3 sm:h-4 opacity-60" />
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 payment-icons">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-5 sm:h-6 w-auto max-h-6 object-contain opacity-60" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-5 sm:h-6 w-auto min-h-[20px] max-h-6 object-contain opacity-60" />
             <span className="text-xs text-gray-600 bg-gray-800 px-2 py-1 rounded">UPI</span>
             <span className="text-xs text-gray-600 bg-gray-800 px-2 py-1 rounded">COD</span>
           </div>

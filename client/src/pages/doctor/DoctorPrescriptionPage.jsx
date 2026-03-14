@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import {
   Search, Plus, Trash2, Save, Loader2, Pill, ShoppingBag,
   ArrowLeft, CheckCircle, User, Calendar, X,
@@ -190,7 +190,6 @@ const RxRow = ({ item, onChange, onRemove, isProduct }) => {
 // ── Main Page ────────────────────────────────────────────────────────────────
 const DoctorPrescriptionPage = () => {
   const { consultationId } = useParams();
-  const navigate = useNavigate();
   const [consultation, setConsultation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

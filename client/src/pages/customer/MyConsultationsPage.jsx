@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Video, Clock, Calendar, Stethoscope, Loader2, Pill,
   ShoppingBag, FileText, ChevronDown, ChevronUp, ExternalLink,
-  CheckCircle, AlertCircle, Timer, XCircle, RefreshCw,
+  CheckCircle, Timer, XCircle, RefreshCw,
 } from 'lucide-react';
 import { doctorAPI } from '../../services/api';
+import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {
   pending:   { color: 'bg-yellow-50 text-yellow-700 border-yellow-200', icon: Timer, label: 'Pending' },
@@ -223,9 +224,17 @@ const ConsultationCard = ({ consultation }) => {
 };
 
 const MyConsultationsPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [consultations, setConsultations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('booked') === '1') {
+      toast.success('Consultation booked successfully!');
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const load = (quiet = false) => {
     if (!quiet) setLoading(true); else setRefreshing(true);

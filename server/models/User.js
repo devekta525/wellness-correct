@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   avatar: { type: String, default: '' },
-  role: { type: String, enum: ['customer', 'admin', 'superadmin', 'affiliate', 'doctor'], default: 'customer' },
+  role: { type: String, enum: ['customer', 'vendor', 'admin', 'superadmin', 'affiliate', 'doctor'], default: 'customer' },
   addresses: [addressSchema],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   isActive: { type: Boolean, default: true },

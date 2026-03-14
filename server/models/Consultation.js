@@ -17,6 +17,7 @@ const consultationSchema = new mongoose.Schema({
   },
   paymentMethod: { type: String, default: '' },
   paymentId: { type: String, default: '' },
+  paymentGatewayOrderId: { type: String, default: '' }, // Razorpay order id, PayU txn_id, Cashfree cf_order_id, Stripe paymentIntentId
   amount: { type: Number, required: true },
   meetingLink: { type: String, default: '' }, // copied from doctor's gmeetLink at booking time
   symptoms: { type: String, default: '' }, // patient's notes

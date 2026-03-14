@@ -70,7 +70,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'x-session-id'],
 }));
 
-// Body parsing
+// Body parsing — Razorpay webhook needs raw body for signature verification (must be before json)
+app.use('/api/payments/razorpay/webhook', express.raw({ type: 'application/json' }), require('./controllers/paymentController').razorpayWebhook);
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());

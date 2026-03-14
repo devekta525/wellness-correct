@@ -7,7 +7,9 @@ const { sendPasswordReset, sendWelcome } = require('../services/emailService');
 // @desc    Register user
 // @route   POST /api/auth/register
 const register = asyncHandler(async (req, res) => {
-  const { name, email, password, phone } = req.body;
+  const { name, email, password, phone, role } = req.body;
+  const allowedRoles = ['customer', 'vendor'];
+  const safeRole = role && allowedRoles.includes(role) ? role : 'customer';
 
   const userExists = await User.findOne({ email });
   if (userExists) {
@@ -15,7 +17,7 @@ const register = asyncHandler(async (req, res) => {
     throw new Error('Email already registered');
   }
 
-  const user = await User.create({ name, email, password, phone });
+  const user = await User.create({ name, email, password, phone, role: safeRole });
   await sendWelcome(user).catch(() => {});
   sendTokenResponse(user, 201, res);
 });
@@ -164,7 +166,7 @@ const addAddress = asyncHandler(async (req, res) => {
 const toggleWishlist = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   const productId = req.params.productId;
-  const idx = user.wishlist.indexOf(productId);
+  const idx = user.wishlist.findIndex((id) => id.toString() === productId);
 
   if (idx > -1) {
     user.wishlist.splice(idx, 1);
@@ -173,7 +175,15 @@ const toggleWishlist = asyncHandler(async (req, res) => {
   }
 
   await user.save();
-  res.json({ success: true, wishlist: user.wishlist, inWishlist: idx === -1 });
+  const updated = await User.findById(req.user._id).populate('wishlist', 'title thumbnail price slug discount');
+  res.json({ success: true, wishlist: updated.wishlist, inWishlist: idx === -1 });
 });
 
-module.exports = { register, login, adminLogin, logout, getMe, updateProfile, changePassword, forgotPassword, resetPassword, addAddress, toggleWishlist };
+// @desc    Delete user account
+// @route   DELETE /api/auth/account
+const deleteAccount = asyncHandler(async (req, res) => {
+  await User.findByIdAndDelete(req.user._id);
+  res.json({ success: true, message: 'Account deleted' });
+});
+
+module.exports = { register, login, adminLogin, logout, getMe, updateProfile, changePassword, forgotPassword, resetPassword, addAddress, toggleWishlist, deleteAccount };

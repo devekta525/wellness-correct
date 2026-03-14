@@ -1,10 +1,46 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import {
   ArrowRight, CheckCircle, Heart, Leaf, Microscope,
   ShieldCheck, Star, TrendingUp, Award, Users,
 } from 'lucide-react';
 
 const AboutPage = () => {
+  const ratingBadgeRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const el = ratingBadgeRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+
+    // #region agent log
+    fetch('http://127.0.0.1:7436/ingest/62e2a1c9-8294-48a2-981c-e3fb6efe754a', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': '10b514',
+      },
+      body: JSON.stringify({
+        sessionId: '10b514',
+        runId: 'about-rating-overlap-pre-fix-1',
+        hypothesisId: 'AB-H1',
+        location: 'AboutPage.jsx:rating-badge-position',
+        message: 'About page rating badge position',
+        data: {
+          left: rect.left,
+          top: rect.top,
+          right: rect.right,
+          bottom: rect.bottom,
+          width: rect.width,
+          height: rect.height,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion agent log
+  }, []);
+
   return (
     <div className="animate-fade-in">
 
@@ -111,7 +147,10 @@ const AboutPage = () => {
                 </blockquote>
               </div>
               {/* Floating badge */}
-              <div className="absolute -bottom-4 -left-4 bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-xl border border-gray-100 dark:border-gray-800">
+              <div
+                ref={ratingBadgeRef}
+                className="absolute -bottom-4 right-4 md:right-8 bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-xl border border-gray-100 dark:border-gray-800"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
                     <Star size={20} className="text-amber-500 fill-amber-500" />

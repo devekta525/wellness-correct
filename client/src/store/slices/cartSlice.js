@@ -23,12 +23,13 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const { product, quantity = 1, variant } = action.payload;
-      const key = variant ? `${product._id}_${JSON.stringify(variant)}` : product._id;
+      const idStr = typeof product._id === 'string' ? product._id : (product._id?.toString?.() || String(product._id));
+      const key = variant ? `${idStr}_${JSON.stringify(variant)}` : idStr;
       const existing = state.items.find(i => i.key === key);
 
       if (existing) {
         existing.quantity += quantity;
-        toast.success('Quantity updated!');
+        toast.success(`${product.title} quantity updated in cart`);
       } else {
         state.items.push({
           key,
@@ -37,7 +38,7 @@ const cartSlice = createSlice({
           variant,
           price: product.discount > 0 ? product.price * (1 - product.discount / 100) : product.price,
         });
-        toast.success('Added to cart!');
+        toast.success(`${product.title} added to cart`);
       }
       saveCart(state.items);
     },

@@ -10,6 +10,8 @@ const FaqPage = () => {
   const [activeCategory, setActiveCategory] = useState(null);
   const [search, setSearch] = useState('');
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   useEffect(() => {
     legalAPI.getPage('faq')
       .then(res => {
@@ -44,7 +46,7 @@ const FaqPage = () => {
     : content.categories?.filter(cat => activeCategory ? cat.id === activeCategory : true);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Hero */}
       <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -57,13 +59,13 @@ const FaqPage = () => {
           )}
           {/* Search */}
           <div className="max-w-md mx-auto relative">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search questions..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 shadow-lg"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 dark:focus:ring-amber-600 shadow-lg border-0"
             />
           </div>
         </div>
@@ -74,8 +76,8 @@ const FaqPage = () => {
           {/* Category Tabs */}
           {!search && (
             <aside className="lg:w-56 flex-shrink-0">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 lg:sticky lg:top-24">
-                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">Categories</h2>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 lg:sticky lg:top-24">
+                <h2 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-2">Categories</h2>
                 <nav className="space-y-1">
                   {content.categories?.map(cat => (
                     <button
@@ -83,12 +85,12 @@ const FaqPage = () => {
                       onClick={() => setActiveCategory(cat.id)}
                       className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                         activeCategory === cat.id
-                          ? 'bg-amber-50 text-amber-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                       }`}
                     >
                       {cat.name}
-                      <span className="ml-1 text-xs text-gray-400">({cat.items?.length})</span>
+                      <span className="ml-1 text-xs text-gray-400 dark:text-gray-500">({cat.items?.length})</span>
                     </button>
                   ))}
                 </nav>
@@ -99,36 +101,36 @@ const FaqPage = () => {
           {/* FAQ Items */}
           <div className="flex-1 space-y-8">
             {filteredCategories?.length === 0 && (
-              <div className="text-center py-16 text-gray-500">
-                <HelpCircle size={40} className="mx-auto mb-3 text-gray-300" />
-                <p>No questions found for "<span className="font-medium">{search}</span>"</p>
+              <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                <HelpCircle size={40} className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                <p>No questions found for "<span className="font-medium text-gray-700 dark:text-gray-300">{search}</span>"</p>
               </div>
             )}
 
             {filteredCategories?.map(cat => (
               <div key={cat.id}>
                 {(search || !activeCategory) && (
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">{cat.name}</h2>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{cat.name}</h2>
                 )}
                 <div className="space-y-3">
                   {cat.items?.map(item => (
                     <div
                       key={item.id}
-                      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+                      className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden"
                     >
                       <button
                         onClick={() => toggle(item.id)}
-                        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
-                        <span className="font-semibold text-gray-900 pr-4">{item.question}</span>
+                        <span className="font-semibold text-gray-900 dark:text-white pr-4">{item.question}</span>
                         {openItem === item.id
-                          ? <ChevronUp size={18} className="flex-shrink-0 text-amber-600" />
-                          : <ChevronDown size={18} className="flex-shrink-0 text-gray-400" />
+                          ? <ChevronUp size={18} className="flex-shrink-0 text-amber-600 dark:text-amber-400" />
+                          : <ChevronDown size={18} className="flex-shrink-0 text-gray-400 dark:text-gray-500" />
                         }
                       </button>
                       {openItem === item.id && (
-                        <div className="px-6 pb-5 border-t border-gray-50">
-                          <p className="text-gray-600 leading-relaxed pt-4">{item.answer}</p>
+                        <div className="px-6 pb-5 border-t border-gray-50 dark:border-gray-700">
+                          <p className="text-gray-600 dark:text-gray-300 leading-relaxed pt-4">{item.answer}</p>
                         </div>
                       )}
                     </div>

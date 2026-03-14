@@ -36,7 +36,7 @@ function attachRatingsToProducts(products, reviewStats) {
 // @desc    Get all products
 // @route   GET /api/products
 const getProducts = asyncHandler(async (req, res) => {
-  const { category, brand: brandSlug, search, minPrice, maxPrice, sort, page = 1, limit = 20, featured, flashDeal } = req.query;
+  const { category, brand: brandSlug, search, minPrice, maxPrice, sort, page = 1, limit = 20, featured, flashDeal, minRating, inStock } = req.query;
 
   const query = { isActive: true };
 
@@ -48,13 +48,16 @@ const getProducts = asyncHandler(async (req, res) => {
   }
   if (featured === 'true') query.isFeatured = true;
   if (flashDeal === 'true') { query.isFlashDeal = true; query.flashDealExpiry = { $gt: new Date() }; }
+  if (inStock === 'true') query.stock = { $gt: 0 };
+  if (inStock === 'false') query.$or = [{ stock: 0 }, { stock: { $exists: false } }];
+  if (minRating) query['ratings.average'] = { $gte: Number(minRating) };
 
   if (search) {
     query.$text = { $search: search };
   }
 
   if (minPrice || maxPrice) {
-    query.price = {};
+    query.price = query.price || {};
     if (minPrice) query.price.$gte = Number(minPrice);
     if (maxPrice) query.price.$lte = Number(maxPrice);
   }

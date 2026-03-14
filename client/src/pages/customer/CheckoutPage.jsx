@@ -55,6 +55,7 @@ const CheckoutPage = () => {
   const [loadingGateways, setLoadingGateways] = useState(true);
   const [couponCode, setCouponCode] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
+  const [addressErrors, setAddressErrors] = useState({});
 
   const threshold = settings.freeShippingThreshold ?? 999;
   const shippingCost = settings.standardShippingCost ?? 49;
@@ -108,12 +109,58 @@ const CheckoutPage = () => {
     { id: 'cod', label: 'Cash on Delivery', icon: Package, desc: 'Pay when delivered' },
   ];
 
+  const validateAddress = () => {
+    const errors = {};
+
+    if (!address.fullName || !address.street || !address.city || !address.pincode) {
+      toast.error('Please fill all required address fields');
+      if (!address.fullName) errors.fullName = 'Full Name is required';
+      if (!address.phone) errors.phone = 'Phone number is required';
+      if (!address.pincode) errors.pincode = 'Pincode is required';
+      if (!address.street) errors.street = 'Street Address is required';
+      if (!address.city) errors.city = 'City is required';
+      if (!address.state) errors.state = 'State is required';
+    }
+    const phoneDigits = (address.phone || '').replace(/\D/g, '');
+    if (phoneDigits.length !== 10) {
+      toast.error('Phone number must be exactly 10 digits (India)');
+      errors.phone = 'Phone number must be exactly 10 digits';
+    }
+    const pincodeDigits = (address.pincode || '').replace(/\D/g, '');
+    if (pincodeDigits.length !== 6) {
+      toast.error('Pincode must be exactly 6 digits (Indian postal code)');
+      errors.pincode = 'Pincode must be exactly 6 digits';
+    }
+    setAddressErrors(errors);
+
+    // #region agent log
+    fetch('http://127.0.0.1:7436/ingest/62e2a1c9-8294-48a2-981c-e3fb6efe754a', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': '10b514',
+      },
+      body: JSON.stringify({
+        sessionId: '10b514',
+        runId: 'checkout-address-validation-pre-fix-1',
+        hypothesisId: 'CO-H1',
+        location: 'CheckoutPage.jsx:validateAddress',
+        message: 'Checkout address validation result',
+        data: {
+          hasErrors: Object.keys(errors).length > 0,
+          errorKeys: Object.keys(errors),
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion agent log
+
+    return Object.keys(errors).length === 0;
+  };
+
   // ── Place order + handle gateway flows ──────────────────────────────────────
   const handlePlaceOrder = async () => {
-    if (!address.fullName || !address.phone || !address.street || !address.city || !address.pincode) {
-      toast.error('Please fill all required address fields');
-      return;
-    }
+    if (!validateAddress()) return;
 
     setPlacing(true);
     try {
@@ -270,22 +317,22 @@ const CheckoutPage = () => {
         <div className="lg:col-span-2 order-2 lg:order-1">
           {/* Step 1: Address */}
           {step === 1 && (
-            <div className="card p-6 animate-fade-in">
-              <h2 className="font-bold text-lg text-gray-900 mb-5 flex items-center gap-2"><MapPin size={20} className="text-primary-600" />Shipping Address</h2>
+            <div className="card p-6 animate-fade-in bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+              <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2"><MapPin size={20} className="text-primary-600 dark:text-primary-400" />Shipping Address</h2>
 
               {user?.addresses?.length > 0 && (
                 <div className="space-y-2 mb-5">
                   {user.addresses.map((addr, i) => (
-                    <label key={i} className="flex items-start gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-primary-300 transition-colors">
+                    <label key={i} className="flex items-start gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-xl cursor-pointer hover:border-primary-300 dark:hover:border-primary-600 transition-colors bg-white dark:bg-gray-800/50">
                       <input type="radio" name="savedAddress" onChange={() => setAddress(addr)} className="mt-1 text-primary-600" />
                       <div className="text-sm">
-                        <p className="font-semibold text-gray-800">{addr.label} — {addr.fullName}</p>
-                        <p className="text-gray-600">{addr.street}, {addr.city}, {addr.state} {addr.pincode}</p>
-                        <p className="text-gray-500">{addr.phone}</p>
+                        <p className="font-semibold text-gray-800 dark:text-gray-100">{addr.label} — {addr.fullName}</p>
+                        <p className="text-gray-600 dark:text-gray-300">{addr.street}, {addr.city}, {addr.state} {addr.pincode}</p>
+                        <p className="text-gray-500 dark:text-gray-400">{addr.phone}</p>
                       </div>
                     </label>
                   ))}
-                  <div className="relative"><div className="border-t border-gray-200 my-3" /><span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-400">or use new address</span></div>
+                  <div className="relative"><div className="border-t border-gray-200 dark:border-gray-700 my-3" /><span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 px-3 text-xs text-gray-400 dark:text-gray-500">or use new address</span></div>
                 </div>
               )}
 
@@ -297,17 +344,47 @@ const CheckoutPage = () => {
                   { key: 'street', label: 'Street Address', full: true },
                   { key: 'city', label: 'City' },
                   { key: 'state', label: 'State' },
-                ].map(({ key, label, type, full }) => (
-                  <div key={key} className={full ? 'col-span-1 sm:col-span-2' : ''}>
-                    <label className="text-xs font-medium text-gray-600 mb-1 block">{label} *</label>
-                    <input type={type || 'text'} value={address[key] || ''}
-                      onChange={e => setAddress(a => ({ ...a, [key]: e.target.value }))}
-                      className="input py-2.5 text-sm" placeholder={label} />
-                  </div>
-                ))}
+                ].map(({ key, label, type, full }) => {
+                  const isPhone = key === 'phone';
+                  const isPincode = key === 'pincode';
+                  const value = address[key] || '';
+                  const onChange = (e) => {
+                    let v = e.target.value;
+                    if (isPhone) v = v.replace(/\D/g, '').slice(0, 10);
+                    if (isPincode) v = v.replace(/\D/g, '').slice(0, 6);
+                    setAddress(a => ({ ...a, [key]: v }));
+                  };
+                  return (
+                    <div key={key} className={full ? 'col-span-1 sm:col-span-2' : ''}>
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 block">
+                        {label} *
+                      </label>
+                      <input
+                        type={type || 'text'}
+                        value={value}
+                        onChange={onChange}
+                        className={`input py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border placeholder:text-gray-400 dark:placeholder:text-gray-500 ${
+                          addressErrors[key] ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'
+                        }`}
+                        placeholder={isPhone ? '10-digit mobile' : isPincode ? '6-digit pincode' : label}
+                        inputMode={isPhone || isPincode ? 'numeric' : 'text'}
+                      />
+                      {addressErrors[key] && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {addressErrors[key]}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              <button onClick={() => setStep(2)} className="btn-primary mt-6 flex items-center gap-2">
+              <button
+                onClick={() => {
+                  if (validateAddress()) setStep(2);
+                }}
+                className="btn-primary mt-6 flex items-center gap-2"
+              >
                 Continue to Payment <ChevronRight size={16} />
               </button>
             </div>
@@ -315,24 +392,24 @@ const CheckoutPage = () => {
 
           {/* Step 2: Payment */}
           {step === 2 && (
-            <div className="card p-6 animate-fade-in">
-              <h2 className="font-bold text-lg text-gray-900 mb-5 flex items-center gap-2"><CreditCard size={20} className="text-primary-600" />Payment Method</h2>
+            <div className="card p-6 animate-fade-in bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+              <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2"><CreditCard size={20} className="text-primary-600 dark:text-primary-400" />Payment Method</h2>
 
               {loadingGateways ? (
-                <div className="flex items-center gap-3 py-6 text-gray-400">
+                <div className="flex items-center gap-3 py-6 text-gray-400 dark:text-gray-500">
                   <Loader2 size={20} className="animate-spin" />
                   <span className="text-sm">Loading payment options…</span>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {paymentMethods.map(method => (
-                    <label key={method.id} className={`flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all ${paymentMethod === method.id ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <label key={method.id} className={`flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all ${paymentMethod === method.id ? 'border-primary-500 dark:border-primary-500 bg-primary-50 dark:bg-primary-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}>
                       <input type="radio" name="payment" value={method.id} checked={paymentMethod === method.id}
                         onChange={() => setPaymentMethod(method.id)} className="text-primary-600" />
-                      <method.icon size={22} className={paymentMethod === method.id ? 'text-primary-600' : 'text-gray-500'} />
+                      <method.icon size={22} className={paymentMethod === method.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'} />
                       <div>
-                        <p className="font-semibold text-sm text-gray-800">{method.label}</p>
-                        <p className="text-xs text-gray-500 line-clamp-1">{method.desc}</p>
+                        <p className="font-semibold text-sm text-gray-800 dark:text-gray-100">{method.label}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{method.desc}</p>
                       </div>
                     </label>
                   ))}
@@ -350,33 +427,33 @@ const CheckoutPage = () => {
 
           {/* Step 3: Review */}
           {step === 3 && (
-            <div className="card p-6 animate-fade-in">
-              <h2 className="font-bold text-lg text-gray-900 mb-5">Review Your Order</h2>
+            <div className="card p-6 animate-fade-in bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+              <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-5">Review Your Order</h2>
               <div className="space-y-3 mb-5">
                 {items.map(item => (
-                  <div key={item.key} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <div key={item.key} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                     <img src={item.product.thumbnail} alt={item.product.title} className="w-12 h-12 object-cover rounded-lg" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 line-clamp-1">{item.product.title}</p>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-100 line-clamp-1">{item.product.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-semibold text-sm">{currencySymbol}{(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">{currencySymbol}{(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
-                <h4 className="font-semibold mb-2">Delivery Address</h4>
-                <p className="text-gray-600">{address.fullName} • {address.phone}</p>
-                <p className="text-gray-600">{address.street}, {address.city}, {address.state} {address.pincode}</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-5 text-sm">
+                <h4 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Delivery Address</h4>
+                <p className="text-gray-600 dark:text-gray-300">{address.fullName} • {address.phone}</p>
+                <p className="text-gray-600 dark:text-gray-300">{address.street}, {address.city}, {address.state} {address.pincode}</p>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
-                <h4 className="font-semibold mb-1">Payment Method</h4>
-                <p className="text-gray-600">{paymentMethods.find(m => m.id === paymentMethod)?.label || paymentMethod}</p>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-5 text-sm">
+                <h4 className="font-semibold mb-1 text-gray-900 dark:text-gray-100">Payment Method</h4>
+                <p className="text-gray-600 dark:text-gray-300">{paymentMethods.find(m => m.id === paymentMethod)?.label || paymentMethod}</p>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-gray-500 mb-5">
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-5">
                 <Lock size={12} />
                 <span>Your payment information is secure and encrypted</span>
               </div>
@@ -392,17 +469,17 @@ const CheckoutPage = () => {
         </div>
 
         {/* Order Summary Sidebar */}
-        <div className="card p-4 sm:p-5 h-fit order-1 lg:order-2 lg:sticky lg:top-24">
-          <h3 className="font-bold text-gray-900 mb-4">Order Summary</h3>
+        <div className="card p-4 sm:p-5 h-fit order-1 lg:order-2 lg:sticky lg:top-24 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4">Order Summary</h3>
 
           {/* Coupon */}
           <div className="mb-4">
-            <p className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1"><Tag size={12} />Coupon</p>
+            <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-2 flex items-center gap-1"><Tag size={12} />Coupon</p>
             {coupon ? (
-              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl p-2.5">
+              <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-2.5">
                 <div>
-                  <p className="text-sm font-semibold text-green-700">{coupon.code}</p>
-                  <p className="text-xs text-green-600">Saved {currencySymbol}{discount.toFixed(2)}</p>
+                  <p className="text-sm font-semibold text-green-700 dark:text-green-400">{coupon.code}</p>
+                  <p className="text-xs text-green-600 dark:text-green-500">Saved {currencySymbol}{discount.toFixed(2)}</p>
                 </div>
                 <button type="button" onClick={() => dispatch(removeCoupon())} className="text-red-400 hover:text-red-600 p-1" aria-label="Remove coupon">
                   <Trash2 size={14} />
@@ -415,7 +492,7 @@ const CheckoutPage = () => {
                   value={couponCode}
                   onChange={e => setCouponCode(e.target.value.toUpperCase())}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleApplyCoupon())}
-                  className="input flex-1 min-w-0 py-2 text-sm"
+                  className="input flex-1 min-w-0 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   placeholder="Enter code"
                 />
                 <button type="button" onClick={handleApplyCoupon} disabled={couponLoading} className="btn-secondary py-2 px-3 text-sm whitespace-nowrap flex-shrink-0">
@@ -426,13 +503,13 @@ const CheckoutPage = () => {
           </div>
 
           <div className="space-y-2 text-sm mb-4">
-            <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>{currencySymbol}{subtotal.toFixed(2)}</span></div>
-            {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-{currencySymbol}{discount.toFixed(2)}</span></div>}
-            <div className="flex justify-between text-gray-600"><span>Shipping</span><span className={shipping === 0 ? 'text-green-600 font-medium' : ''}>{shipping === 0 ? 'FREE' : `${currencySymbol}${shipping}`}</span></div>
-            <div className="flex justify-between text-gray-600"><span>Tax ({(settings.taxRate ?? 18)}%)</span><span>{currencySymbol}{tax.toFixed(2)}</span></div>
-            <div className="border-t pt-2 flex justify-between font-bold text-primary-600 text-base"><span>Total</span><span>{currencySymbol}{total.toFixed(2)}</span></div>
+            <div className="flex justify-between text-gray-600 dark:text-gray-300"><span>Subtotal</span><span>{currencySymbol}{subtotal.toFixed(2)}</span></div>
+            {discount > 0 && <div className="flex justify-between text-green-600 dark:text-green-400"><span>Discount</span><span>-{currencySymbol}{discount.toFixed(2)}</span></div>}
+            <div className="flex justify-between text-gray-600 dark:text-gray-300"><span>Shipping</span><span className={shipping === 0 ? 'text-green-600 dark:text-green-400 font-medium' : ''}>{shipping === 0 ? 'FREE' : `${currencySymbol}${shipping}`}</span></div>
+            <div className="flex justify-between text-gray-600 dark:text-gray-300"><span>Tax ({(settings.taxRate ?? 18)}%)</span><span>{currencySymbol}{tax.toFixed(2)}</span></div>
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between font-bold text-primary-600 dark:text-primary-400 text-base"><span>Total</span><span>{currencySymbol}{total.toFixed(2)}</span></div>
           </div>
-          {referralCode && <p className="text-xs text-primary-600 bg-primary-50 rounded-lg p-2">Referral: {referralCode}</p>}
+          {referralCode && <p className="text-xs text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 rounded-lg p-2">Referral: {referralCode}</p>}
         </div>
       </div>
     </div>

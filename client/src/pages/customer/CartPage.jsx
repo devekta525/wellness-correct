@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trash2, Plus, Minus, ShoppingBag, Tag, ArrowRight, Truck } from 'lucide-react';
@@ -18,6 +18,8 @@ const CartPage = () => {
   const [couponCode, setCouponCode] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
 
+  const firstItemTitleRef = useRef(null);
+
   const threshold = settings.freeShippingThreshold ?? 999;
   const shippingCost = settings.standardShippingCost ?? 49;
   const taxRate = (settings.taxRate ?? 18) / 100;
@@ -25,6 +27,56 @@ const CartPage = () => {
   const shipping = total - discount >= threshold ? 0 : shippingCost;
   const tax = (total - discount) * taxRate;
   const finalTotal = total - discount + shipping + tax;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const isDark = document.documentElement.classList.contains('dark');
+
+    // #region agent log
+    fetch('http://127.0.0.1:7436/ingest/62e2a1c9-8294-48a2-981c-e3fb6efe754a', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': '10b514',
+      },
+      body: JSON.stringify({
+        sessionId: '10b514',
+        runId: 'cart-page-darkmode-pre-fix-1',
+        hypothesisId: 'CP-H1',
+        location: 'CartPage.jsx:dark-mode-check',
+        message: 'Cart page dark mode state',
+        data: { isDark },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion agent log
+
+    const el = firstItemTitleRef.current;
+    if (el && typeof window !== 'undefined') {
+      const style = window.getComputedStyle(el);
+      // #region agent log
+      fetch('http://127.0.0.1:7436/ingest/62e2a1c9-8294-48a2-981c-e3fb6efe754a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Debug-Session-Id': '10b514',
+        },
+        body: JSON.stringify({
+          sessionId: '10b514',
+          runId: 'cart-page-darkmode-pre-fix-1',
+          hypothesisId: 'CP-H2',
+          location: 'CartPage.jsx:item-title-styles',
+          message: 'Cart item title text and background colors',
+          data: {
+            color: style.color,
+            backgroundColor: style.backgroundColor,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion agent log
+    }
+  }, [items.length]);
 
   const handleCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -59,7 +111,7 @@ const CartPage = () => {
       <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
-          {items.map(item => (
+          {items.map((item, idx) => (
             <div key={item.key} className="card p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="flex gap-3 sm:flex-1 min-w-0">
                 <Link to={`/product/${item.product.slug}`} className="flex-shrink-0">
@@ -68,7 +120,12 @@ const CartPage = () => {
                 </Link>
                 <div className="flex-1 min-w-0">
                   <Link to={`/product/${item.product.slug}`}>
-                    <h3 className="font-semibold text-gray-800 dark:text-gray-200 hover:text-primary-600 transition-colors line-clamp-2 text-sm sm:text-base">{item.product.title}</h3>
+                    <h3
+                      ref={idx === 0 ? firstItemTitleRef : null}
+                      className="font-semibold text-gray-800 dark:text-gray-200 hover:text-primary-600 transition-colors line-clamp-2 text-sm sm:text-base"
+                    >
+                      {item.product.title}
+                    </h3>
                   </Link>
                   {item.variant && <p className="text-xs text-gray-500 mt-0.5">{JSON.stringify(item.variant)}</p>}
                   <p className="text-primary-600 font-bold mt-1">{currencySymbol}{item.price.toFixed(2)}</p>

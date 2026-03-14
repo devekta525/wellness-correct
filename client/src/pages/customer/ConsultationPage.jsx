@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Stethoscope, Star, Clock, IndianRupee, Search, Filter,
+  Stethoscope, Star, Clock, IndianRupee, Search,
   Loader2, ArrowRight, ShieldCheck, Video, Award, Users,
-  ChevronRight, CheckCircle,
+  CheckCircle,
 } from 'lucide-react';
 import { doctorAPI } from '../../services/api';
 

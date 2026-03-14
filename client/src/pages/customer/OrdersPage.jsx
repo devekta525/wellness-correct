@@ -7,14 +7,14 @@ import EmptyState from '../../components/common/EmptyState';
 import Pagination from '../../components/common/Pagination';
 
 const STATUS_COLORS = {
-  pending: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  packed: 'bg-yellow-100 text-yellow-700',
-  shipped: 'bg-purple-100 text-purple-700',
-  out_for_delivery: 'bg-orange-100 text-orange-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
-  returned: 'bg-gray-100 text-gray-700',
+  pending: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+  confirmed: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+  packed: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
+  shipped: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+  out_for_delivery: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+  delivered: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+  cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+  returned: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
 };
 
 const OrdersPage = () => {
@@ -49,17 +49,17 @@ const OrdersPage = () => {
       ) : (
         <div className="space-y-4">
           {orders.map(order => (
-            <div key={order._id} className="card p-5 hover:shadow-md transition-shadow">
+            <div key={order._id} className="card p-5 hover:shadow-md transition-shadow bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
                 <div>
                   <p className="font-bold text-gray-900 dark:text-white">#{order.orderNumber}</p>
-                  <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <span className={`badge text-xs px-2.5 py-1 font-semibold capitalize ${STATUS_COLORS[order.orderStatus] || 'bg-gray-100 text-gray-700'}`}>
+                  <span className={`badge text-xs px-2.5 py-1 font-semibold capitalize ${STATUS_COLORS[order.orderStatus] || 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
                     {order.orderStatus.replace(/_/g, ' ')}
                   </span>
-                  <p className="font-bold text-gray-900 mt-1">₹{order.total.toFixed(2)}</p>
+                  <p className="font-bold text-gray-900 dark:text-white mt-1">₹{order.total.toFixed(2)}</p>
                 </div>
               </div>
 
@@ -67,18 +67,18 @@ const OrdersPage = () => {
               <div className="flex items-center gap-2 mb-3">
                 {order.items?.slice(0, 3).map((item, i) => (
                   <img key={i} src={item.image || 'https://via.placeholder.com/40'} alt={item.title}
-                    className="w-10 h-10 object-cover rounded-lg border border-gray-200" />
+                    className="w-10 h-10 object-cover rounded-lg border border-gray-200 dark:border-gray-700" />
                 ))}
                 {order.items?.length > 3 && (
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-500">
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-medium text-gray-500 dark:text-gray-400">
                     +{order.items.length - 3}
                   </div>
                 )}
-                <p className="text-sm text-gray-500 ml-1">{order.items?.length} item(s)</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 ml-1">{order.items?.length} item(s)</p>
               </div>
 
               <Link to={`/orders/${order._id}`}
-                className="flex items-center justify-between w-full text-sm text-primary-600 hover:text-primary-700 font-medium group">
+                className="flex items-center justify-between w-full text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium group">
                 <span>Track Order</span>
                 <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </Link>

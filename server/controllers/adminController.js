@@ -25,8 +25,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     User.countDocuments({ role: 'customer', createdAt: { $gte: today } }),
     Product.countDocuments({ isActive: true }),
     Product.countDocuments({ $expr: { $lte: ['$stock', '$lowStockThreshold'] }, isActive: true }),
-    Order.countDocuments(),
-    Order.countDocuments({ createdAt: { $gte: today } }),
+    Order.countDocuments({ paymentStatus: 'paid' }),
+    Order.countDocuments({ paymentStatus: 'paid', createdAt: { $gte: today } }),
     Order.aggregate([{ $match: { paymentStatus: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
     Order.aggregate([{ $match: { paymentStatus: 'paid', createdAt: { $gte: today } } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
     Order.aggregate([{ $group: { _id: '$orderStatus', count: { $sum: 1 } } }]),
@@ -53,8 +53,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     // Week-over-week: this week (last 7 days) vs previous week (7 days before that)
     Order.aggregate([{ $match: { createdAt: { $gte: last7DaysStart }, paymentStatus: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
     Order.aggregate([{ $match: { createdAt: { $gte: last14DaysStart, $lt: last7DaysStart }, paymentStatus: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
-    Order.countDocuments({ createdAt: { $gte: last7DaysStart } }),
-    Order.countDocuments({ createdAt: { $gte: last14DaysStart, $lt: last7DaysStart } }),
+    Order.countDocuments({ paymentStatus: 'paid', createdAt: { $gte: last7DaysStart } }),
+    Order.countDocuments({ paymentStatus: 'paid', createdAt: { $gte: last14DaysStart, $lt: last7DaysStart } }),
     User.countDocuments({ role: 'customer', createdAt: { $gte: last7DaysStart } }),
     User.countDocuments({ role: 'customer', createdAt: { $gte: last14DaysStart, $lt: last7DaysStart } }),
   ]);

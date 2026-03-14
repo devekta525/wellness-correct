@@ -8,6 +8,8 @@ const ReturnPolicyPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState(null);
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   useEffect(() => {
     legalAPI.getPage('return_policy')
       .then(res => setContent(res.data.content))
@@ -24,7 +26,7 @@ const ReturnPolicyPage = () => {
   if (!content) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Hero */}
       <div className="bg-gradient-to-br from-emerald-600 to-emerald-900 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -42,8 +44,8 @@ const ReturnPolicyPage = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Table of Contents */}
           <aside className="lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 lg:sticky lg:top-24">
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Contents</h2>
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 lg:sticky lg:top-24">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Contents</h2>
               <nav className="space-y-1">
                 {content.sections?.map((section, idx) => (
                   <button
@@ -54,8 +56,8 @@ const ReturnPolicyPage = () => {
                     }}
                     className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors ${
                       activeSection === section.id
-                        ? 'bg-emerald-50 text-emerald-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-medium'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     <ChevronRight size={14} className="flex-shrink-0" />
@@ -69,8 +71,8 @@ const ReturnPolicyPage = () => {
           {/* Content */}
           <div className="flex-1 space-y-6">
             {content.intro && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
-                <p className="text-emerald-800 text-base leading-relaxed">{content.intro}</p>
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-2xl p-6">
+                <p className="text-emerald-800 dark:text-emerald-200 text-base leading-relaxed">{content.intro}</p>
               </div>
             )}
 
@@ -78,15 +80,15 @@ const ReturnPolicyPage = () => {
               <div
                 key={section.id}
                 id={`section-${section.id}`}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 scroll-mt-24"
+                className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 scroll-mt-24"
               >
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center justify-center">
                     {idx + 1}
                   </span>
                   {section.heading}
                 </h2>
-                <p className="text-gray-600 leading-relaxed">{section.content}</p>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{section.content}</p>
               </div>
             ))}
           </div>

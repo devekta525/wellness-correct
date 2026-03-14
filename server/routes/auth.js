@@ -5,7 +5,7 @@ const { authLimiter } = require('../middleware/rateLimiter');
 const {
   register, login, adminLogin, logout, getMe,
   updateProfile, changePassword, forgotPassword,
-  resetPassword, addAddress, toggleWishlist,
+  resetPassword, addAddress, toggleWishlist, deleteAccount,
 } = require('../controllers/authController');
 
 router.post('/register', authLimiter, register);
@@ -19,5 +19,6 @@ router.post('/forgot-password', authLimiter, forgotPassword);
 router.post('/reset-password/:token', resetPassword);
 router.post('/addresses', protect, addAddress);
 router.post('/wishlist/:productId', protect, toggleWishlist);
+router.delete('/account', protect, deleteAccount);
 
 module.exports = router;

@@ -1,4 +1,11 @@
+const mongoose = require('mongoose');
 const Cart = require('../models/Cart');
+
+const toObjectId = (id) => {
+  if (!id) return null;
+  if (mongoose.Types.ObjectId.isValid(id)) return new mongoose.Types.ObjectId(id);
+  return null;
+};
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 const ABANDON_HOURS = 1; // cart inactive > 1 hr = abandoned
@@ -24,22 +31,39 @@ const syncCart = async (req, res) => {
       return res.json({ success: true });
     }
 
-    const totalValue = items.reduce((s, i) => s + (i.price * i.quantity), 0);
-    const itemCount  = items.reduce((s, i) => s + i.quantity, 0);
+    // Normalize and filter: only include items with a valid productId (Cart schema requires ObjectId)
+    const price = (i) => (typeof i.price === 'number' ? i.price : (i.product && typeof i.product.price === 'number' ? i.product.price : 0));
+    const qty = (i) => Math.max(1, parseInt(i.quantity, 10) || 1);
+    const validItems = items
+      .map((i) => {
+        const productId = toObjectId(i.product?._id || i.productId);
+        if (!productId) return null;
+        return {
+          productId,
+          title:     i.product?.title || i.title,
+          thumbnail: i.product?.thumbnail || i.thumbnail,
+          price:     price(i),
+          quantity:  qty(i),
+          slug:      i.product?.slug || i.slug,
+          variant:   i.variant || null,
+        };
+      })
+      .filter(Boolean);
+
+    if (!validItems.length) {
+      await Cart.findOneAndDelete({ user: req.user._id });
+      return res.json({ success: true });
+    }
+
+    const totalValue = validItems.reduce((s, i) => s + i.price * i.quantity, 0);
+    const itemCount  = validItems.reduce((s, i) => s + i.quantity, 0);
 
     await Cart.findOneAndUpdate(
       { user: req.user._id },
       {
         $set: {
-          items: items.map(i => ({
-            productId: i.product?._id || i.productId,
-            title:     i.product?.title || i.title,
-            thumbnail: i.product?.thumbnail || i.thumbnail,
-            price:     i.price,
-            quantity:  i.quantity,
-            slug:      i.product?.slug || i.slug,
-            variant:   i.variant || null,
-          })),
+          user: req.user._id,
+          items: validItems,
           totalValue,
           itemCount,
           lastActivity: new Date(),
@@ -52,7 +76,8 @@ const syncCart = async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    // Non-critical — don't surface errors to the user
+    // Non-critical — don't surface errors to the user; log for debugging
+    console.error('[syncCart]', err.message);
     res.json({ success: false });
   }
 };
@@ -62,14 +87,18 @@ const getAbandonedCarts = async (req, res) => {
   try {
     await markAbandonedCarts();
 
-    const { page = 1, limit = 20, minValue = 0, sortBy = 'value' } = req.query;
+    const { page = 1, limit = 20, minValue = 0, sortBy = 'value', showAll } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
+    const isShowAll = showAll === '1' || showAll === 'true';
 
     const filter = {
-      itemCount:    { $gt: 0 },
-      lastActivity: { $lt: abandonThresholdDate() },
-      totalValue:   { $gte: parseFloat(minValue) },
+      itemCount:  { $gt: 0 },
+      totalValue: { $gte: parseFloat(minValue) },
     };
+    if (!isShowAll) {
+      filter.isAbandoned = true;
+      filter.lastActivity = { $lt: abandonThresholdDate() };
+    }
 
     const sortMap = {
       value:   { totalValue: -1 },

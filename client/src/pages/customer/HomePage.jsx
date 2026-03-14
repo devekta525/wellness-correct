@@ -428,13 +428,14 @@ const HomePage = () => {
         </div>
 
         <div className="page-container relative">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 px-2">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-300 mb-3">Key Ingredients</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-              Nature's Finest,<br /><span className="text-primary-300">Scientifically Enhanced</span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight tracking-tight" style={{ lineHeight: 1.25, letterSpacing: '-0.02em' }}>
+              <span className="block">Nature&apos;s Finest,</span>
+              <span className="text-primary-300 block mt-1 sm:mt-1.5">Scientifically Enhanced</span>
             </h2>
-            <p className="text-white/50 max-w-lg mx-auto text-sm leading-relaxed">
-              We source the world's most potent wellness ingredients and refine them through science.
+            <p className="text-white/50 max-w-lg mx-auto text-sm sm:text-base leading-relaxed" style={{ lineHeight: 1.65 }}>
+              We source the world&apos;s most potent wellness ingredients and refine them through science.
             </p>
           </div>
 

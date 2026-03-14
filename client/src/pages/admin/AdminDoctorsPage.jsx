@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   Search, Loader2, CheckCircle, XCircle, Eye, Trash2,
-  Stethoscope, Users, Calendar, ChevronDown, ChevronUp,
-  IndianRupee, Star, Award, Clock, Video, Filter,
+  Stethoscope, Users, Calendar,
+  IndianRupee, Star, Award, Clock, Video,
 } from 'lucide-react';
 import { doctorAPI } from '../../services/api';
 import toast from 'react-hot-toast';

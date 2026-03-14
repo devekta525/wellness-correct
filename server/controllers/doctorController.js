@@ -6,6 +6,7 @@ const Prescription = require('../models/Prescription');
 const MedicineList = require('../models/MedicineList');
 const User = require('../models/User');
 const Product = require('../models/Product');
+const paymentManager = require('../services/payment/paymentManager');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -61,6 +62,34 @@ exports.getDoctorById = asyncHandler(async (req, res) => {
     .populate('user', 'name email avatar');
   if (!doctor || !doctor.isApproved) { res.status(404); throw new Error('Doctor not found'); }
   res.json({ success: true, doctor });
+});
+
+// GET /api/doctors/:id/booked-slots?from=YYYY-MM-DD&to=YYYY-MM-DD
+// Returns booked consultation slots so the UI can hide them (Calendly-style).
+exports.getDoctorBookedSlots = asyncHandler(async (req, res) => {
+  const doctor = await DoctorProfile.findById(req.params.id).select('_id');
+  if (!doctor || !doctor.isApproved) { res.status(404); throw new Error('Doctor not found'); }
+
+  let from = req.query.from ? new Date(req.query.from) : new Date();
+  let to = req.query.to ? new Date(req.query.to) : new Date(from);
+  to.setDate(to.getDate() + 14);
+  from.setHours(0, 0, 0, 0);
+  to.setHours(23, 59, 59, 999);
+
+  const consultations = await Consultation.find({
+    doctor: doctor._id,
+    status: { $in: ['pending', 'confirmed', 'ongoing'] },
+    scheduledAt: { $gte: from, $lte: to },
+  })
+    .select('scheduledAt duration')
+    .lean();
+
+  const slots = consultations.map(c => ({
+    start: new Date(c.scheduledAt).toISOString(),
+    end: new Date(new Date(c.scheduledAt).getTime() + (c.duration || 30) * 60 * 1000).toISOString(),
+  }));
+
+  res.json({ success: true, slots });
 });
 
 // ─── Doctor Profile Management ────────────────────────────────────────────────
@@ -253,17 +282,22 @@ exports.searchMedicines = asyncHandler(async (req, res) => {
   res.json({ success: true, medicines });
 });
 
-// ─── Patient: Book Consultation ───────────────────────────────────────────────
+// ─── Patient: Book Consultation (any active gateway, pay-to-confirm) ───────────
 
 // POST /api/doctors/:doctorId/book
 exports.bookConsultation = asyncHandler(async (req, res) => {
   const doctor = await DoctorProfile.findById(req.params.doctorId);
   if (!doctor || !doctor.isApproved) { res.status(404); throw new Error('Doctor not found'); }
 
-  const { scheduledAt, symptoms, paymentMethod } = req.body;
-  if (!scheduledAt) { res.status(400); throw new Error('scheduledAt is required'); }
+  const activeGateways = await paymentManager.getActiveGateways();
+  if (!activeGateways.length) { res.status(503); throw new Error('No payment gateway enabled. Please try again later.'); }
 
-  // Prevent double booking: check if doctor has a consultation within ±duration minutes
+  let { scheduledAt, symptoms, gatewayId } = req.body;
+  if (!scheduledAt) { res.status(400); throw new Error('scheduledAt is required'); }
+  if (!gatewayId) gatewayId = activeGateways[0].id;
+  const gateway = activeGateways.find(g => g.id === gatewayId);
+  if (!gateway) { res.status(400); throw new Error('Selected payment gateway is not available'); }
+
   const slot = new Date(scheduledAt);
   const bufferMs = (doctor.consultationDuration + 5) * 60 * 1000;
   const conflict = await Consultation.findOne({
@@ -281,12 +315,58 @@ exports.bookConsultation = asyncHandler(async (req, res) => {
     amount: doctor.consultationFee,
     meetingLink: doctor.gmeetLink || '',
     symptoms: symptoms || '',
-    paymentMethod: paymentMethod || 'online',
-    paymentStatus: paymentMethod === 'cod' ? 'pending' : 'paid',
-    status: 'confirmed',
+    paymentMethod: gatewayId,
+    paymentStatus: 'pending',
+    status: 'pending',
   });
 
-  res.status(201).json({ success: true, consultation });
+  // PayU callback identifies consultation by txnid prefix "consult_<id>"
+  const orderIdForGateway = gatewayId === 'payu' ? `consult_${consultation._id}` : consultation._id.toString();
+  const customerInfo = { name: req.user.name || 'Patient', email: req.user.email || '' };
+
+  const paymentOrder = await paymentManager.createOrder(gatewayId, {
+    amount: consultation.amount,
+    orderId: orderIdForGateway,
+    currency: 'INR',
+    customerInfo,
+  });
+
+  const gatewayOrderId = paymentOrder.id || paymentOrder.razorpayOrderId || paymentOrder.txn_id ||
+    paymentOrder.cashfreeOrderId || paymentOrder.paymentIntentId || '';
+  await Consultation.findByIdAndUpdate(consultation._id, { paymentGatewayOrderId: gatewayOrderId });
+
+  res.status(201).json({ success: true, consultation, gatewayId, paymentOrder });
+});
+
+// POST /api/doctors/consultations/payment/verify
+exports.verifyConsultationPayment = asyncHandler(async (req, res) => {
+  const { gatewayId, consultationId, ...rest } = req.body;
+  if (!gatewayId || !consultationId) {
+    res.status(400);
+    throw new Error('gatewayId and consultationId are required');
+  }
+
+  const consultation = await Consultation.findOne({ _id: consultationId, patient: req.user._id });
+  if (!consultation) { res.status(404); throw new Error('Consultation not found'); }
+
+  let payload = { ...rest };
+  if (gatewayId === 'cashfree' && !payload.cashfree_order_id && consultation.paymentGatewayOrderId) {
+    payload.cashfree_order_id = consultation.paymentGatewayOrderId;
+  }
+  if (gatewayId === 'stripe' && !payload.payment_intent_id && consultation.paymentGatewayOrderId) {
+    payload.payment_intent_id = consultation.paymentGatewayOrderId;
+  }
+
+  const result = await paymentManager.verifyPayment(gatewayId, payload);
+
+  await Consultation.findByIdAndUpdate(consultationId, {
+    paymentStatus: 'paid',
+    status: 'confirmed',
+    paymentId: result.paymentId || '',
+  });
+  const updated = await Consultation.findById(consultationId);
+
+  res.json({ success: true, consultation: updated, paymentId: result.paymentId });
 });
 
 // ─── Patient: My Consultations + Prescriptions ───────────────────────────────

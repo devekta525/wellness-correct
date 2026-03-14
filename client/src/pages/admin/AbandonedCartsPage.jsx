@@ -28,16 +28,17 @@ export default function AbandonedCartsPage() {
   const [page, setPage]       = useState(1);
   const [sortBy, setSortBy]   = useState('value');
   const [minValue, setMinValue] = useState(0);
+  const [showAll, setShowAll] = useState(true); // show all saved carts by default so admin sees data
   const [expanded, setExpanded] = useState(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await abandonedCartAPI.getAll({ page, limit: 20, sortBy, minValue });
+      const res = await abandonedCartAPI.getAll({ page, limit: 20, sortBy, minValue, showAll: showAll ? '1' : undefined });
       setData(res.data);
     } catch (_) {}
     setLoading(false);
-  }, [page, sortBy, minValue]);
+  }, [page, sortBy, minValue, showAll]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -46,11 +47,28 @@ export default function AbandonedCartsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-black text-gray-900 dark:text-white">Abandoned Carts</h2>
           <p className="text-sm text-gray-500 mt-0.5">Users who added products but didn't complete checkout</p>
         </div>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 p-0.5 bg-gray-50 dark:bg-gray-800">
+            <button
+              type="button"
+              onClick={() => { setShowAll(true); setPage(1); }}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${showAll ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+            >
+              All saved carts
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowAll(false); setPage(1); }}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${!showAll ? 'bg-white dark:bg-gray-700 shadow text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+            >
+              Abandoned only (1h+)
+            </button>
+          </div>
         <button
           onClick={fetchData}
           disabled={loading}
@@ -59,12 +77,13 @@ export default function AbandonedCartsPage() {
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           Refresh
         </button>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: ShoppingCart, label: 'Abandoned Carts', value: stats.totalAbandoned ?? '—', color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-950/30' },
+          { icon: ShoppingCart, label: showAll ? 'Saved Carts' : 'Abandoned Carts', value: stats.totalAbandoned ?? '—', color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-950/30' },
           { icon: IndianRupee, label: 'Total Lost Value', value: fmt(stats.totalValue), color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-950/30' },
           { icon: TrendingDown, label: 'Avg Cart Value', value: fmt(stats.avgValue), color: 'text-yellow-500', bg: 'bg-yellow-50 dark:bg-yellow-950/30' },
           { icon: Package, label: 'Abandoned Items', value: stats.totalItems ?? '—', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/30' },

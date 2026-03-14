@@ -74,9 +74,19 @@ const CategoryPage = () => {
 
         {/* Sort + Filter */}
         <div className="flex items-center gap-3">
-          <select value={filters.sort} onChange={e => updateFilter('sort', e.target.value)}
-            className="input py-2 pr-8 text-sm w-40 bg-white">
-            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          <select
+            value={filters.sort}
+            onChange={e => updateFilter('sort', e.target.value)}
+            className="input py-2 pr-8 text-sm w-40 bg-white dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700"
+          >
+            {SORT_OPTIONS.map(o => (
+              <option
+                key={o.value}
+                value={o.value}
+              >
+                {o.label}
+              </option>
+            ))}
           </select>
           <button onClick={() => setFilterOpen(!filterOpen)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors">
@@ -87,23 +97,25 @@ const CategoryPage = () => {
 
       {/* Filters Panel */}
       {filterOpen && (
-        <div className="card p-4 mb-6 animate-slide-up">
+        <div className="card p-4 mb-6 animate-slide-up bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Filters</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Filters</h3>
             <button onClick={clearFilters} className="text-sm text-red-500 hover:text-red-600 flex items-center gap-1">
               <X size={14} />Clear all
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1.5 block">Min Price (₹)</label>
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5 block">Min Price (₹)</label>
               <input type="number" value={filters.minPrice} onChange={e => updateFilter('minPrice', e.target.value)}
-                className="input py-2 text-sm" placeholder="0" />
+                className="input py-2 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                placeholder="0" />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1.5 block">Max Price (₹)</label>
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5 block">Max Price (₹)</label>
               <input type="number" value={filters.maxPrice} onChange={e => updateFilter('maxPrice', e.target.value)}
-                className="input py-2 text-sm" placeholder="99999" />
+                className="input py-2 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                placeholder="99999" />
             </div>
           </div>
         </div>

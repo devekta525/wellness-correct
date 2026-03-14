@@ -12,8 +12,8 @@ const WishlistPage = () => {
 
   return (
     <div className="page-container py-8 animate-fade-in">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-        <Heart className="text-red-500" size={24} />Wishlist ({wishlist.length})
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <Heart className="text-red-500 dark:text-red-400" size={24} />Wishlist ({wishlist.length})
       </h1>
 
       {wishlist.length === 0 ? (
@@ -27,8 +27,8 @@ const WishlistPage = () => {
             const discountedPrice = p.discount > 0 ? p.price * (1 - p.discount / 100) : p.price;
 
             return (
-              <div key={p._id} className="card group hover:shadow-lg transition-all hover:-translate-y-1">
-                <div className="relative aspect-square bg-gray-100 overflow-hidden">
+              <div key={p._id} className="card dark:bg-gray-900 dark:border-gray-800 group hover:shadow-lg transition-all hover:-translate-y-1">
+                <div className="relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden">
                   <img src={p.thumbnail || 'https://via.placeholder.com/300'} alt={p.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <button onClick={() => dispatch(toggleWishlist(p._id))}
@@ -37,9 +37,9 @@ const WishlistPage = () => {
                   </button>
                 </div>
                 <div className="p-3">
-                  <Link to={`/product/${p.slug}`} className="text-sm font-medium text-gray-800 hover:text-primary-600 line-clamp-2">{p.title}</Link>
+                  <Link to={`/product/${p.slug}`} className="text-sm font-medium text-gray-800 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400 line-clamp-2">{p.title}</Link>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="font-bold text-gray-900">₹{discountedPrice?.toFixed(2)}</span>
+                    <span className="font-bold text-gray-900 dark:text-white">₹{discountedPrice?.toFixed(2)}</span>
                     <button onClick={() => dispatch(addToCart({ product: p, quantity: 1 }))}
                       className="w-9 h-9 bg-primary-600 text-white rounded-xl flex items-center justify-center hover:bg-primary-700 transition-colors">
                       <ShoppingCart size={16} />

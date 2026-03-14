@@ -53,6 +53,14 @@ export const toggleWishlist = createAsyncThunk('auth/toggleWishlist', async (pro
   } catch (err) { return rejectWithValue(err.message); }
 });
 
+export const deleteAccount = createAsyncThunk('auth/deleteAccount', async (_, { rejectWithValue }) => {
+  try {
+    await authAPI.deleteAccount();
+    localStorage.removeItem('Wellness_fuel_token');
+    return {};
+  } catch (err) { return rejectWithValue(err.response?.data?.message || err.message); }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -130,7 +138,16 @@ const authSlice = createSlice({
       })
 
       .addCase(toggleWishlist.fulfilled, (state, action) => {
-        if (state.user) state.user.wishlist = action.payload.wishlist;
+        if (state.user && action.payload?.wishlist) state.user.wishlist = action.payload.wishlist;
+      })
+
+      .addCase(deleteAccount.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(deleteAccount.rejected, (state, action) => {
+        state.loading = false;
       });
   },
 });

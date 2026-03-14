@@ -5,6 +5,13 @@ import {
   Loader2, MessageCircle,
 } from 'lucide-react';
 import { contactAPI } from '../../services/api';
+import { useSite } from '../../context/SiteContext';
+
+const toFullUrl = (val) => {
+  if (!val || typeof val !== 'string') return null;
+  const t = val.trim();
+  return t && (t.startsWith('http') ? t : `https://${t}`);
+};
 
 const DEFAULT_INFO = {
   email: 'hello@wellnessfuel.in',
@@ -57,12 +64,14 @@ const ContactPage = () => {
     }
   };
 
+  const { site } = useSite();
+  const siteSocial = site?.social || {};
   const socialLinks = [
-    { icon: Instagram, label: 'Instagram', handle: info.social?.instagram || '@wellnessfuel', color: 'hover:text-pink-500', href: info.social?.instagram || '#' },
-    { icon: Facebook, label: 'Facebook', handle: 'Wellness Fuel', color: 'hover:text-blue-600', href: info.social?.facebook || '#' },
-    { icon: Twitter, label: 'Twitter / X', handle: '@wellnessfuel', color: 'hover:text-sky-500', href: info.social?.twitter || '#' },
-    { icon: Youtube, label: 'YouTube', handle: 'Wellness Fuel', color: 'hover:text-red-500', href: info.social?.youtube || '#' },
-  ];
+    { icon: Instagram, label: 'Instagram', handle: info.social?.instagram || siteSocial.instagram || '@wellnessfuel', color: 'hover:text-pink-500', href: toFullUrl(info.social?.instagram || siteSocial.instagram) },
+    { icon: Facebook, label: 'Facebook', handle: 'Wellness Fuel', color: 'hover:text-blue-600', href: toFullUrl(info.social?.facebook || siteSocial.facebook) },
+    { icon: Twitter, label: 'Twitter / X', handle: '@wellnessfuel', color: 'hover:text-sky-500', href: toFullUrl(info.social?.twitter || siteSocial.twitter) },
+    { icon: Youtube, label: 'YouTube', handle: 'Wellness Fuel', color: 'hover:text-red-500', href: toFullUrl(info.social?.youtube || siteSocial.youtube) },
+  ].filter((s) => s.href);
 
   return (
     <div className="animate-fade-in">
@@ -245,21 +254,23 @@ const ContactPage = () => {
               )}
 
               {/* Social */}
-              <div className="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-950/30 dark:to-blue-950/30 rounded-2xl p-6 border border-primary-100 dark:border-primary-900/50">
-                <h3 className="font-bold text-gray-900 dark:text-white mb-4">Follow Us</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {socialLinks.map(({ icon: Icon, label, handle, color, href }) => (
-                    <a key={label} href={href} target="_blank" rel="noreferrer"
-                      className={`flex items-center gap-2.5 p-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all duration-200 group ${color}`}>
-                      <Icon size={16} className="text-gray-400 group-hover:text-current transition-colors flex-shrink-0" />
-                      <div>
-                        <p className="text-xs font-bold text-gray-800 dark:text-white">{label}</p>
-                        <p className="text-[10px] text-gray-400">{handle}</p>
-                      </div>
-                    </a>
-                  ))}
+              {(socialLinks.length > 0) && (
+                <div className="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-950/30 dark:to-blue-950/30 rounded-2xl p-6 border border-primary-100 dark:border-primary-900/50">
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-4">Follow Us</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {socialLinks.map(({ icon: Icon, label, handle, color, href }) => (
+                      <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                        className={`flex items-center gap-2.5 p-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all duration-200 group ${color}`}>
+                        <Icon size={16} className="text-gray-400 group-hover:text-current transition-colors flex-shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-gray-800 dark:text-white">{label}</p>
+                          <p className="text-[10px] text-gray-400">{handle}</p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
