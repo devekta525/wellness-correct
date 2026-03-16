@@ -12,7 +12,7 @@ const toFullUrl = (val) => {
 };
 
 const socialIcons = [
-  { key: 'facebook', Icon: Facebook },
+  { key: 'https://www.facebook.com/', Icon: Facebook },
   { key: 'twitter', Icon: Twitter },
   { key: 'instagram', Icon: Instagram },
   { key: 'linkedin', Icon: Linkedin },
@@ -45,13 +45,13 @@ const Footer = () => {
             </p>
             <div className="flex gap-3">
               {socialIcons.map(({ key, Icon }) => {
-                const url = toFullUrl(social[key]);
+                const url = key;
                 return url ? (
-                  <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-primary-600 flex items-center justify-center transition-colors" aria-label={key}>
+                  <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-primary-600 flex items-center justify-center transition-colors cursor-pointer" aria-label={key}>
                     <Icon size={14} />
                   </a>
                 ) : (
-                  <span key={key} className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center opacity-50 cursor-default" aria-hidden>
+                  <span key={key} href={url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center opacity-50 cursor-default" aria-hidden>
                     <Icon size={14} />
                   </span>
                 );
@@ -133,7 +133,11 @@ const Footer = () => {
           <p className="text-sm text-gray-500 text-center md:text-left">© {new Date().getFullYear()} Wellness_fuel. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 payment-icons">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-5 sm:h-6 w-auto max-h-6 object-contain opacity-60" />
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-5 sm:h-6 w-auto min-h-[20px] max-h-6 object-contain opacity-60" />
+            <img 
+  src="https://cdn-icons-png.flaticon.com/512/196/196578.png" 
+  alt="Visa" 
+  className="h-5 sm:h-6 w-auto min-h-[20px] max-h-6 object-contain opacity-80 filter invert"
+/>
             <span className="text-xs text-gray-600 bg-gray-800 px-2 py-1 rounded">UPI</span>
             <span className="text-xs text-gray-600 bg-gray-800 px-2 py-1 rounded">COD</span>
           </div>

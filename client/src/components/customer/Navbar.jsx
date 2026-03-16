@@ -490,10 +490,10 @@ const Navbar = () => {
         )}
 
         {/* ── Mobile menu (user-friendly, clear dark mode) ────────────── */}
-        <div className={`lg:hidden overflow-hidden transition-[max-height] duration-300 ease-out ${
+        <div className={`relative z-50 lg:hidden overflow-hidden transition-[max-height] duration-300 ease-out ${
           mobileMenuOpen ? 'max-h-[85vh]' : 'max-h-0'
         }`}>
-          <div className="bg-white dark:bg-gray-950 border-t-2 border-gray-200 dark:border-gray-800 shadow-xl animate-slide-up">
+          <div className="relative z-50 bg-white dark:bg-gray-950 border-t-2 border-gray-200 dark:border-gray-800 shadow-xl animate-slide-up">
             <div className="px-4 py-5 sm:py-6 space-y-4 max-h-[calc(85vh-4rem)] overflow-y-auto">
               {/* Nav links — comfortable tap targets */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
