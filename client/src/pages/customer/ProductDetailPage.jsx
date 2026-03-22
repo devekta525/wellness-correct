@@ -116,26 +116,18 @@ const ProductDetailPage = () => {
   }, [activeTab, product]);
 
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      toast.error('Please login to your account first');
-      return;
-    }
     dispatch(addToCart({ product, quantity }));
     toast.success('Added to cart');
   };
 
   const handleBuyNow = () => {
-    if (!isAuthenticated) {
-      toast.error('Please login to your account first');
-      return;
-    }
     dispatch(addToCart({ product, quantity }));
     window.location.href = '/checkout';
   };
 
   const handleWishlist = () => {
     if (!isAuthenticated) {
-      toast.error('Please login to your account first');
+      toast.error('Please login to add to wishlist');
       return;
     }
     dispatch(toggleWishlist(product._id));

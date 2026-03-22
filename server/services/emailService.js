@@ -4,10 +4,11 @@ let transporter = null;
 
 const getTransporter = () => {
   if (!transporter) {
+    const port = parseInt(process.env.EMAIL_PORT) || 587;
     transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT),
-      secure: false,
+      port,
+      secure: port === 465,
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     });
   }
@@ -82,4 +83,28 @@ const sendWelcome = async (user) => {
   });
 };
 
-module.exports = { sendEmail, sendOrderConfirmation, sendPasswordReset, sendWelcome };
+const sendOTP = async (email, otp) => {
+  await sendEmail({
+    to: email,
+    subject: `${otp} is your Wellness Fuel verification code`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="text-align: center; padding: 30px 0;">
+          <h2 style="color: #0f766e; margin-bottom: 8px;">Wellness Fuel</h2>
+          <p style="color: #6b7280; font-size: 14px;">Email Verification</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 30px; border-radius: 12px; text-align: center;">
+          <p style="color: #374151; font-size: 16px; margin-bottom: 20px;">Your one-time verification code is:</p>
+          <div style="background: #ffffff; border: 2px dashed #0f766e; border-radius: 12px; padding: 20px; margin: 0 auto; max-width: 200px;">
+            <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #0f766e;">${otp}</span>
+          </div>
+          <p style="color: #9ca3af; font-size: 13px; margin-top: 20px;">This code expires in <strong>5 minutes</strong>.</p>
+          <p style="color: #9ca3af; font-size: 13px;">Do not share this code with anyone.</p>
+        </div>
+        <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 20px;">If you didn't request this, please ignore this email.</p>
+      </div>
+    `,
+  });
+};
+
+module.exports = { sendEmail, sendOrderConfirmation, sendPasswordReset, sendWelcome, sendOTP };

@@ -7,15 +7,29 @@ module.exports = {
   description: 'Accept UPI, Cards, Wallets, Net Banking via Razorpay',
   logo: 'https://razorpay.com/favicon.ico',
   fields: [
-    { key: 'key_id', label: 'Key ID', type: 'text', placeholder: 'rzp_test_xxxxxxxxxxxx', required: true },
+    { key: 'key_id', label: 'Key ID', type: 'text', placeholder: 'rzp_live_xxxxxxxxxxxx', required: true },
     { key: 'key_secret', label: 'Key Secret', type: 'password', placeholder: 'Your Razorpay secret key', required: true },
+    { key: 'webhook_secret', label: 'Webhook Secret', type: 'password', placeholder: 'Your Razorpay webhook secret', required: false },
   ],
 
+  /**
+   * Merge env-var defaults into config so live keys work even before admin panel setup.
+   */
+  resolveConfig(config = {}) {
+    return {
+      key_id: config.key_id || process.env.RAZORPAY_KEY_ID,
+      key_secret: config.key_secret || process.env.RAZORPAY_KEY_SECRET,
+      webhook_secret: config.webhook_secret || process.env.RAZORPAY_WEBHOOK_SECRET,
+    };
+  },
+
   getPublicConfig(config) {
-    return { key_id: config.key_id };
+    const resolved = this.resolveConfig(config);
+    return { key_id: resolved.key_id };
   },
 
   async createOrder({ amount, orderId, currency = 'INR', config }) {
+    config = this.resolveConfig(config);
     if (!config.key_id || !config.key_secret) throw new Error('Razorpay keys not configured');
     const auth = Buffer.from(`${config.key_id}:${config.key_secret}`).toString('base64');
     const { data } = await httpRequest({
@@ -40,6 +54,7 @@ module.exports = {
   },
 
   verifyPayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature }, config) {
+    config = this.resolveConfig(config);
     if (!config.key_secret) throw new Error('Razorpay secret not configured');
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expected = crypto.createHmac('sha256', config.key_secret).update(body).digest('hex');
@@ -48,6 +63,7 @@ module.exports = {
   },
 
   async testConnection(config) {
+    config = this.resolveConfig(config);
     if (!config.key_id || !config.key_secret) throw new Error('Keys not configured');
     const auth = Buffer.from(`${config.key_id}:${config.key_secret}`).toString('base64');
     await httpRequest({

@@ -41,6 +41,8 @@ API.interceptors.response.use(
 
 // Auth
 export const authAPI = {
+  sendOtp: (email) => API.post('/auth/send-otp', { email }),
+  verifyOtp: (data) => API.post('/auth/verify-otp', data),
   register: (data) => API.post('/auth/register', data),
   login: (data) => API.post('/auth/login', data),
   adminLogin: (data) => API.post('/auth/admin/login', data),

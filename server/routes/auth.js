@@ -6,8 +6,11 @@ const {
   register, login, adminLogin, logout, getMe,
   updateProfile, changePassword, forgotPassword,
   resetPassword, addAddress, toggleWishlist, deleteAccount,
+  sendOtp, verifyOtp,
 } = require('../controllers/authController');
 
+router.post('/send-otp', authLimiter, sendOtp);
+router.post('/verify-otp', authLimiter, verifyOtp);
 router.post('/register', authLimiter, register);
 router.post('/login', authLimiter, login);
 router.post('/admin/login', authLimiter, adminLogin);

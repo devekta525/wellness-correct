@@ -466,7 +466,7 @@ const Navbar = () => {
                   <Link to="/login" className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden sm:block">
                     {t('login')}
                   </Link>
-                  <Link to="/register" className="btn-primary text-sm py-2 px-4 rounded-xl hidden sm:inline-flex">
+                  <Link to="/login" className="btn-primary text-sm py-2 px-4 rounded-xl hidden sm:inline-flex">
                     {t('signUp')}
                   </Link>
                 </div>
@@ -522,7 +522,7 @@ const Navbar = () => {
               ) : (
                 <div className="flex gap-3 pb-4 border-b border-gray-100 dark:border-gray-800">
                   <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-3 min-h-[44px] flex items-center justify-center border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">{t('login')}</Link>
-                  <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-3 min-h-[44px] flex items-center justify-center btn-primary text-sm font-semibold rounded-xl">{t('signUp')}</Link>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-3 min-h-[44px] flex items-center justify-center btn-primary text-sm font-semibold rounded-xl">{t('signUp')}</Link>
                 </div>
               )}
 

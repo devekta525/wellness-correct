@@ -2,7 +2,13 @@ const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');
 const User = require('../models/User');
 const { sendTokenResponse } = require('../utils/generateToken');
-const { sendPasswordReset, sendWelcome } = require('../services/emailService');
+const { sendPasswordReset, sendWelcome, sendOTP } = require('../services/emailService');
+
+// ── In-memory OTP store: { email: { otp, expiresAt } } ──
+const otpStore = new Map();
+const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+
+const generateOTP = () => String(Math.floor(100000 + Math.random() * 900000)); // 6-digit
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -186,4 +192,77 @@ const deleteAccount = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Account deleted' });
 });
 
-module.exports = { register, login, adminLogin, logout, getMe, updateProfile, changePassword, forgotPassword, resetPassword, addAddress, toggleWishlist, deleteAccount };
+// @desc    Send OTP to email (login + auto-register)
+// @route   POST /api/auth/send-otp
+const sendOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) { res.status(400); throw new Error('Email is required'); }
+
+  const normalized = email.trim().toLowerCase();
+
+  // Rate limit: prevent spamming (1 OTP per 60s per email)
+  const existing = otpStore.get(normalized);
+  if (existing && existing.expiresAt - Date.now() > (OTP_EXPIRY_MS - 60000)) {
+    res.status(429);
+    throw new Error('OTP already sent. Please wait 60 seconds before requesting again.');
+  }
+
+  const otp = generateOTP();
+  otpStore.set(normalized, { otp, expiresAt: Date.now() + OTP_EXPIRY_MS });
+
+  // Clean up expired entries periodically
+  for (const [key, val] of otpStore) {
+    if (val.expiresAt < Date.now()) otpStore.delete(key);
+  }
+
+  await sendOTP(normalized, otp);
+  console.log(`OTP sent to ${normalized}`);
+
+  res.json({ success: true, message: 'OTP sent to your email' });
+});
+
+// @desc    Verify OTP and login (auto-create user if new)
+// @route   POST /api/auth/verify-otp
+const verifyOtp = asyncHandler(async (req, res) => {
+  const { email, otp, name } = req.body;
+  if (!email || !otp) { res.status(400); throw new Error('Email and OTP are required'); }
+
+  const normalized = email.trim().toLowerCase();
+  const stored = otpStore.get(normalized);
+
+  if (!stored) { res.status(400); throw new Error('No OTP found. Please request a new one.'); }
+  if (stored.expiresAt < Date.now()) {
+    otpStore.delete(normalized);
+    res.status(400);
+    throw new Error('OTP has expired. Please request a new one.');
+  }
+  if (stored.otp !== otp.trim()) { res.status(400); throw new Error('Invalid OTP. Please try again.'); }
+
+  // OTP verified — clear it
+  otpStore.delete(normalized);
+
+  // Find or create user
+  let user = await User.findOne({ email: normalized });
+  if (!user) {
+    // Auto-register with a random password (user won't need it — OTP only)
+    const randomPass = crypto.randomBytes(20).toString('hex');
+    user = await User.create({
+      name: name || normalized.split('@')[0],
+      email: normalized,
+      password: randomPass,
+      role: 'customer',
+      isEmailVerified: true,
+    });
+    await sendWelcome(user).catch(() => {});
+  }
+
+  if (!user.isActive) { res.status(401); throw new Error('Account is deactivated. Contact support.'); }
+
+  user.lastLogin = new Date();
+  user.isEmailVerified = true;
+  await user.save({ validateBeforeSave: false });
+
+  sendTokenResponse(user, 200, res);
+});
+
+module.exports = { register, login, adminLogin, logout, getMe, updateProfile, changePassword, forgotPassword, resetPassword, addAddress, toggleWishlist, deleteAccount, sendOtp, verifyOtp };

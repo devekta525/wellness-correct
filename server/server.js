@@ -64,7 +64,7 @@ app.use(compression());
 
 // CORS
 app.use(cors({
-  origin: [process.env.CLIENT_URL || 'http://localhost:3000', 'http://localhost:3001'],
+  origin: [process.env.CLIENT_URL || 'http://localhost:3000', 'http://localhost:3001', 'https://wellnessfuel.in', 'https://www.wellnessfuel.in'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-session-id'],
@@ -72,6 +72,8 @@ app.use(cors({
 
 // Body parsing — Razorpay webhook needs raw body for signature verification (must be before json)
 app.use('/api/payments/razorpay/webhook', express.raw({ type: 'application/json' }), require('./controllers/paymentController').razorpayWebhook);
+// Also mount at /api/razorpay/webhook (the URL configured on Razorpay dashboard)
+app.use('/api/razorpay/webhook', express.raw({ type: 'application/json' }), require('./controllers/paymentController').razorpayWebhook);
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));

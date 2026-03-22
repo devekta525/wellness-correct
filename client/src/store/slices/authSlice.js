@@ -2,6 +2,21 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 
+export const sendOtp = createAsyncThunk('auth/sendOtp', async (email, { rejectWithValue }) => {
+  try {
+    const res = await authAPI.sendOtp(email);
+    return res.data;
+  } catch (err) { return rejectWithValue(err.message); }
+});
+
+export const verifyOtp = createAsyncThunk('auth/verifyOtp', async (data, { rejectWithValue }) => {
+  try {
+    const res = await authAPI.verifyOtp(data);
+    localStorage.setItem('Wellness_fuel_token', res.data.token);
+    return res.data;
+  } catch (err) { return rejectWithValue(err.message); }
+});
+
 export const login = createAsyncThunk('auth/login', async (data, { rejectWithValue }) => {
   try {
     const res = await authAPI.login(data);
@@ -83,6 +98,23 @@ const authSlice = createSlice({
     };
 
     builder
+      .addCase(sendOtp.pending, handlePending)
+      .addCase(sendOtp.fulfilled, (state) => {
+        state.loading = false;
+        toast.success('OTP sent to your email!');
+      })
+      .addCase(sendOtp.rejected, handleRejected)
+
+      .addCase(verifyOtp.pending, handlePending)
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+        toast.success(`Welcome, ${action.payload.user.name}!`);
+      })
+      .addCase(verifyOtp.rejected, handleRejected)
+
       .addCase(login.pending, handlePending)
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;

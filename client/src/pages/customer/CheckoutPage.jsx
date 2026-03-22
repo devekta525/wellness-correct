@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { CreditCard, Wallet, Banknote, Package, MapPin, ChevronRight, Lock, Loader2, Tag, Trash2 } from 'lucide-react';
+import { useRef } from 'react';
+import { CreditCard, Wallet, Banknote, Package, MapPin, ChevronRight, Lock, Loader2, Tag, Trash2, Mail, X, ArrowRight } from 'lucide-react';
 import { orderAPI, paymentAPI, couponAPI } from '../../services/api';
 import { clearCart, selectCartItems, selectCartTotal, applyCoupon, removeCoupon } from '../../store/slices/cartSlice';
+import { sendOtp, verifyOtp } from '../../store/slices/authSlice';
 import { useSite } from '../../context/SiteContext';
 import Loader from '../../components/common/Loader';
 import toast from 'react-hot-toast';
@@ -35,7 +37,7 @@ const loadRazorpayScript = () =>
 const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useSelector(state => state.auth);
+  const { user, isAuthenticated } = useSelector(state => state.auth);
   const items = useSelector(selectCartItems);
   const subtotal = useSelector(selectCartTotal);
   const { coupon, discount, referralCode } = useSelector(state => state.cart);
@@ -57,6 +59,15 @@ const CheckoutPage = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [addressErrors, setAddressErrors] = useState({});
 
+  // OTP login modal state
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [otpStep, setOtpStep] = useState('email'); // 'email' | 'otp'
+  const [authEmail, setAuthEmail] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const otpRefs = useRef([]);
+
   const threshold = settings.freeShippingThreshold ?? 999;
   const shippingCost = settings.standardShippingCost ?? 49;
   const taxRate = (settings.taxRate ?? 18) / 100;
@@ -75,6 +86,13 @@ const CheckoutPage = () => {
       .catch(() => { })
       .finally(() => setLoadingGateways(false));
   }, []);
+
+  // OTP resend timer countdown
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const t = setTimeout(() => setResendTimer(r => r - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendTimer]);
 
   if (items.length === 0) {
     navigate('/cart');
@@ -156,6 +174,24 @@ const CheckoutPage = () => {
     // #endregion agent log
 
     return Object.keys(errors).length === 0;
+  };
+
+  // ── OTP modal verify handler ────────────────────────────────────────────────
+  const handleModalVerify = async (otpString) => {
+    const code = otpString || otp.join('');
+    if (code.length !== 6) return;
+    setAuthSubmitting(true);
+    try {
+      await dispatch(verifyOtp({ email: authEmail.trim(), otp: code })).unwrap();
+      setShowAuthModal(false);
+      setOtpStep('email');
+      setOtp(['', '', '', '', '', '']);
+      setStep(2); // Go to payment
+    } catch {
+      // Error handled by authSlice toast
+    } finally {
+      setAuthSubmitting(false);
+    }
   };
 
   // ── Place order + handle gateway flows ──────────────────────────────────────
@@ -381,7 +417,12 @@ const CheckoutPage = () => {
 
               <button
                 onClick={() => {
-                  if (validateAddress()) setStep(2);
+                  if (!validateAddress()) return;
+                  if (!isAuthenticated) {
+                    setShowAuthModal(true);
+                    return;
+                  }
+                  setStep(2);
                 }}
                 className="btn-primary mt-6 flex items-center gap-2"
               >
@@ -512,6 +553,84 @@ const CheckoutPage = () => {
           {referralCode && <p className="text-xs text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 rounded-lg p-2">Referral: {referralCode}</p>}
         </div>
       </div>
+
+      {/* ── OTP Login Modal ──────────────────────────────────────────── */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setShowAuthModal(false); setOtpStep('email'); setOtp(['','','','','','']); }} />
+          <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 animate-fade-in">
+            <button onClick={() => { setShowAuthModal(false); setOtpStep('email'); setOtp(['','','','','','']); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <X size={20} />
+            </button>
+
+            <h2 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
+              <Mail size={20} className="text-primary-600 dark:text-primary-400" />
+              {otpStep === 'email' ? 'Login to Continue' : 'Enter OTP'}
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+              {otpStep === 'email'
+                ? 'We\'ll send a verification code to your email.'
+                : <>Code sent to <strong className="text-gray-700 dark:text-gray-300">{authEmail}</strong></>}
+            </p>
+
+            {otpStep === 'email' ? (
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                if (!authEmail.trim()) return;
+                setAuthSubmitting(true);
+                try {
+                  await dispatch(sendOtp(authEmail.trim())).unwrap();
+                  setOtpStep('otp');
+                  setResendTimer(60);
+                  setTimeout(() => otpRefs.current[0]?.focus(), 100);
+                } catch {} finally { setAuthSubmitting(false); }
+              }} className="space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 block">Email Address</label>
+                  <div className="relative">
+                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="email" value={authEmail} onChange={e => setAuthEmail(e.target.value)}
+                      className="input py-2.5 pl-10 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 placeholder:text-gray-400 w-full"
+                      placeholder="you@example.com" required autoFocus />
+                  </div>
+                </div>
+                <button type="submit" disabled={authSubmitting} className="btn-primary w-full flex items-center justify-center gap-2 py-3">
+                  {authSubmitting ? <><Loader2 size={16} className="animate-spin" /> Sending...</> : <>Send OTP <ArrowRight size={16} /></>}
+                </button>
+              </form>
+            ) : (
+              <div className="space-y-5">
+                <div className="flex justify-center gap-2.5" onPaste={(e) => {
+                  e.preventDefault();
+                  const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                  if (!pasted) return;
+                  const newOtp = [...otp]; pasted.split('').forEach((d, i) => { newOtp[i] = d; }); setOtp(newOtp);
+                  if (pasted.length === 6) { handleModalVerify(pasted); } else { otpRefs.current[pasted.length]?.focus(); }
+                }}>
+                  {otp.map((digit, i) => (
+                    <input key={i} ref={el => otpRefs.current[i] = el} type="text" inputMode="numeric" maxLength={1} value={digit}
+                      onChange={e => { if (!/^\d*$/.test(e.target.value)) return; const n=[...otp]; n[i]=e.target.value.slice(-1); setOtp(n); if(e.target.value && i<5) otpRefs.current[i+1]?.focus(); if(e.target.value && i===5 && n.every(d=>d)) handleModalVerify(n.join('')); }}
+                      onKeyDown={e => { if(e.key==='Backspace' && !otp[i] && i>0) otpRefs.current[i-1]?.focus(); }}
+                      className="w-11 h-13 text-center text-lg font-bold rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-800 outline-none transition-all" />
+                  ))}
+                </div>
+                <button onClick={() => handleModalVerify()} disabled={authSubmitting || otp.join('').length !== 6}
+                  className="btn-primary w-full flex items-center justify-center gap-2 py-3">
+                  {authSubmitting ? <><Loader2 size={16} className="animate-spin" /> Verifying...</> : 'Verify & Continue'}
+                </button>
+                <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                  {resendTimer > 0
+                    ? <>Resend in {resendTimer}s</>
+                    : <button onClick={async () => { setOtp(['','','','','','']); setAuthSubmitting(true); try { await dispatch(sendOtp(authEmail.trim())).unwrap(); setResendTimer(60); } catch {} finally { setAuthSubmitting(false); } }} className="text-primary-600 font-semibold">Resend OTP</button>}
+                </p>
+                <button onClick={() => { setOtpStep('email'); setOtp(['','','','','','']); }} className="w-full text-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                  Change email
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install react-quill --legacy-peer-deps)"
+      "Bash(npm install react-quill --legacy-peer-deps)",
+      "Bash(npm install:*)"
     ]
   }
 }

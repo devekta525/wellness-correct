@@ -39,6 +39,11 @@ const getActiveProvider = async () => {
     const stored = await loadProviderConfig(id);
     if (stored.enabled) return { id, provider: p, config: { ...stored.config, mode: stored.mode } };
   }
+  // Fallback: auto-enable shiprocket if env vars are configured
+  if (process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASSWORD) {
+    const p = PROVIDERS.shiprocket;
+    return { id: 'shiprocket', provider: p, config: {} }; // resolveConfig will use env vars
+  }
   return null;
 };
 

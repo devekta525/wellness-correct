@@ -2,6 +2,35 @@ const asyncHandler = require('express-async-handler');
 const Order = require('../models/Order');
 const Consultation = require('../models/Consultation');
 const paymentManager = require('../services/payment/paymentManager');
+const shippingManager = require('../services/shipping/shippingManager');
+
+/** Auto-create shipment after payment is verified */
+const autoCreateShipment = async (orderId) => {
+  try {
+    const active = await shippingManager.getActiveProvider();
+    if (!active) return;
+    const order = await Order.findById(orderId).populate('items.product', 'title sku weight');
+    if (!order || order.trackingNumber) return;
+    const result = await shippingManager.createShipment({
+      orderId: order.orderNumber || order._id.toString(),
+      customerName: order.shippingAddress.fullName,
+      customerEmail: order.guestEmail || '',
+      address: order.shippingAddress,
+      items: order.items.map(i => ({ title: i.title, sku: i.sku || i.title.slice(0, 20), quantity: i.quantity, price: i.price })),
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+      weight: 0.5, length: 10, breadth: 10, height: 10,
+    });
+    const trackingId = result.awbCode || result.waybill || result.awbNumber;
+    await Order.findByIdAndUpdate(orderId, {
+      trackingNumber: trackingId || '',
+      $push: { statusHistory: { status: 'confirmed', note: `Shiprocket shipment created${trackingId ? ` — AWB: ${trackingId}` : ''}` } },
+    });
+    console.log(`Shiprocket shipment created for order ${orderId}${trackingId ? ` — AWB: ${trackingId}` : ''}`);
+  } catch (err) {
+    console.error(`Shiprocket auto-shipment failed for order ${orderId}:`, err.message);
+  }
+};
 
 // @desc    Get all active payment gateways (public config only)
 // @route   GET /api/payments/gateways
@@ -63,6 +92,9 @@ const verifyPayment = asyncHandler(async (req, res) => {
   if (order?.orderStatus === 'pending') update.orderStatus = 'confirmed';
   await Order.findByIdAndUpdate(orderId, update);
 
+  // Auto-create Shiprocket shipment after successful payment
+  autoCreateShipment(orderId).catch(() => {});
+
   res.json({ success: true, verified: true, paymentId: result.paymentId });
 });
 
@@ -119,9 +151,11 @@ const razorpayWebhook = asyncHandler(async (req, res) => {
   }
   const paymentManager = require('../services/payment/paymentManager');
   const crypto = require('crypto');
-  const { loadGatewayConfig } = paymentManager;
+  const { loadGatewayConfig, GATEWAYS } = paymentManager;
   const stored = await loadGatewayConfig('razorpay');
-  const webhookSecret = stored?.config?.webhook_secret || stored?.config?.key_secret;
+  const razorpayGw = GATEWAYS.razorpay;
+  const resolved = razorpayGw.resolveConfig(stored?.config);
+  const webhookSecret = resolved.webhook_secret || resolved.key_secret;
   if (!webhookSecret) {
     res.status(500).json({ error: 'Webhook secret not configured' });
     return;
@@ -153,6 +187,8 @@ const razorpayWebhook = asyncHandler(async (req, res) => {
     if (order.orderStatus === 'pending') {
       await Order.findByIdAndUpdate(orderId, { orderStatus: 'confirmed' });
     }
+    // Auto-create Shiprocket shipment after webhook payment
+    autoCreateShipment(orderId).catch(() => {});
   }
   res.json({ received: true });
 });

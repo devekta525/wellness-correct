@@ -5,6 +5,53 @@ const Coupon = require('../models/Coupon');
 const Settings = require('../models/Settings');
 const { trackConversion } = require('../services/referralService');
 const { sendOrderConfirmation } = require('../services/emailService');
+const shippingManager = require('../services/shipping/shippingManager');
+
+/**
+ * Auto-create Shiprocket shipment for a confirmed/paid order.
+ * Runs in background — does not block the order response.
+ */
+const autoCreateShipment = async (orderId) => {
+  try {
+    const active = await shippingManager.getActiveProvider();
+    if (!active) return; // No shipping provider configured
+
+    const order = await Order.findById(orderId).populate('items.product', 'title sku weight');
+    if (!order || order.trackingNumber) return; // Already shipped
+
+    const shipmentData = {
+      orderId: order.orderNumber || order._id.toString(),
+      customerName: order.shippingAddress.fullName,
+      customerEmail: order.guestEmail || '',
+      address: order.shippingAddress,
+      items: order.items.map(i => ({
+        title: i.title,
+        sku: i.sku || i.title.slice(0, 20),
+        quantity: i.quantity,
+        price: i.price,
+      })),
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+      weight: 0.5,
+      length: 10,
+      breadth: 10,
+      height: 10,
+    };
+
+    const result = await shippingManager.createShipment(shipmentData);
+    const trackingId = result.awbCode || result.waybill || result.awbNumber;
+
+    await Order.findByIdAndUpdate(orderId, {
+      trackingNumber: trackingId || '',
+      orderStatus: 'confirmed',
+      $push: { statusHistory: { status: 'confirmed', note: `Shiprocket order created${trackingId ? ` — AWB: ${trackingId}` : ''}` } },
+    });
+
+    console.log(`Shiprocket shipment created for order ${orderId}${trackingId ? ` — AWB: ${trackingId}` : ''}`);
+  } catch (err) {
+    console.error(`Shiprocket auto-shipment failed for order ${orderId}:`, err.message);
+  }
+};
 
 // Lazy Stripe – avoids crashing if key is missing/placeholder
 let _stripe = null;
@@ -138,6 +185,11 @@ const createOrder = asyncHandler(async (req, res) => {
   // Send confirmation email
   if (req.user) {
     await sendOrderConfirmation(order, req.user).catch(() => {});
+  }
+
+  // Auto-create Shiprocket shipment for COD orders (confirmed immediately)
+  if (isCod) {
+    autoCreateShipment(order._id).catch(() => {});
   }
 
   // Create Stripe payment intent if card/stripe payment

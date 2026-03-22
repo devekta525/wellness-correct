@@ -31,9 +31,19 @@ module.exports = {
   fields: [
     { key: 'email', label: 'Shiprocket Email', type: 'text', placeholder: 'your@email.com', required: true },
     { key: 'password', label: 'Shiprocket Password', type: 'password', placeholder: 'Your password', required: true },
+    { key: 'pickup_location', label: 'Pickup Location', type: 'text', placeholder: 'Primary', required: false },
   ],
 
+  resolveConfig(config = {}) {
+    return {
+      email: config.email || process.env.SHIPROCKET_EMAIL,
+      password: config.password || process.env.SHIPROCKET_PASSWORD,
+      pickup_location: config.pickup_location || process.env.SHIPROCKET_PICKUP_LOCATION || 'Primary',
+    };
+  },
+
   async checkServiceability({ pickupPincode, deliveryPincode, weight, cod = 0 }, config) {
+    config = this.resolveConfig(config);
     const headers = await authHeaders(config);
     const res = await httpRequest({
       url: `${BASE_URL}/courier/serviceability/?pickup_postcode=${pickupPincode}&delivery_postcode=${deliveryPincode}&weight=${weight}&cod=${cod}`,
@@ -43,6 +53,7 @@ module.exports = {
   },
 
   async getRates({ pickupPincode, deliveryPincode, weight, declaredValue, cod = 0 }, config) {
+    config = this.resolveConfig(config);
     const headers = await authHeaders(config);
     const res = await httpRequest({
       url: `${BASE_URL}/courier/serviceability/?pickup_postcode=${pickupPincode}&delivery_postcode=${deliveryPincode}&weight=${weight}&cod=${cod}&declared_value=${declaredValue}`,
@@ -60,6 +71,7 @@ module.exports = {
   },
 
   async createShipment(orderData, config) {
+    config = this.resolveConfig(config);
     const headers = await authHeaders(config);
     const res = await httpRequest({
       url: `${BASE_URL}/orders/create/adhoc`,
@@ -103,6 +115,7 @@ module.exports = {
   },
 
   async trackShipment(awbCode, config) {
+    config = this.resolveConfig(config);
     const headers = await authHeaders(config);
     const res = await httpRequest({
       url: `${BASE_URL}/courier/track/awb/${awbCode}`,
@@ -118,6 +131,7 @@ module.exports = {
   },
 
   async cancelShipment(awbCodes, config) {
+    config = this.resolveConfig(config);
     const headers = await authHeaders(config);
     const res = await httpRequest({
       url: `${BASE_URL}/orders/cancel/shipment/awbs`,
@@ -129,6 +143,7 @@ module.exports = {
   },
 
   async testConnection(config) {
+    config = this.resolveConfig(config);
     if (!config.email || !config.password) throw new Error('Shiprocket email/password not configured');
     await getToken(config);
     delete _tokenCache[config.email]; // clear so next real call re-auths

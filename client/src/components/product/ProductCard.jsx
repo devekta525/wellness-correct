@@ -32,10 +32,6 @@ const ProductCard = ({ product, className = '' }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) {
-      toast.error('Please login to your account first');
-      return;
-    }
     if (product.stock === 0) return;
     dispatch(addToCart({ product, quantity: 1 }));
     toast.success('Added to cart');
@@ -45,7 +41,7 @@ const ProductCard = ({ product, className = '' }) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      toast.error('Please login to your account first');
+      toast.error('Please login to add to wishlist');
       return;
     }
     dispatch(toggleWishlist(product._id));
