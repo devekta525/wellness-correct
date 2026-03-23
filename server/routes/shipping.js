@@ -6,6 +6,12 @@ const { getActiveProvider, getRates, createShipment, trackShipment, shiprocketWe
 router.get('/provider', getActiveProvider);
 router.post('/rates', getRates);
 router.get('/track/:trackingId', trackShipment);
+router.get('/shiprocket/webhook', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Shiprocket webhook endpoint is live. Send a POST request with webhook payload data.',
+  });
+});
 
 // Admin only: create shipment for an order
 router.post('/create', protect, admin, createShipment);

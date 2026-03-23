@@ -19,6 +19,7 @@ const autoCreateShipment = async (orderId) => {
       customerEmail: order.guestEmail || '',
       address: order.shippingAddress,
       items: order.items.map(i => ({ title: i.title, sku: i.sku || i.title.slice(0, 20), quantity: i.quantity, price: i.price })),
+      subtotal: order.subtotal,
       total: order.total,
       paymentMethod: order.paymentMethod,
       weight: 0.5, length: 10, breadth: 10, height: 10,
@@ -26,6 +27,11 @@ const autoCreateShipment = async (orderId) => {
     const trackingId = result.awbCode || result.waybill || result.awbNumber;
     await Order.findByIdAndUpdate(orderId, {
       trackingNumber: trackingId || '',
+      shippingProvider: 'shiprocket',
+      shiprocketOrderId: result.orderId ? String(result.orderId) : '',
+      shiprocketShipmentId: result.shipmentId ? String(result.shipmentId) : '',
+      shiprocketCourierId: result.courierId ? String(result.courierId) : '',
+      shiprocketCourierName: result.courierName || '',
       $push: { statusHistory: { status: 'confirmed', note: `Shiprocket shipment created${trackingId ? ` — AWB: ${trackingId}` : ''}` } },
     });
     console.log(`Shiprocket shipment created for order ${orderId}${trackingId ? ` — AWB: ${trackingId}` : ''}`);
@@ -142,6 +148,8 @@ const payuResponse = asyncHandler(async (req, res) => {
           sendOrderConfirmation(updatedOrder, buyer).catch(() => {});
         }
       }
+
+      autoCreateShipment(orderId).catch(() => {});
     }
     res.redirect(`${req.protocol}://${req.get('host')}/order-confirmation/${orderId}?payment=success`);
   } catch (err) {

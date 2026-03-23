@@ -60,6 +60,11 @@ const orderSchema = new mongoose.Schema({
   // Shipping
   shippingMethod: { type: String, default: 'standard' },
   trackingNumber: String,
+  shippingProvider: String,
+  shiprocketOrderId: String,
+  shiprocketShipmentId: String,
+  shiprocketCourierId: String,
+  shiprocketCourierName: String,
   estimatedDelivery: Date,
   deliveredAt: Date,
   cancelledAt: Date,

@@ -30,6 +30,7 @@ const autoCreateShipment = async (orderId) => {
         quantity: i.quantity,
         price: i.price,
       })),
+      subtotal: order.subtotal,
       total: order.total,
       paymentMethod: order.paymentMethod,
       weight: 0.5,
@@ -43,6 +44,11 @@ const autoCreateShipment = async (orderId) => {
 
     await Order.findByIdAndUpdate(orderId, {
       trackingNumber: trackingId || '',
+      shippingProvider: 'shiprocket',
+      shiprocketOrderId: result.orderId ? String(result.orderId) : '',
+      shiprocketShipmentId: result.shipmentId ? String(result.shipmentId) : '',
+      shiprocketCourierId: result.courierId ? String(result.courierId) : '',
+      shiprocketCourierName: result.courierName || '',
       orderStatus: 'confirmed',
       $push: { statusHistory: { status: 'confirmed', note: `Shiprocket order created${trackingId ? ` — AWB: ${trackingId}` : ''}` } },
     });

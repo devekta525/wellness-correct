@@ -47,6 +47,7 @@ const createShipment = asyncHandler(async (req, res) => {
       quantity: i.quantity,
       price: i.price,
     })),
+    subtotal: order.subtotal,
     total: order.total,
     paymentMethod: order.paymentMethod,
     weight: req.body.weight || 0.5,
@@ -61,7 +62,12 @@ const createShipment = asyncHandler(async (req, res) => {
   const trackingId = result.awbCode || result.waybill || result.awbNumber;
   await Order.findByIdAndUpdate(orderId, {
     trackingNumber: trackingId,
-    orderStatus: 'processing',
+    shippingProvider: 'shiprocket',
+    shiprocketOrderId: result.orderId ? String(result.orderId) : '',
+    shiprocketShipmentId: result.shipmentId ? String(result.shipmentId) : '',
+    shiprocketCourierId: result.courierId ? String(result.courierId) : '',
+    shiprocketCourierName: result.courierName || '',
+    orderStatus: 'confirmed',
   });
 
   res.json({ success: true, shipment: result, trackingId });
@@ -107,13 +113,14 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
   console.log('Shiprocket webhook received:', JSON.stringify(data, null, 2));
 
   // Shiprocket sends: awb, current_status, current_status_id, order_id, etd, etc.
-  const srOrderId = data.order_id;
-  const awb = data.awb;
+  const srOrderId = data.order_id ? String(data.order_id) : '';
+  const shipmentId = data.shipment_id ? String(data.shipment_id) : '';
+  const awb = data.awb ? String(data.awb) : '';
   const currentStatus = data.current_status;
   const currentStatusId = Number(data.current_status_id);
   const etd = data.etd; // estimated delivery date
 
-  if (!srOrderId && !awb) {
+  if (!srOrderId && !shipmentId && !awb) {
     return res.status(200).send('OK — no order_id or awb');
   }
 
@@ -121,6 +128,12 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
   let order;
   if (awb) {
     order = await Order.findOne({ trackingNumber: awb });
+  }
+  if (!order && shipmentId) {
+    order = await Order.findOne({ shiprocketShipmentId: shipmentId });
+  }
+  if (!order && srOrderId) {
+    order = await Order.findOne({ shiprocketOrderId: srOrderId });
   }
   if (!order && srOrderId) {
     // Shiprocket order_id could be our MongoDB _id or orderNumber
@@ -143,6 +156,15 @@ const shiprocketWebhook = asyncHandler(async (req, res) => {
   // Update AWB/tracking if we didn't have it
   if (awb && !order.trackingNumber) {
     updateFields.trackingNumber = awb;
+  }
+  if (srOrderId && !order.shiprocketOrderId) {
+    updateFields.shiprocketOrderId = srOrderId;
+  }
+  if (shipmentId && !order.shiprocketShipmentId) {
+    updateFields.shiprocketShipmentId = shipmentId;
+  }
+  if (!order.shippingProvider) {
+    updateFields.shippingProvider = 'shiprocket';
   }
 
   // Update estimated delivery if provided
