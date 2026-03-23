@@ -182,8 +182,9 @@ const createOrder = asyncHandler(async (req, res) => {
     }).catch(e => console.log('Referral tracking error:', e.message));
   }
 
-  // Send confirmation email
-  if (req.user) {
+  // Send confirmation email only for COD (already confirmed).
+  // For online payments, email is sent after payment verification in paymentController.
+  if (isCod && req.user) {
     await sendOrderConfirmation(order, req.user).catch(() => {});
   }
 

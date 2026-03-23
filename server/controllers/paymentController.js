@@ -1,8 +1,10 @@
 const asyncHandler = require('express-async-handler');
 const Order = require('../models/Order');
+const User = require('../models/User');
 const Consultation = require('../models/Consultation');
 const paymentManager = require('../services/payment/paymentManager');
 const shippingManager = require('../services/shipping/shippingManager');
+const { sendOrderConfirmation } = require('../services/emailService');
 
 /** Auto-create shipment after payment is verified */
 const autoCreateShipment = async (orderId) => {
@@ -87,10 +89,18 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
   const result = await paymentManager.verifyPayment(gatewayId, payload);
 
-  const order = await Order.findById(orderId).select('orderStatus');
+  const order = await Order.findById(orderId).select('orderStatus user');
   const update = { paymentStatus: 'paid', paymentId: result.paymentId };
   if (order?.orderStatus === 'pending') update.orderStatus = 'confirmed';
-  await Order.findByIdAndUpdate(orderId, update);
+  const updatedOrder = await Order.findByIdAndUpdate(orderId, update, { new: true });
+
+  // Send confirmation email now that payment is verified
+  if (order?.user) {
+    const buyer = await User.findById(order.user);
+    if (buyer && updatedOrder) {
+      sendOrderConfirmation(updatedOrder, buyer).catch(() => {});
+    }
+  }
 
   // Auto-create Shiprocket shipment after successful payment
   autoCreateShipment(orderId).catch(() => {});
@@ -120,10 +130,18 @@ const payuResponse = asyncHandler(async (req, res) => {
       return;
     }
     if (orderId) {
-      const order = await Order.findById(orderId).select('orderStatus');
+      const order = await Order.findById(orderId).select('orderStatus user');
       const update = { paymentStatus: 'paid', paymentId: mihpayid };
       if (order?.orderStatus === 'pending') update.orderStatus = 'confirmed';
-      await Order.findByIdAndUpdate(orderId, update);
+      const updatedOrder = await Order.findByIdAndUpdate(orderId, update, { new: true });
+
+      // Send confirmation email now that PayU payment succeeded
+      if (order?.user) {
+        const buyer = await User.findById(order.user);
+        if (buyer && updatedOrder) {
+          sendOrderConfirmation(updatedOrder, buyer).catch(() => {});
+        }
+      }
     }
     res.redirect(`${req.protocol}://${req.get('host')}/order-confirmation/${orderId}?payment=success`);
   } catch (err) {
@@ -181,12 +199,20 @@ const razorpayWebhook = asyncHandler(async (req, res) => {
     res.json({ received: true });
     return;
   }
-  const order = await Order.findById(orderId).select('orderStatus paymentStatus');
+  const order = await Order.findById(orderId).select('orderStatus paymentStatus user');
   if (order && order.paymentStatus !== 'paid') {
-    await Order.findByIdAndUpdate(orderId, { paymentStatus: 'paid', paymentId: payment.id });
-    if (order.orderStatus === 'pending') {
-      await Order.findByIdAndUpdate(orderId, { orderStatus: 'confirmed' });
+    const update = { paymentStatus: 'paid', paymentId: payment.id };
+    if (order.orderStatus === 'pending') update.orderStatus = 'confirmed';
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, update, { new: true });
+
+    // Send confirmation email now that Razorpay payment is captured
+    if (order.user) {
+      const buyer = await User.findById(order.user);
+      if (buyer && updatedOrder) {
+        sendOrderConfirmation(updatedOrder, buyer).catch(() => {});
+      }
     }
+
     // Auto-create Shiprocket shipment after webhook payment
     autoCreateShipment(orderId).catch(() => {});
   }
